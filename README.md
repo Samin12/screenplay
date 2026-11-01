@@ -48,16 +48,7 @@ For anything you claim out loud, the rule flips: show the real page, with the re
 
 ## How it works
 
-```mermaid
-flowchart LR
-    A["Camera + mic"] --> B["Transcribe and cut<br>retakes, fillers,<br>false starts"]
-    B --> C["Clean talking head<br>+ word timings"]
-    C --> D["Agent writes<br>edit.yaml"]
-    D --> E["Compile + check"]
-    E --> F["Render with<br>Remotion"]
-    F --> G["Video, chapters,<br>captions"]
-    E -. "contact sheets<br>and stills to review" .-> D
-```
+<img src="docs/images/pipeline.jpg" alt="The pipeline: camera and mic go through cut, direct, check and render to become a video with chapters and captions. Check loops back to direct.">
 
 1. **Cut.** Whisper gets a timing for every word. The engine finds retakes, fillers and false starts, removes them, trims the gaps and levels the audio to −16 LUFS. On a Mac it also follows your face so the tile stays on your head.
 2. **Direct.** An agent reads the transcript and writes `edit.yaml`: what the viewer sees, and on which word. It makes editorial choices only and never writes animation code or frame numbers.
