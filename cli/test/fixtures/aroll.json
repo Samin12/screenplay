@@ -1,0 +1,20 @@
+{
+ "duration": 78.92,
+ "fps": 30,
+ "segments": [
+  {
+   "srcStart": 0.4,
+   "srcEnd": 20.4,
+   "outStart": 0
+  },
+  {
+   "srcStart": 24.1,
+   "srcEnd": 83.02000000000001,
+   "outStart": 20
+  }
+ ],
+ "cuts": [
+  20,
+  41.3
+ ]
+}

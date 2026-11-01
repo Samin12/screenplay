@@ -1,0 +1,104 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Launch kit",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "stat",
+      "frame": 5,
+      "end": 150,
+      "items": [
+       {
+        "text": "$0.31",
+        "sub": "cost",
+        "frame": 10
+       },
+       {
+        "text": "213k",
+        "sub": "tokens",
+        "frame": 25
+       },
+       {
+        "text": "1:14",
+        "sub": "minutes",
+        "frame": 40,
+        "tone": "good"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": {
+     "text": "This week",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "stat",
+      "frame": 5,
+      "end": 150,
+      "items": [
+       {
+        "text": "$48,600",
+        "sub": "revenue",
+        "frame": 10
+       },
+       {
+        "text": "342",
+        "sub": "new members",
+        "frame": 25
+       },
+       {
+        "text": "1M",
+        "sub": "context tokens",
+        "frame": 40
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

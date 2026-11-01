@@ -1,0 +1,117 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 1100,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": { "focus": [0.5, 0.4], "zoom": 1, "mirror": false },
+    "webcam": [],
+    "chapterGrid": { "heading": "Features", "logo": true },
+    "chapters": [],
+    "scenes": [
+      {
+        "id": "rail",
+        "kind": "app",
+        "from": 0,
+        "duration": 300,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": { "type": "replica", "app": "claude-desktop", "data": {} },
+        "state": { "rail": false },
+        "camera": { "scale": 1 },
+        "actions": [
+          { "do": "click", "frame": 30, "target": "rail-toggle", "tooltip": "Show session rail", "set": { "rail": true } },
+          { "do": "callout", "frame": 50, "end": 110, "target": "rail", "text": "Session rail", "side": "left", "dim": true },
+          { "do": "explode", "frame": 120, "end": 190, "targets": ["env-card", "context-card", "connectors-card", "outputs-card"], "labels": ["Environment", "Context", "Connectors", "Outputs"] },
+          { "do": "click", "frame": 205, "target": "remote-toggle", "set": { "remote": true }, "ring": true },
+          { "do": "lift", "frame": 210, "end": 245, "target": "env-card" },
+          { "do": "type", "frame": 255, "end": 290, "key": "prompt", "text": "Audit my memory files and trim anything unused", "target": "composer", "lift": true }
+        ]
+      },
+      {
+        "id": "sections",
+        "kind": "app",
+        "from": 300,
+        "duration": 260,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": { "type": "replica", "app": "claude-desktop", "data": {} },
+        "state": { "active": "saltmarsh" },
+        "camera": { "scale": 1.15, "target": "sidebar" },
+        "actions": [
+          { "do": "callout", "frame": 20, "end": 80, "target": "session-saltmarsh", "text": "One main session", "side": "right", "dim": true },
+          { "do": "callout", "frame": 30, "end": 80, "target": "session-emails", "text": "Sub-sessions", "side": "right", "dim": false },
+          { "do": "focus", "frame": 90, "end": 140, "target": "group-clients" },
+          { "do": "click", "frame": 165, "target": "more-orchard", "set": { "menu": { "for": "orchard" } } },
+          { "do": "set", "frame": 190, "set": { "menu": { "for": "orchard", "hover": "Move to section" } } },
+          { "do": "lift", "frame": 205, "end": 250, "target": "menu" }
+        ]
+      },
+      {
+        "id": "slash",
+        "kind": "app",
+        "from": 560,
+        "duration": 220,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": { "type": "replica", "app": "claude-desktop", "data": {} },
+        "state": { "active": "proposals" },
+        "camera": { "scale": 1 },
+        "actions": [
+          { "do": "set", "frame": 10, "set": { "slash": ["output-style", "doctor", "skill-doctor", "advisor", "-", "insights", "recap", "rewind"], "slashHover": "doctor", "prompt": "/" } },
+          { "do": "zoom", "frame": 20, "end": 110, "target": "slash", "scale": 1.3 },
+          { "do": "click", "frame": 70, "target": "slash-skill-doctor", "tooltip": "Show unused skills" },
+          { "do": "set", "frame": 120, "set": { "slash": null, "slashHover": null, "prompt": "" } },
+          { "do": "callout", "frame": 135, "end": 200, "target": "table-row-4", "text": "Never used", "sub": "2.6k tokens every session", "side": "bottom", "dim": true },
+          { "do": "mark", "frame": 140, "end": 200, "target": "table-toggle-5", "style": "ring" }
+        ]
+      },
+      {
+        "id": "settings",
+        "kind": "app",
+        "from": 780,
+        "duration": 150,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": { "type": "replica", "app": "claude-desktop", "data": {} },
+        "state": { "rail": true, "remote": true },
+        "camera": { "scale": 1 },
+        "actions": [
+          { "do": "set", "frame": 5, "set": { "view": "settings" } },
+          { "do": "click", "frame": 45, "target": "toggle-connect-new-sessions-to-remote-control", "set": { "toggles": { "connect-new-sessions-to-remote-control": true } } },
+          { "do": "callout", "frame": 60, "end": 140, "target": "setting-keep-computer-awake-while-claude-works", "text": "Keep it awake", "side": "bottom", "dim": false }
+        ]
+      },
+      {
+        "id": "agents",
+        "kind": "app",
+        "from": 930,
+        "duration": 90,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": { "type": "replica", "app": "claude-desktop", "data": {} },
+        "state": { "active": "orchard", "ribbon": true },
+        "camera": { "scale": 1 },
+        "actions": [
+          { "do": "callout", "frame": 10, "end": 40, "target": "ribbon-week", "text": "Usage left this week", "side": "top", "dim": false },
+          { "do": "set", "frame": 50, "set": { "panel": "agents", "ribbon": false } }
+        ]
+      },
+      {
+        "id": "windows",
+        "kind": "app",
+        "from": 1020,
+        "duration": 80,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": { "type": "replica", "app": "claude-desktop", "data": { "chrome": "windows" } },
+        "state": { "active": null, "tab": "chat", "menu": { "for": "tool-more", "hover": "Side chat" } },
+        "camera": { "scale": 1 },
+        "actions": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 270,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "i1",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "image",
+      "frame": 5,
+      "end": 145,
+      "src": "media/changelog.png",
+      "size": [
+       1600,
+       1000
+      ],
+      "caption": "Claude Code changelog",
+      "source": "https://code.claude.com/docs/changelog",
+      "highlight": {
+       "x": 110,
+       "y": 570,
+       "w": 930,
+       "h": 116,
+       "frame": 50
+      }
+     }
+    ]
+   },
+   {
+    "id": "i2",
+    "kind": "stage",
+    "from": 150,
+    "duration": 120,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Proof",
+     "frame": 0,
+     "end": 120
+    },
+    "elements": [
+     {
+      "type": "image",
+      "frame": 5,
+      "end": 115,
+      "src": "media/changelog.png",
+      "source": "code.claude.com"
+     }
+    ]
+   }
+  ]
+ }
+}

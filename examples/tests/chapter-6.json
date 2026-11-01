@@ -1,0 +1,91 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 306,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "6 Features",
+      "logo": true
+    },
+    "chapters": [
+      {
+        "index": 0,
+        "title": "Session rail",
+        "icon": "panel-right",
+        "frame": 0
+      },
+      {
+        "index": 1,
+        "title": "Sections",
+        "icon": "folder",
+        "frame": 0
+      },
+      {
+        "index": 2,
+        "title": "Nested sessions",
+        "icon": "list-tree",
+        "frame": 0
+      },
+      {
+        "index": 3,
+        "title": "Master session",
+        "icon": "crown",
+        "frame": 102
+      },
+      {
+        "index": 4,
+        "title": "Projects",
+        "icon": "cloud",
+        "frame": 0
+      },
+      {
+        "index": 5,
+        "title": "Side chats",
+        "icon": "messages-square",
+        "frame": 204
+      }
+    ],
+    "scenes": [
+      {
+        "id": "c0",
+        "kind": "chapter",
+        "index": 0,
+        "from": 0,
+        "duration": 102,
+        "transitionIn": "cut",
+        "transitionOut": "cut"
+      },
+      {
+        "id": "c3",
+        "kind": "chapter",
+        "index": 3,
+        "from": 102,
+        "duration": 102,
+        "transitionIn": "cut",
+        "transitionOut": "cut"
+      },
+      {
+        "id": "c5",
+        "kind": "chapter",
+        "index": 5,
+        "from": 204,
+        "duration": 102,
+        "transitionIn": "cut",
+        "transitionOut": "cut"
+      }
+    ]
+  }
+}

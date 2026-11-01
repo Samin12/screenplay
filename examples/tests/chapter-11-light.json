@@ -1,0 +1,103 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 102,
+    "theme": "clay-light",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "11 Features",
+      "logo": true
+    },
+    "chapters": [
+      {
+        "index": 0,
+        "title": "Session rail",
+        "icon": "panel-right",
+        "frame": 0
+      },
+      {
+        "index": 1,
+        "title": "Sections",
+        "icon": "folder",
+        "frame": 0
+      },
+      {
+        "index": 2,
+        "title": "Nested sessions",
+        "icon": "list-tree",
+        "frame": 0
+      },
+      {
+        "index": 3,
+        "title": "Master session",
+        "icon": "crown",
+        "frame": 102
+      },
+      {
+        "index": 4,
+        "title": "Projects",
+        "icon": "cloud",
+        "frame": 0
+      },
+      {
+        "index": 5,
+        "title": "Side chats",
+        "icon": "messages-square",
+        "frame": 0
+      },
+      {
+        "index": 6,
+        "title": "Split view",
+        "icon": "columns-2",
+        "frame": 0
+      },
+      {
+        "index": 7,
+        "title": "Docs, Slides and more",
+        "icon": "file-text",
+        "frame": 0
+      },
+      {
+        "index": 8,
+        "title": "Slash commands",
+        "icon": "square-slash",
+        "frame": 0
+      },
+      {
+        "index": 9,
+        "title": "Mods",
+        "icon": "puzzle",
+        "frame": 0
+      },
+      {
+        "index": 10,
+        "title": "Shortcuts",
+        "icon": "keyboard",
+        "frame": 204
+      }
+    ],
+    "scenes": [
+      {
+        "id": "c3",
+        "kind": "chapter",
+        "index": 3,
+        "from": 0,
+        "duration": 102,
+        "transitionIn": "cut",
+        "transitionOut": "cut"
+      }
+    ]
+  }
+}

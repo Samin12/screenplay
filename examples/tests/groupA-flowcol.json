@@ -1,0 +1,132 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Pipeline",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "flow",
+      "frame": 5,
+      "end": 150,
+      "nodes": [
+       {
+        "text": "Transcribe",
+        "icon": "mic",
+        "frame": 8
+       },
+       {
+        "text": "Cut the retakes",
+        "icon": "scissors",
+        "frame": 25
+       },
+       {
+        "text": "Write edit.yaml",
+        "icon": "file-code",
+        "frame": 42
+       },
+       {
+        "text": "Render",
+        "icon": "clapperboard",
+        "frame": 60
+       }
+      ],
+      "arrows": [
+       {
+        "label": "words"
+       },
+       {
+        "label": "cuts"
+       },
+       {
+        "label": "timeline"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "flow",
+      "frame": 5,
+      "end": 150,
+      "nodes": [
+       {
+        "text": "Transcribe",
+        "icon": "mic",
+        "frame": 8
+       },
+       {
+        "text": "Cut",
+        "icon": "scissors",
+        "frame": 25
+       },
+       {
+        "text": "Edit",
+        "icon": "file-code",
+        "frame": 42
+       },
+       {
+        "text": "Render",
+        "icon": "clapperboard",
+        "frame": 60,
+        "tone": "accent"
+       }
+      ],
+      "arrows": [
+       {
+        "label": "words"
+       },
+       {
+        "label": "cuts"
+       },
+       {
+        "label": "timeline"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

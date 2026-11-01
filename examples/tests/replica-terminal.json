@@ -1,0 +1,180 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 360,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "Features",
+      "logo": true
+    },
+    "chapters": [],
+    "scenes": [
+      {
+        "id": "cli",
+        "kind": "app",
+        "from": 0,
+        "duration": 250,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "terminal",
+          "data": {}
+        },
+        "state": {},
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "callout",
+            "frame": 15,
+            "end": 70,
+            "target": "line-5",
+            "text": "Tool calls",
+            "sub": "every file it reads",
+            "side": "right",
+            "dim": true
+          },
+          {
+            "do": "lift",
+            "frame": 75,
+            "end": 110,
+            "target": "line-12"
+          },
+          {
+            "do": "set",
+            "frame": 115,
+            "set": {
+              "thinking": "Drafting the Hearthbook email\u2026 (12s \u00b7 \u2191 1.2k tokens)"
+            }
+          },
+          {
+            "do": "type",
+            "frame": 125,
+            "end": 140,
+            "key": "prompt",
+            "text": "/co",
+            "target": "composer"
+          },
+          {
+            "do": "set",
+            "frame": 128,
+            "set": {
+              "slash": [
+                "compact",
+                "context"
+              ],
+              "slashHover": "compact"
+            }
+          },
+          {
+            "do": "zoom",
+            "frame": 150,
+            "end": 240,
+            "scale": 1.45,
+            "rect": {
+              "x": 60,
+              "y": 700,
+              "w": 1100,
+              "h": 340
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 165,
+            "end": 230,
+            "target": "slash-compact",
+            "style": "underline"
+          }
+        ]
+      },
+      {
+        "id": "cli-long",
+        "kind": "app",
+        "from": 250,
+        "duration": 110,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "terminal",
+          "data": {
+            "anchor": "bottom",
+            "header": null,
+            "lines": [
+              {
+                "kind": "prompt",
+                "text": "Plan the Saltmarsh Swim winter launch"
+              },
+              {
+                "kind": "out",
+                "text": "Here\u2019s the plan. Nothing is written until you approve it."
+              },
+              {
+                "kind": "text",
+                "text": "1. Sales page: warm water, small classes, a free first lesson"
+              },
+              {
+                "kind": "text",
+                "text": "2. Three launch emails over ten days"
+              },
+              {
+                "kind": "text",
+                "text": "3. Ad sets for Instagram and Facebook"
+              },
+              {
+                "kind": "tool",
+                "text": "Read(clients/saltmarsh/brand.md)"
+              },
+              {
+                "kind": "dim",
+                "text": "Read 41 lines"
+              },
+              {
+                "kind": "tool",
+                "text": "WebSearch(\"indoor swim lessons winter demand\")"
+              },
+              {
+                "kind": "ok",
+                "text": "Found 8 results"
+              },
+              {
+                "kind": "out",
+                "text": "Ready when you are. Say the word and I\u2019ll start with the sales page."
+              }
+            ]
+          }
+        },
+        "state": {
+          "mode": "plan",
+          "prompt": "go ahead"
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "focus",
+            "frame": 20,
+            "end": 90,
+            "target": "status"
+          }
+        ]
+      }
+    ]
+  }
+}

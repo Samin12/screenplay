@@ -1,0 +1,181 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Which one?",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "compare",
+      "frame": 5,
+      "end": 150,
+      "columns": [
+       {
+        "title": "Nested sessions",
+        "icon": "laptop",
+        "frame": 8,
+        "rows": [
+         {
+          "text": "Runs on your computer",
+          "tone": "good",
+          "frame": 20
+         },
+         {
+          "text": "Sees your files",
+          "tone": "good",
+          "frame": 30
+         },
+         {
+          "text": "Stops when you sleep",
+          "tone": "bad",
+          "frame": 40
+         }
+        ]
+       },
+       {
+        "title": "Projects",
+        "icon": "cloud",
+        "frame": 50,
+        "highlight": true,
+        "rows": [
+         {
+          "text": "Runs in the cloud",
+          "tone": "good",
+          "frame": 60
+         },
+         {
+          "text": "Keeps going overnight",
+          "tone": "good",
+          "frame": 70
+         },
+         {
+          "text": "Waitlist only",
+          "tone": "bad",
+          "frame": 80
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "compare",
+      "frame": 5,
+      "end": 150,
+      "columns": [
+       {
+        "title": "Chat",
+        "icon": "message-circle",
+        "frame": 8,
+        "rows": [
+         {
+          "text": "Quick answers",
+          "tone": "good",
+          "frame": 14
+         },
+         {
+          "text": "No files",
+          "tone": "bad",
+          "frame": 20
+         },
+         {
+          "text": "Forgets context",
+          "tone": "bad",
+          "frame": 26
+         }
+        ]
+       },
+       {
+        "title": "Cowork",
+        "icon": "users",
+        "frame": 30,
+        "rows": [
+         {
+          "text": "Shared docs",
+          "tone": "good",
+          "frame": 36
+         },
+         {
+          "text": "Some tools",
+          "frame": 42
+         },
+         {
+          "text": "Slow to start",
+          "tone": "bad",
+          "frame": 48
+         }
+        ]
+       },
+       {
+        "title": "Claude *Code*",
+        "icon": "code",
+        "frame": 52,
+        "highlight": true,
+        "highlightFrame": 80,
+        "rows": [
+         {
+          "text": "Everything",
+          "tone": "good",
+          "frame": 58
+         },
+         {
+          "text": "Real files",
+          "tone": "good",
+          "frame": 64
+         },
+         {
+          "text": "Runs for hours",
+          "tone": "good",
+          "frame": 70
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

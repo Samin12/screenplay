@@ -1,0 +1,96 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 300,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "11 Features",
+      "logo": true
+    },
+    "chapters": [],
+    "scenes": [
+      {
+        "id": "b2",
+        "kind": "board",
+        "from": 0,
+        "duration": 300,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "line": true,
+        "nodes": [
+          {
+            "id": "m0",
+            "frame": 10,
+            "x": 400,
+            "y": 300,
+            "scale": 1.15,
+            "element": {
+              "type": "title",
+              "frame": 10,
+              "end": 390,
+              "text": "Start here",
+              "size": "xl"
+            }
+          },
+          {
+            "id": "m1",
+            "frame": 80,
+            "x": 2700,
+            "y": 0,
+            "scale": 1,
+            "element": {
+              "type": "title",
+              "frame": 80,
+              "end": 390,
+              "text": "Then branch out",
+              "size": "l",
+              "sub": "nested sessions"
+            }
+          },
+          {
+            "id": "m2",
+            "frame": 150,
+            "x": 2900,
+            "y": 1600,
+            "scale": 0.9,
+            "element": {
+              "type": "title",
+              "frame": 110,
+              "end": 390,
+              "text": "Go deeper",
+              "size": "xl",
+              "sub": "entrance delayed to the arrival"
+            }
+          },
+          {
+            "id": "m3",
+            "frame": 200,
+            "x": 500,
+            "y": 1900,
+            "scale": 1,
+            "element": {
+              "type": "title",
+              "frame": 200,
+              "end": 390,
+              "text": "Ship it",
+              "size": "xl"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

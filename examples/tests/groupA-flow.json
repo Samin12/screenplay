@@ -1,0 +1,132 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Subagents",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "flow",
+      "frame": 5,
+      "end": 150,
+      "direction": "loop",
+      "nodes": [
+       {
+        "text": "Main session",
+        "icon": "code",
+        "frame": 8
+       },
+       {
+        "text": "Subagent",
+        "icon": "critter",
+        "frame": 40,
+        "sub": "one job"
+       }
+      ],
+      "arrows": [
+       {
+        "label": "Prompt",
+        "tone": "accent"
+       },
+       {
+        "label": "Result",
+        "tone": "good",
+        "frame": 60
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": {
+     "text": "The build loop",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "flow",
+      "frame": 5,
+      "end": 150,
+      "direction": "loop",
+      "nodes": [
+       {
+        "text": "Plan",
+        "icon": "list-checks",
+        "frame": 8
+       },
+       {
+        "text": "Build",
+        "icon": "hammer",
+        "frame": 30
+       },
+       {
+        "text": "*Review*",
+        "icon": "eye",
+        "frame": 50
+       },
+       {
+        "text": "Ship",
+        "icon": "rocket",
+        "frame": 70
+       }
+      ],
+      "arrows": [
+       {
+        "label": "spec"
+       },
+       {
+        "label": "diff"
+       },
+       {
+        "label": "approve"
+       },
+       {
+        "label": "feedback",
+        "tone": "good"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

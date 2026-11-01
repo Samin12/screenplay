@@ -1,0 +1,66 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 330,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": { "focus": [0.5, 0.4], "zoom": 1, "mirror": false },
+    "webcam": [],
+    "chapterGrid": { "heading": "Features", "logo": true },
+    "chapters": [],
+    "scenes": [
+      {
+        "id": "site",
+        "kind": "app",
+        "from": 0,
+        "duration": 220,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": { "type": "replica", "app": "browser", "data": {} },
+        "state": {},
+        "camera": { "scale": 1 },
+        "actions": [
+          { "do": "callout", "frame": 15, "end": 70, "target": "address", "text": "Just a link", "side": "bottom", "dim": true },
+          { "do": "set", "frame": 25, "set": { "urlSelect": "autumn-launch" } },
+          { "do": "click", "frame": 95, "target": "block-2-button", "tooltip": "Pre-order", "ring": true },
+          { "do": "explode", "frame": 120, "end": 200, "targets": ["block-3-card-1", "block-3-card-2", "block-3-card-3"], "labels": ["New", "Espresso", "Decaf"] }
+        ]
+      },
+      {
+        "id": "artifact",
+        "kind": "app",
+        "from": 220,
+        "duration": 110,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "browser",
+          "data": {
+            "theme": "light",
+            "tabs": [{ "title": "Client dashboard · Claude artifact", "icon": "✻", "color": "#d97757" }],
+            "url": "https://claude.ai/artifact/shared/agency-dashboard",
+            "page": {
+              "theme": { "bg": "#ffffff", "text": "#1f1d1a", "muted": "#6b665d", "accent": "#d97757", "card": "#faf8f4", "line": "#ebe6dc", "serif": false },
+              "blocks": [
+                { "type": "heading", "text": "Client dashboard", "sub": "Week 44 · updated 9:41 am" },
+                { "type": "stats", "items": [{ "value": "4", "label": "active clients" }, { "value": "+12%", "label": "Orchard Lane orders" }, { "value": "38", "label": "Saltmarsh sign-ups" }, { "value": "2", "label": "reports waiting" }] },
+                { "type": "cards", "columns": 2, "items": [{ "tag": "On track", "title": "Orchard Lane Coffee", "text": "Harvest Blend pre-orders ahead of plan." }, { "tag": "Needs a look", "title": "Tidewell Pet Co", "text": "October sheet is missing a column." }] },
+                { "type": "button", "text": "Share dashboard" }
+              ]
+            }
+          }
+        },
+        "state": { "urlSelect": "shared" },
+        "camera": { "scale": 1 },
+        "actions": [
+          { "do": "focus", "frame": 20, "end": 70, "target": "block-2" },
+          { "do": "mark", "frame": 75, "end": 110, "target": "block-3-card-2", "style": "ring" }
+        ]
+      }
+    ]
+  }
+}

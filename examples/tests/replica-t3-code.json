@@ -1,0 +1,111 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 360,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "Features",
+      "logo": true
+    },
+    "chapters": [],
+    "scenes": [
+      {
+        "id": "t3",
+        "kind": "app",
+        "from": 0,
+        "duration": 360,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "t3-code",
+          "data": {}
+        },
+        "state": {},
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "click",
+            "frame": 20,
+            "target": "thread-recipes",
+            "set": {
+              "active": "recipes"
+            }
+          },
+          {
+            "do": "callout",
+            "frame": 40,
+            "end": 80,
+            "target": "model-picker",
+            "text": "Model",
+            "side": "top",
+            "dim": true
+          },
+          {
+            "do": "lift",
+            "frame": 90,
+            "end": 130,
+            "target": "msg-2"
+          },
+          {
+            "do": "explode",
+            "frame": 140,
+            "end": 180,
+            "targets": [
+              "thread-checkout",
+              "thread-booking"
+            ],
+            "labels": [
+              "Checkout",
+              "Booking"
+            ]
+          },
+          {
+            "do": "type",
+            "frame": 190,
+            "end": 230,
+            "key": "prompt",
+            "text": "Add Apple Pay to the checkout page",
+            "target": "composer",
+            "lift": true
+          },
+          {
+            "do": "zoom",
+            "frame": 245,
+            "end": 285,
+            "target": "msg-2",
+            "scale": 1.4
+          },
+          {
+            "do": "focus",
+            "frame": 290,
+            "end": 320,
+            "target": "sidebar"
+          },
+          {
+            "do": "mark",
+            "frame": 325,
+            "end": 355,
+            "target": "hl-fix",
+            "style": "marker"
+          }
+        ]
+      }
+    ]
+  }
+}

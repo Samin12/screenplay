@@ -1,0 +1,131 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 480,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "w1",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "tweet",
+      "frame": 5,
+      "end": 145,
+      "name": "Mara Lind",
+      "handle": "@maralind",
+      "text": "Claude Code Desktop is now so much aware of its own capabilities and how it can work with you, like spinning off subsessions.\n\nI think of this almost like a v2, so many small details went into make it great.",
+      "meta": "8:13 PM \u00b7 Oct 14, 2026 \u00b7 382.1K Views",
+      "mark": {
+       "phrase": "almost like a v2",
+       "frame": 40
+      },
+      "sticker": {
+       "text": "a v2",
+       "frame": 55
+      },
+      "label": {
+       "text": "Engineering lead",
+       "frame": 20
+      },
+      "avatar": "media/avatar.png"
+     }
+    ]
+   },
+   {
+    "id": "w2",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": null,
+    "elements": [
+     {
+      "type": "tweet",
+      "frame": 5,
+      "end": 145,
+      "name": "Tidewell Devs",
+      "handle": "tidewelldevs",
+      "verified": true,
+      "text": "You can now mod Claude Code:\n\n- Change how it behaves\n- Customize the UI\n- Swap in your own features",
+      "mark": {
+       "phrase": "Customize the UI",
+       "frame": 30
+      },
+      "label": {
+       "text": "The official Claude dev account",
+       "frame": 50
+      }
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 300,
+    "duration": 90,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "sticker",
+      "frame": 5,
+      "end": 85,
+      "text": "a v2"
+     }
+    ]
+   },
+   {
+    "id": "s2",
+    "kind": "stage",
+    "from": 390,
+    "duration": 90,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Pricing",
+     "frame": 0,
+     "end": 90
+    },
+    "elements": [
+     {
+      "type": "sticker",
+      "frame": 5,
+      "end": 85,
+      "text": "Free forever",
+      "rotate": 4
+     }
+    ]
+   }
+  ]
+ }
+}

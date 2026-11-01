@@ -1,0 +1,100 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": null,
+    "elements": [
+     {
+      "type": "iconlist",
+      "frame": 5,
+      "end": 150,
+      "items": [
+       {
+        "text": "New features",
+        "icon": "sparkles",
+        "frame": 15
+       },
+       {
+        "text": "Official tips",
+        "icon": "lightbulb",
+        "frame": 30,
+        "tone": "warn"
+       },
+       {
+        "text": "Hidden functionalities",
+        "icon": "eye",
+        "frame": 45,
+        "tone": "info"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "iconlist",
+      "frame": 5,
+      "end": 150,
+      "items": [
+       {
+        "text": "New features",
+        "icon": "sparkles",
+        "frame": 15
+       },
+       {
+        "text": "*Official* tips",
+        "icon": "lightbulb",
+        "frame": 30,
+        "tone": "warn"
+       },
+       {
+        "text": "Hidden functionalities",
+        "icon": "eye",
+        "frame": 45,
+        "tone": "info",
+        "sub": "the stuff nobody tells you"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

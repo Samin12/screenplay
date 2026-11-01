@@ -1,0 +1,12 @@
+{
+  "name": "screenplay",
+  "owner": { "name": "Samin Yasar", "url": "https://github.com/Samin12" },
+  "metadata": { "description": "Agentic motion-edit engine: talking head + code-built app replicas driven by a scripted cursor, all anchored to spoken words." },
+  "plugins": [
+    {
+      "name": "screenplay",
+      "source": "./plugins/screenplay",
+      "description": "Edit a raw talking-head recording into a premium motion tutorial: tight cut, chapter grid, app replicas with a scripted cursor, callouts, lifted clones, real proof cards and stage diagrams beside a face-tracked camera tile, word-synced."
+    }
+  ]
+}

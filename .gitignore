@@ -1,0 +1,19 @@
+node_modules/
+out/
+.screenplay/
+*.mp4
+*.mov
+*.wav
+*.m4a
+examples/**/media/
+.DS_Store
+
+.remotion/
+
+# Kept on this machine, left out of the public repo.
+# A breakdown and full transcript of someone else's video.
+docs/research/
+# The demos' recordings, transcripts and local paths. Only the worked edit file is public.
+examples/demo-usecases/
+examples/demo-tips/*
+!examples/demo-tips/edit.yaml

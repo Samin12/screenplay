@@ -1,0 +1,8 @@
+{
+  "name": "screenplay",
+  "version": "0.1.0",
+  "description": "Edit a raw talking-head recording into a premium motion tutorial: tight cut, chapter grid, code-built app replicas driven by a scripted cursor (clicks, typing, tooltips), callouts, lifted live clones, real proof cards and stage diagrams beside a face-tracked camera tile, every beat anchored to a spoken word. Rendered with Remotion.",
+  "author": { "name": "Samin Yasar", "url": "https://github.com/Samin12" },
+  "license": "MIT",
+  "keywords": ["video-editing", "remotion", "motion-graphics", "youtube", "replica", "cursor", "chapters", "claude-code", "skill"]
+}

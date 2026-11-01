@@ -1,0 +1,89 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 270,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "g1",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": null,
+    "elements": [
+     {
+      "type": "grid",
+      "frame": 5,
+      "end": 145,
+      "count": 30,
+      "columns": 5,
+      "label": "20 most recently active",
+      "lit": [
+       {
+        "index": 0,
+        "span": 20,
+        "frame": 45
+       },
+       {
+        "index": 20,
+        "span": 10,
+        "frame": 100
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "g2",
+    "kind": "stage",
+    "from": 150,
+    "duration": 120,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "grid",
+      "frame": 5,
+      "end": 115,
+      "count": 12,
+      "columns": 6,
+      "label": "Pick any session",
+      "lit": [
+       {
+        "index": 3,
+        "frame": 40
+       },
+       {
+        "index": 8,
+        "frame": 55
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

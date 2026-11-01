@@ -1,0 +1,146 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "clay-light",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Which one?",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "compare",
+      "frame": 5,
+      "end": 150,
+      "columns": [
+       {
+        "title": "Chat",
+        "icon": "message-circle",
+        "frame": 8,
+        "rows": [
+         {
+          "text": "Quick answers",
+          "tone": "good",
+          "frame": 14
+         },
+         {
+          "text": "No files",
+          "tone": "bad",
+          "frame": 20
+         }
+        ]
+       },
+       {
+        "title": "Code",
+        "icon": "code",
+        "frame": 30,
+        "highlight": true,
+        "rows": [
+         {
+          "text": "Real files",
+          "tone": "good",
+          "frame": 36
+         },
+         {
+          "text": "Runs for hours",
+          "tone": "good",
+          "frame": 42
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "bullets",
+      "frame": 5,
+      "end": 150,
+      "title": "Checklist",
+      "items": [
+       {
+        "text": "Pin daily chats",
+        "frame": 10
+       },
+       {
+        "text": "Skip auto memory",
+        "frame": 20,
+        "tone": "bad"
+       }
+      ]
+     },
+     {
+      "type": "chips",
+      "frame": 5,
+      "end": 150,
+      "items": [
+       {
+        "text": "Skills",
+        "icon": "zap",
+        "frame": 30,
+        "tone": "warn"
+       },
+       {
+        "text": "Memory",
+        "icon": "brain",
+        "frame": 36,
+        "tone": "accent"
+       },
+       {
+        "text": "Peek",
+        "icon": "eye",
+        "frame": 42,
+        "tone": "good"
+       }
+      ]
+     },
+     {
+      "type": "lower",
+      "frame": 50,
+      "end": 150,
+      "title": "Samin Yasar",
+      "sub": "Claude Club"
+     }
+    ]
+   }
+  ]
+ }
+}

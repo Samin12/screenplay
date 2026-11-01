@@ -1,0 +1,165 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "t1",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "table",
+      "frame": 5,
+      "end": 145,
+      "columns": [
+       "Free\nNo Code tab",
+       "Pro",
+       "Max",
+       "Team",
+       "Enterprise"
+      ],
+      "rows": [
+       {
+        "label": "Nested sessions",
+        "icon": "list-tree",
+        "cells": [
+         "\u2717",
+         "\u2713",
+         "\u2713",
+         "\u2713",
+         "\u2713"
+        ]
+       },
+       {
+        "label": "Projects\n*Still rolling out*",
+        "icon": "cloud",
+        "cells": [
+         "\u2717",
+         "Beta",
+         "Beta",
+         "Not yet",
+         "Not yet"
+        ]
+       }
+      ],
+      "highlight": {
+       "column": 1,
+       "span": 2,
+       "frame": 70
+      }
+     }
+    ]
+   },
+   {
+    "id": "t2",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Plans",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "table",
+      "frame": 5,
+      "end": 145,
+      "columns": [
+       "Free",
+       "Pro",
+       "Max",
+       "Team",
+       "Enterprise"
+      ],
+      "rows": [
+       {
+        "label": "Docs",
+        "cells": [
+         "yes",
+         "yes",
+         "yes",
+         "yes",
+         "yes"
+        ]
+       },
+       {
+        "label": "Slides",
+        "cells": [
+         "yes",
+         "yes",
+         "yes",
+         "yes",
+         "yes"
+        ]
+       },
+       {
+        "label": "Design",
+        "cells": [
+         "yes",
+         "yes",
+         "yes",
+         "yes",
+         "yes"
+        ]
+       },
+       {
+        "label": "Dashboards",
+        "cells": [
+         "x",
+         "Beta",
+         "Beta",
+         "Beta",
+         "Beta\nadmin turns on"
+        ]
+       },
+       {
+        "label": "Motion",
+        "cells": [
+         "x",
+         "x",
+         "x",
+         "Beta",
+         "Beta\nadmin turns on"
+        ]
+       }
+      ],
+      "highlight": {
+       "column": 1,
+       "span": 2,
+       "frame": 80
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

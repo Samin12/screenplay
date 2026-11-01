@@ -1,0 +1,156 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Subagents",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "flow",
+      "frame": 5,
+      "end": 150,
+      "direction": "loop",
+      "nodes": [
+       {
+        "text": "Main session",
+        "icon": "code",
+        "frame": 8
+       },
+       {
+        "text": "Subagent",
+        "icon": "critter",
+        "frame": 30,
+        "tone": "accent",
+        "sub": "one job"
+       }
+      ],
+      "arrows": [
+       {
+        "label": "Prompt"
+       },
+       {
+        "label": "Result",
+        "frame": 50
+       }
+      ]
+     },
+     {
+      "type": "chips",
+      "frame": 66,
+      "end": 150,
+      "items": [
+       {
+        "text": "Peek",
+        "icon": "eye",
+        "frame": 70,
+        "tone": "good"
+       },
+       {
+        "text": "Talk",
+        "icon": "message-square-text",
+        "frame": 85,
+        "tone": "bad"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": {
+     "text": "Master session",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "tree",
+      "frame": 5,
+      "end": 150,
+      "root": {
+       "text": "Coaching offer launch",
+       "icon": "crown",
+       "frame": 8
+      },
+      "children": [
+       {
+        "text": "Sales page",
+        "icon": "critter",
+        "frame": 25
+       },
+       {
+        "text": "Launch emails",
+        "icon": "critter",
+        "frame": 35
+       },
+       {
+        "text": "Ad sets",
+        "icon": "critter",
+        "frame": 45
+       }
+      ]
+     },
+     {
+      "type": "stat",
+      "frame": 60,
+      "end": 150,
+      "items": [
+       {
+        "text": "$0.31",
+        "sub": "cost",
+        "frame": 62
+       },
+       {
+        "text": "213k",
+        "sub": "tokens",
+        "frame": 70
+       },
+       {
+        "text": "3",
+        "sub": "agents",
+        "frame": 78
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

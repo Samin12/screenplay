@@ -1,0 +1,145 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 270,
+  "theme": "clay-light",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "l1",
+    "kind": "stage",
+    "from": 0,
+    "duration": 90,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "keys",
+      "frame": 5,
+      "end": 85,
+      "keys": [
+       "Ctrl",
+       "/"
+      ],
+      "press": 10,
+      "label": "to see every shortcut"
+     },
+     {
+      "type": "prompt",
+      "frame": 5,
+      "end": 85,
+      "text": "Which of my chats are waiting on me for a decision?",
+      "label": "Prompt"
+     }
+    ]
+   },
+   {
+    "id": "l2",
+    "kind": "stage",
+    "from": 90,
+    "duration": 90,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "tweet",
+      "frame": 5,
+      "end": 85,
+      "name": "Claude",
+      "handle": "claudeai",
+      "verified": true,
+      "text": "Projects are rolling out to Pro and Max this week.",
+      "mark": {
+       "phrase": "Pro and Max",
+       "frame": 20
+      },
+      "sticker": {
+       "text": "New",
+       "frame": 30
+      },
+      "meta": "9:02 AM \u00b7 Oct 20, 2026 \u00b7 *1.2M* Views"
+     }
+    ]
+   },
+   {
+    "id": "l3",
+    "kind": "stage",
+    "from": 180,
+    "duration": 90,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": null,
+    "elements": [
+     {
+      "type": "table",
+      "frame": 5,
+      "end": 85,
+      "columns": [
+       "Free",
+       "Pro",
+       "Max"
+      ],
+      "rows": [
+       {
+        "label": "Projects",
+        "cells": [
+         "no",
+         "Beta",
+         "Beta"
+        ]
+       },
+       {
+        "label": "Seats",
+        "cells": [
+         "1",
+         "1",
+         "5x"
+        ]
+       }
+      ],
+      "highlight": {
+       "column": 2,
+       "frame": 30
+      }
+     },
+     {
+      "type": "grid",
+      "frame": 5,
+      "end": 85,
+      "count": 10,
+      "columns": 5,
+      "lit": [
+       {
+        "index": 0,
+        "span": 4,
+        "frame": 30
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

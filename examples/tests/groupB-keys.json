@@ -1,0 +1,118 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 360,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "k1",
+    "kind": "stage",
+    "from": 0,
+    "duration": 120,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "keys",
+      "frame": 5,
+      "end": 115,
+      "keys": [
+       "CTRL",
+       "ALT",
+       "SPACE"
+      ],
+      "press": 20
+     }
+    ]
+   },
+   {
+    "id": "k2",
+    "kind": "stage",
+    "from": 120,
+    "duration": 120,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Zoom out",
+     "frame": 0,
+     "end": 120
+    },
+    "elements": [
+     {
+      "type": "keys",
+      "frame": 5,
+      "end": 115,
+      "keys": [
+       "Cmd",
+       "-"
+      ],
+      "label": "on a Mac",
+      "press": 15
+     }
+    ]
+   },
+   {
+    "id": "k3",
+    "kind": "stage",
+    "from": 240,
+    "duration": 120,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "keys",
+      "frame": 5,
+      "end": 55,
+      "keys": [
+       "Alt",
+       "mouse"
+      ]
+     },
+     {
+      "type": "keys",
+      "frame": 5,
+      "end": 55,
+      "keys": [
+       "Option",
+       "click"
+      ],
+      "label": "on Mac"
+     },
+     {
+      "type": "keys",
+      "frame": 65,
+      "end": 115,
+      "keys": [
+       "Esc",
+       "Esc"
+      ],
+      "press": 70
+     }
+    ]
+   }
+  ]
+ }
+}

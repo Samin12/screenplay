@@ -1,0 +1,69 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "p1",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "prompt",
+      "frame": 5,
+      "end": 145,
+      "text": "Do these at the same time, and start a nested session for each one.",
+      "label": "Prompt"
+     }
+    ]
+   },
+   {
+    "id": "p2",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Just ask",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "prompt",
+      "frame": 5,
+      "end": 145,
+      "text": "Read this week's emails from Tidewell Pet Co and draft a friendly reply to each one.",
+      "cps": 60
+     }
+    ]
+   }
+  ]
+ }
+}

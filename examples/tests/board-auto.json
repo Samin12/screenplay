@@ -1,0 +1,120 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 390,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "11 Features",
+      "logo": true
+    },
+    "chapters": [],
+    "scenes": [
+      {
+        "id": "b1",
+        "kind": "board",
+        "from": 0,
+        "duration": 390,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "line": true,
+        "nodes": [
+          {
+            "id": "n0",
+            "frame": 0,
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "element": {
+              "type": "title",
+              "frame": 0,
+              "end": 390,
+              "text": "Claude 2.0",
+              "logo": "claude",
+              "size": "xl"
+            }
+          },
+          {
+            "id": "n1",
+            "frame": 75,
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "element": {
+              "type": "title",
+              "frame": 75,
+              "end": 390,
+              "text": "Master session",
+              "sub": "one chat runs the whole launch"
+            }
+          },
+          {
+            "id": "n2",
+            "frame": 150,
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "element": {
+              "type": "tweet",
+              "frame": 150,
+              "end": 390,
+              "name": "Mara Lind",
+              "handle": "@maralind",
+              "text": "Claude Code Desktop is now so much aware of its own capabilities. I think of this almost like a v2, so many small details went into make it great.",
+              "meta": "8:13 PM \u00b7 Oct 14, 2026 \u00b7 382.1K Views",
+              "sticker": {
+                "text": "a v2",
+                "frame": 180
+              },
+              "mark": {
+                "phrase": "almost like a v2",
+                "frame": 165
+              }
+            }
+          },
+          {
+            "id": "n3",
+            "frame": 225,
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "element": {
+              "type": "title",
+              "frame": 225,
+              "end": 390,
+              "text": "Docs, Slides, Design",
+              "size": "l",
+              "sub": "full replacements for your tools"
+            }
+          },
+          {
+            "id": "n4",
+            "frame": 300,
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "element": {
+              "type": "title",
+              "frame": 300,
+              "end": 390,
+              "text": "11 new features",
+              "size": "xl"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

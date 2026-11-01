@@ -1,0 +1,122 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 300,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "kind": "stage",
+    "from": 0,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "hero-left",
+    "title": {
+     "text": "Personal assistant",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "tree",
+      "frame": 5,
+      "end": 150,
+      "root": {
+       "text": "",
+       "icon": "critter",
+       "frame": 8
+      },
+      "children": [
+       {
+        "text": "Sales",
+        "frame": 30
+       },
+       {
+        "text": "Emails",
+        "frame": 40
+       },
+       {
+        "text": "Ads",
+        "frame": 50
+       },
+       {
+        "text": "Support",
+        "frame": 60
+       },
+       {
+        "text": "Ops",
+        "frame": 70
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "kind": "stage",
+    "from": 150,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "layout": "center",
+    "title": {
+     "text": "Master session",
+     "frame": 0,
+     "end": 150
+    },
+    "elements": [
+     {
+      "type": "tree",
+      "frame": 5,
+      "end": 150,
+      "root": {
+       "text": "Coaching offer launch",
+       "icon": "crown",
+       "frame": 8
+      },
+      "children": [
+       {
+        "text": "Sales page",
+        "icon": "layout-template",
+        "frame": 30,
+        "sub": "drafting"
+       },
+       {
+        "text": "Launch emails",
+        "icon": "mail",
+        "frame": 42,
+        "sub": "1 of 5 done"
+       },
+       {
+        "text": "Ad sets",
+        "icon": "megaphone",
+        "frame": 54,
+        "tone": "accent",
+        "sub": "3 hooks ready"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

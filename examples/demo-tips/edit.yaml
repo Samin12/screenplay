@@ -1,0 +1,224 @@
+# Demo: Samin's "tips 9 and 10" clip in the house look: he stays in the tile on the right, everything
+# else happens in the left panel. Proof is real page captures from the finished video, so every number
+# on screen comes from a source. Worked example to read: its footage and captures aren't in this repo.
+title: "Tips 9 and 10: clone any app, build an orchestrator"
+camera: { focus: [0.5, 0.36], zoom: 1.0 }
+
+chapters:
+  heading: "10 Tips"
+  logo: true
+  badge: { eyebrow: Tips }
+  items:
+    - { title: "Interactive HTML", icon: code }
+    - { title: "Talk, Don't Type", icon: mic }
+    - { title: "Persistent Memory", icon: brain }
+    - { title: "Agent Handoffs", icon: arrow-left-right }
+    - { title: "Morning Prompts", icon: sunrise }
+    - { title: "AI Operating System", icon: cpu }
+    - { title: "Stack Subscriptions", icon: layers }
+    - { title: "Haiku Subagents", icon: git-branch }
+    - { at: w0, title: "Reverse Engineer", badge: "Reverse Engineer Anything", icon: search-code }
+    - { at: "finally, tip number 10", title: "Orchestrator Agent", badge: "An Orchestrator Agent", icon: crown }
+
+scenes:
+  # ---------- Tip 9: REA ----------
+  - kind: stage
+    at: w0
+    elements:
+      - type: image
+        src: media/09-rea-repo-crop.png
+        url: github.com/morluto/rea
+        crop: [2540, 340, 640, 330]
+        source: "github.com/morluto/rea · captured Oct 16, 2026"
+        highlight: { x: 2570, y: 430, w: 384, h: 44, at: "but there's" }
+
+  - kind: stage
+    at: "an abstraction on top"
+    title: { text: "An app on top of *REA*", at: "an abstraction on top" }
+    elements:
+      - type: flow
+        at: "an abstraction on top"
+        until: "use that"
+        nodes:
+          - { text: "REA", icon: search-code, at: "an abstraction on top" }
+          - { text: "Eleven", icon: app-window, at: "called 11" }
+        arrows: [ { label: "easier to use", tone: accent, at: "makes it easier" } ]
+
+  - kind: stage
+    at: "And even, people have been doing crazy stuff"
+    title: "People are doing *crazy stuff*"
+
+  - kind: stage
+    at: "Someone has literally"
+    elements:
+      - type: image
+        src: media/08d-mvanhorn-adobe-clones-crop.png
+        crop: [0, 20, 1520, 610]
+        caption: "ArtCraft · clean-room, early alpha"
+        source: "x.com/mvanhorn · captured Oct 16, 2026"
+        highlight:
+          - { x: 578, y: 274, w: 448, h: 42, at: "Photoshop" }
+          - { x: 775, y: 337, w: 137, h: 42, at: "Premiere" }
+
+  - kind: stage
+    at: "And adobe grosses"
+    elements:
+      - type: image
+        src: media/17-adobe-fy2025-revenue-crop.png
+        crop: [0, 0, 815, 130]
+        url: news.adobe.com/news/2025/12/122025-q4earnings
+        source: "news.adobe.com · captured Oct 16, 2026"
+        highlight: { x: 462, y: 88, w: 175, h: 38, at: "$23" }
+
+  - kind: app
+    at: "So, any software you use"
+    app: terminal
+    data:
+      title: "claude — ~/projects/my-editor"
+      header: { title: "Welcome back Samin!", lines: ["Opus 5.5 · Claude Max", "~/projects/my-editor"] }
+      lines:
+        - { kind: prompt, text: "Use REA to study the app I pay for." }
+        - { kind: blank }
+        - { kind: out, text: "Starting a reverse-engineering run with REA." }
+        - { kind: tool, text: "Task(haiku: map every screen)" }
+        - { kind: ok, text: "212 screens mapped" }
+      status: { left: "Opus 5.5 · high effort", right: "4 haiku subagents" }
+    state: { prompt: "" }
+    beats:
+      - { at: "make sure to give REA a go -0.6s", type: composer, key: prompt, text: "/rea build my own version of this app", lift: true }
+      - { at: "opus 5.5", callout: status, text: "Opus 5.5 leads", side: top, hold: 2s }
+      - { at: "haiku subagents", set: { prompt: "", append: [ { kind: tool, text: "Task(haiku ×4: build each feature)" }, { kind: ok, text: "4 subagents running" } ] } }
+      - { at: "haiku subagents +0.3s", mark: line-7, style: marker, until: "get that done" }
+
+  # ---------- Tip 10: orchestrator ----------
+  - kind: stage
+    at: "and if you skip this one"
+    title: "Don't *skip* this one"
+
+  - kind: stage
+    at: "And this one is to set up"
+    title: { text: "Orchestrator *agent*", at: "set up an orchestrator agent" }
+    elements:
+      - type: tree
+        at: "what an orchestrator agent"
+        root: { text: "Orchestrator", icon: audio-lines }
+        children:
+          - { text: "Worker", icon: code, at: "basically manages" }
+          - { text: "Worker", icon: code, at: "manages all" }
+          - { text: "Worker", icon: code, at: "your worker" }
+
+  - kind: stage
+    at: "So for example"
+    elements:
+      - type: image
+        src: media/14-samrabbit-repo-crop.png
+        url: github.com/Samin12/SamRabbit
+        crop: [2540, 350, 640, 375]
+        source: "github.com/Samin12/SamRabbit · captured Oct 16, 2026"
+        highlight:
+          - { x: 2787, y: 432, w: 240, h: 44, at: "this voice guy" }
+          - { x: 2570, y: 480, w: 425, h: 44, at: "this voice guy" }
+
+  - kind: app
+    at: "This thing knows about"
+    app: t3-code
+    data:
+      projects:
+        - { id: hermes, name: Hermes, icon: bot }
+        - { id: apps, name: Apps, badge: AP, color: amber }
+        - { id: video, name: Video, badge: VD, color: green }
+      threads:
+        - { id: orchestrator, title: "Voice orchestrator", project: hermes, time: 2m, pinned: true, agent: claude, agentTag: C2 }
+        - { id: hooklab, title: "HookLab outliers export", project: apps, time: 8m, agent: claude, agentTag: C2, branches: 2 }
+        - { id: converti, title: "Converti pricing page", project: apps, time: 21m, agent: other, agentTag: CX }
+        - { id: sceneforge, title: "SceneForge timeline bug", project: video, time: 1h, agent: other, agentTag: GK }
+      chats:
+        orchestrator:
+          - { role: user, text: "What needs my attention across my coding threads?" }
+          - { kind: worked, text: "Checked 4 threads" }
+          - { role: assistant, text: "Two things. [[hl-converti|Converti is waiting on you]] to approve the pricing copy, and HookLab finished the outliers export." }
+    state: { active: null }
+    beats:
+      - { at: "all my coding threads", callout: sidebar, text: "All my threads", side: right, until: "helps me" }
+      - { at: "helps me manage", click: thread-orchestrator, set: { active: orchestrator } }
+      - { at: "alerts me", mark: hl-converti, style: marker, until: "my attention" }
+
+  - kind: stage
+    at: "And setting this up is super easy"
+    title: { text: "Setting this up is *super easy*", at: "And setting this up" }
+
+  - kind: stage
+    at: "What you want to do is have something like"
+    elements:
+      - type: image
+        src: media/13-t3codes-hero-crop.png
+        crop: [300, 0, 2200, 1080]
+        url: t3.codes
+        source: "t3.codes · captured Oct 16, 2026"
+        highlight:
+          - { x: 430, y: 838, w: 1940, h: 96, at: "all your different coding agents" }
+          - { x: 427, y: 953, w: 716, h: 56, at: "All in one place" }
+
+  - kind: stage
+    at: "and because that thing is open source"
+    elements:
+      - type: image
+        src: media/11-t3code-repo-crop.png
+        crop: [2860, 480, 900, 470]
+        url: github.com/pingdotgg/t3code
+        source: "github.com/pingdotgg/t3code · captured Oct 16, 2026"
+        highlight: { x: 2912, y: 840, w: 327, h: 81, at: "open source", style: box }
+
+  - kind: stage
+    at: "you can build a voice layer"
+    title: { text: "A *voice layer* on top", at: "you can build a voice layer" }
+    elements:
+      - type: flow
+        at: "you can build a voice layer"
+        nodes:
+          - { text: "T3 Code", icon: code, at: "you can build" }
+          - { text: "Voice layer", icon: audio-lines, at: "voice layer" }
+
+  - kind: stage
+    at: "something like OpenAI's"
+    elements:
+      - type: image
+        src: media/22-openai-realtime-docs-crop.png
+        crop: [0, 130, 1840, 500]
+        url: developers.openai.com/api/docs/guides/realtime
+        source: "developers.openai.com · captured Oct 16, 2026"
+        highlight: { x: 50, y: 188, w: 1000, h: 60, at: "OpenAI's" }
+
+  - kind: stage
+    at: "live kit"
+    elements:
+      - type: image
+        src: media/23-livekit-agents-docs-crop.png
+        crop: [0, 40, 1460, 500]
+        url: docs.livekit.io/agents
+        source: "docs.livekit.io · captured Oct 16, 2026"
+        highlight: { x: 60, y: 205, w: 1000, h: 44, at: "live kit" }
+
+  - kind: stage
+    at: "example of my orchestrator"
+    title: { text: "My orchestrator *example*", at: "example of my orchestrator" }
+    elements:
+      - { type: cta, at: "example of my orchestrator", text: "In the description", icon: arrow-down }
+
+  - kind: stage
+    at: "Good evening, Samine"
+    title: { text: "It *talks back*", at: "Good evening, Samine" }
+    elements:
+      - type: bullets
+        at: "Good evening, Samine"
+        items:
+          - { text: "Good evening, Samin", icon: audio-lines, at: "Good evening, Samine" }
+          - { text: "What can I help you with?", icon: audio-lines, at: "What can I help you" }
+          - { text: "Thanks for watching, guys", icon: audio-lines, at: "Thanks for watching" }
+          - { text: "These are really great tips", icon: audio-lines, at: "These are really" }
+
+  - kind: talking
+    at: "But if you want to take this much further"
+    webcam: full
+    elements:
+      - { type: cta, at: "watch this video", text: "Watch this next", icon: arrow-right }

@@ -1,0 +1,57 @@
+title: "Claude desktop in 80 seconds"
+theme: ember-dark
+camera: { focus: [0.5, 0.42], zoom: 1.0 }
+chapters:
+  heading: "2 Features"
+  items:
+    - { at: "the big one", title: "Sub-agents", icon: bot }
+    - { at: "keep all of your chats tidy", title: "Sections", icon: folder }
+scenes:
+  - kind: talking
+    at: w0
+    elements:
+      - { type: title, at: "Claude has just", until: "official tips", text: "Claude *desktop*", sub: "by Anthropic", logo: claude, size: xl }
+      - type: iconlist
+        at: "several new features"
+        until: "hidden functionalities"
+        items:
+          - { text: New features, icon: sparkles, at: "new features" }
+          - { text: Official tips, icon: lightbulb, at: "official tips" }
+          - { text: Hidden functionalities, icon: eye, at: "hidden" }
+      - { type: lower, at: "my name is", hold: 3s, title: "Samin Yasar", sub: "Claude Club" }
+  - kind: app
+    at: "When you open the new Claude desktop app"
+    app: _fixture
+    data: { title: "Weekly client reports" }
+    state: { panel: false }
+    camera: { scale: 1.1, target: composer }
+    beats:
+      - { at: "notice is the sidebar", move: item-2, tooltip: "Reports" }
+      - { at: "show panel", click: toggle, tooltip: "Show panel", set: { panel: true }, ring: true }
+      - { at: "set of cards", callout: panel, text: "Session rail", side: left, until: "environment card" }
+      - { at: "environment card", lift: card-1, until: "Inside it" }
+      - { at: "pick a folder", click: item-3, set: { active: 3 } }
+      - { at: "this prompt on the screen -0.5s", type: composer, key: prompt, text: "Audit my memory files and trim them", lift: true }
+  - kind: stage
+    at: "It's important to differentiate"
+    layout: hero-left
+    title: { text: Subagents, at: "It's important" }
+    elements:
+      - type: flow
+        at: "the main session"
+        nodes: [ { text: Main session, icon: code }, { text: Subagent, icon: bot, at: "to the sub-agent" } ]
+        arrows: [ { label: Prompt, tone: accent, at: "one-way order" } ]
+  - kind: talking
+    at: "That keeps your context clean"
+    elements:
+      - { type: keys, at: "your main chat", keys: [Ctrl, Alt, Space], label: "Quick chat", hold: 2.5s }
+  - kind: stage
+    at: "Let's wrap up"
+    layout: center
+    title: Sections
+    elements:
+      - type: bullets
+        at: "keep all of your chats"
+        items:
+          - { text: "Group chats by project", at: "tidy with sections" }
+          - { text: "Find anything in *two* clicks", at: "two clicks" }
