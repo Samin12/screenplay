@@ -159,11 +159,19 @@ screenplay render work -o work/out/final.mp4
 
 ## Use it with Claude Code
 
-The repo ships a skill with the full workflow, the style rules and a log of learned preferences. Link it:
+The repo ships two skills. Link them:
 
 ```bash
 ln -s "$PWD/plugins/screenplay/skills/screenplay-edit" ~/.claude/skills/screenplay-edit
+ln -s "$PWD/plugins/screenplay/skills/screenplay-demo-edit" ~/.claude/skills/screenplay-demo-edit
 ```
+
+- `screenplay-edit`: the full workflow, the style rules and a log of learned preferences.
+- `screenplay-demo-edit`: how a 30-minute screen-demo tutorial is made end to end (the "Hermes Trader" edit):
+  his real screen shown live and whole whenever he uses the computer, motion graphics on the hook and concepts,
+  Higgsfield B-roll for analogies, recreated chat replicas, real proof for every claim, key-only privacy blurs,
+  parallel part writers, then assembly in a Borumi project with chapter breaks, sound effects and
+  whisper-verified retake cuts. Scripts included.
 
 Or install it as a plugin:
 
@@ -180,11 +188,11 @@ Then ask: *"screenplay-edit my recording cam.mov with mic mic.wav"*. The agent r
 |---|---|
 | `cli/` | The `screenplay` CLI: media pipeline, word-anchor resolver, compiler, linter, stills, contact sheets, renders |
 | `src/app/` | The replica system: target measurement, scripted cursor, camera, callouts, lifted clones, focus, marks |
-| `src/replicas/` | The four app replicas |
+| `src/replicas/` | The app replicas (`screenplay replicas` lists them) |
 | `src/stage/elements/` | The stage elements |
 | `src/scenes/` | Scene kinds: `app`, `stage`, `talking`, `chapter`, `board`, `plug` |
 | `src/layers/` | Panel and canvas, step badge, webcam tile, transitions |
-| `plugins/screenplay/` | The Claude Code plugin and `screenplay-edit` skill |
+| `plugins/screenplay/` | The Claude Code plugin and its `screenplay-edit` and `screenplay-demo-edit` skills |
 | `docs/` | [EDIT-YAML.md](docs/EDIT-YAML.md) (the format) and [REPLICAS.md](docs/REPLICAS.md) (build a replica) |
 | `examples/` | `demo-tips/edit.yaml`, a worked example, and `tests/`, standalone timelines |
 

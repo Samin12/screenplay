@@ -1,0 +1,23 @@
+{
+ "project_id": "f310",
+ "intro": "../<Video> screenplay/out/<Video> v7 intro.mp4",
+ "main": "../<Video> screenplay/out/<Video> v6.mp4",
+ "cards": "cards/cards.json",
+ "gap_ms": 1000,
+ "click": "~/.borumi-edit/deps/create-chapter-transitions/assets/chapter-transition/chapter-transition-quiet.wav",
+ "whoosh": [2188, 3708, 5708, 7278, 8858, 10858, 35831, 37511, 38311],
+ "pop": [34511, 41274, 42714, 47448, 54698],
+ "whoosh_lead_ms": 120,
+ "whoosh_db": -6,
+ "pop_db": -3,
+ "click_db": 0,
+ "cuts": [
+  [14410, 15050, "matters [because] since"],
+  [70060, 70960, "[But, and] even if you've never"],
+  [241740, 242040, "[Okay, so] how do we build"],
+  [361900, 363150, "[But right now,] how do we actually get it to place trades"],
+  [1125180, 1127220, "[And then] And then right here"],
+  [1813960, 1819300, "Discord login + DM list"],
+  [1930310, 1931100, "[But anyways,] in my Telegram"]
+ ]
+}

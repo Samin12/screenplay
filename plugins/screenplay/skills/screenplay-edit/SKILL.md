@@ -14,6 +14,9 @@ decisions in one YAML file; the engine does timing, layout, animation and render
 right, a step badge sits above it, and everything happens in the left panel, consistent with his other
 videos. A chapter switch is the exception: its card takes the full screen for 2 s. Only use `look: reference` (the full-frame "Claude 2.0" layouts) if he asks for it.
 
+For a long screen-demo tutorial (his real screen for most of it, final assembly in Borumi), also follow
+[`screenplay-demo-edit`](../screenplay-demo-edit/SKILL.md).
+
 Engine: `$SCREENPLAY_HOME` (if unset, the repo root two levels above `$(realpath "$(which screenplay)")`).
 CLI: `screenplay` (or `node $SCREENPLAY_HOME/cli/screenplay.ts`). Specs you must read before writing an edit:
 `$SCREENPLAY_HOME/docs/EDIT-YAML.md` (the format) and `references/METHOD.md` (the style rules).
@@ -48,7 +51,9 @@ screenplay render "$W" --preview              # 720p check; final: screenplay re
 - You can't hear the result. List the joins worth a listen in your report.
 
 ### 2. Plan the beats (write `$W/plan.md` first)
-For every sentence decide what the viewer SEES. Use `references/METHOD.md` → "Recipes". Targets:
+For every sentence decide what the viewer SEES. Use `references/METHOD.md` → "Recipes", and for
+concept beats (hook, analogy, stat, stakes, how-it-works, before/after) `references/concept-visuals.md`
+(what his top videos did, plus pixel-art B-roll from Higgsfield). Targets:
 a visible change every ~1.5–2.5 s, a new scene every 5–15 s, nothing static for > 6 s.
 Scene choice (the panel always shows something; outside chapter cards he stays in the tile):
 - **app**: the speaker describes doing something in an app ("click", "open", "type", "you'll see").
@@ -57,12 +62,31 @@ Scene choice (the panel always shows something; outside chapter cards he stays i
   word. For Samin's videos, look in `<project> Agent/proof/` first (its `proof-index.json` has honest
   lines and `do_not_show`). Measure rects from the image and confirm with `screenplay still`.
 - **stage** with a diagram (`flow`, `tree`, `compare`): concepts with no screenshot.
+- **stage** with a `story`: every analogy he uses (a taxi meter, a law firm, a call center) acted out
+  as a little animated scene, actors and moves on his words (`references/METHOD.md` → "Analogy → story").
 - **talking** with `webcam: full`: the closing moment only, e.g. a device in his hand.
 - **chapter** cards: one per feature/tip/step (`chapters.items`; earlier parts as tile-only items), plus
   `chapters.badge` for the step badge. Each takes the full screen for 2 s, then cuts back. Titles 2-4
   words so they fit a grid tile.
 - **board**: optional cold-open fly-through of 3–5 teaser nodes.
 - **plug**: sponsor/community plug with real screenshots.
+- **B-roll** (concepts, stakes, analogies): cinematic AI clips in the look of his best videos. Read
+  `references/concept-visuals.md` first (what his top videos put on screen for concepts, the B-roll
+  look, prompt template). Generate with Higgsfield (`higgsfield generate create <model> --prompt "…"
+  --aspect_ratio 16:9 --duration 5 --wait`, Seedance 2.0 by default; skill `~/.hermes/skills/higgsfield-generate`),
+  download into `$W/clips/broll-<slug>.mp4`, and place it on the words it illustrates (one idea per clip,
+  3–6 s, never as filler over a claim that needs proof).
+- **Live Ink drawing** (a concept that builds step by step: how pieces fit together, A vs B, a loop):
+  a hand-drawn explainer from `~/Projects/live-ink`. Write the program (API in `docs/TIMED-RENDER.md`),
+  one `say()` per sentence he says, then `node scripts/render-timed.mjs prog.js timings.json out.mp4
+  --theme dark` with each line's window taken from his word timings, and drop the MP4 in as a video.
+- **Demos on his real screen** (when the footage itself is the point): keep the real recording and its
+  natural pauses, and add motion on it: a camera that zooms to follow the action, step callouts in his
+  words, lifted cards of what he clicks or what the AI returns, an explainer while the AI is working.
+
+**Coverage bar:** every stretch of the video has motion graphics; no gap of 3 s or more with a bare
+talking head or a plain, unannotated screen (his REA video: longest empty panel 0.63 s). Measure the
+gaps before you review.
 
 Timing traps:
 - A chapter card covers the whole screen for the first 2 s of speech after its anchor, him included.
