@@ -142,7 +142,9 @@ export const Glyph: React.FC<{ name?: string; size: number; color: string; strok
   }
   if (name === 'claude') {
     return (
-      <div style={{ width: size, height: size, borderRadius: size * 0.22, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      // Always the orange Claude tile: `color` is often the white text colour (tree/flow/compare nodes),
+      // which turned the tile into a blank white square under the white mark.
+      <div style={{ width: size, height: size, borderRadius: size * 0.22, background: '#f0572e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <ClaudeMark size={size * 0.7} />
       </div>
     );

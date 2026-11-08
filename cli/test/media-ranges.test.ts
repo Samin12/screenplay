@@ -74,6 +74,44 @@ describe('keptRanges', () => {
     assert.equal(r.length, 2);
   });
 
+  it('trims a pause after a clause end, but keeps a shorter one inside a clause (midGap)', () => {
+    const ws = W([
+      ['first,', 1.0, 1.4],
+      ['then', 2.1, 2.4], // 0.7 s after a comma: trimmed (> maxGap 0.55)
+      ['the', 3.1, 3.2], // 0.7 s inside the clause: kept (< midGap 0.9)
+      ['word', 3.3, 3.7],
+    ]);
+    const r = keptRanges(ws, [false, false, false, false], null, { duration: 6, maxGap: 0.55, midGap: 0.9, head: 0.11, tail: 0.17 });
+    assert.equal(r.length, 2);
+    assert.ok(Math.abs(r[0].end - 1.57) < 1e-9 && Math.abs(r[1].start - 1.99) < 1e-9);
+  });
+
+  it('keeps the first `hold` seconds of a held demo pause and cuts the rest (holds)', () => {
+    const ws = W([
+      ['allow.', 1.0, 1.4], // 4 s while the page loads: hold 2.2 s of it
+      ['Great.', 5.4, 5.8],
+      ['done.', 6.6, 7.0], // 0.8 s, held for 2 s: shorter than the hold, kept whole
+    ]);
+    const holds = new Map([[0, 2.2], [1, 2]]);
+    const r = keptRanges(ws, [false, false, false], null, { duration: 8, maxGap: 0.55, head: 0.11, tail: 0.17, holds });
+    assert.equal(r.length, 2);
+    assert.ok(Math.abs(r[0].end - 3.6) < 1e-9 && Math.abs(r[1].start - 5.29) < 1e-9);
+  });
+
+  it('never trims a pause that would strand a sliver of speech between two joins (minPiece)', () => {
+    const ws = W([
+      ['one.', 1.0, 1.5],
+      ['so,', 2.2, 2.4], // 0.7 s pause, but the piece after it is only 'so,' before a cut
+      ['drop', 2.45, 2.9],
+      ['two', 3.4, 3.9],
+    ]);
+    const removed = [false, false, true, false];
+    const loose = keptRanges(ws, removed, null, { duration: 6, maxGap: 0.55, head: 0.11, tail: 0.17 });
+    const strict = keptRanges(ws, removed, null, { duration: 6, maxGap: 0.55, head: 0.11, tail: 0.17, minPiece: 0.6 });
+    assert.equal(loose.length, 3); // 'one.' | 'so,' (a 0.2 s island) | 'two'
+    assert.equal(strict.length, 2); // 'one. ... so,' | 'two'
+  });
+
   it('cuts between a kept and a removed word at the quietest moment', () => {
     const ws = W([
       ['keep', 1.0, 1.5],

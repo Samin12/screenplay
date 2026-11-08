@@ -1,0 +1,350 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 270,
+  "look": "panel",
+  "theme": "velour",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.42
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [
+   {
+    "frame": 0,
+    "mode": "tile"
+   }
+  ],
+  "badges": [],
+  "chapterGrid": {
+   "heading": "0 Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "from": 0,
+    "duration": 120,
+    "transitionIn": "cut",
+    "transitionOut": "blur",
+    "kind": "stage",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "story",
+      "frame": 0,
+      "end": 120,
+      "actors": [
+       {
+        "id": "p1",
+        "kind": "person",
+        "x": 140,
+        "y": 190,
+        "scale": 0.6,
+        "label": "person",
+        "wear": "tie"
+       },
+       {
+        "id": "p2",
+        "kind": "person",
+        "x": 400,
+        "y": 190,
+        "scale": 0.6,
+        "label": "headset",
+        "color": "info",
+        "wear": "headset"
+       },
+       {
+        "id": "car",
+        "kind": "car",
+        "x": 690,
+        "y": 210,
+        "scale": 0.6,
+        "label": "car"
+       },
+       {
+        "id": "taxi",
+        "kind": "taxi",
+        "x": 1010,
+        "y": 190,
+        "scale": 0.6,
+        "label": "taxi",
+        "value": 12.4
+       },
+       {
+        "id": "plane",
+        "kind": "plane",
+        "x": 1270,
+        "y": 210,
+        "scale": 0.6,
+        "rotate": -8,
+        "label": "plane"
+       },
+       {
+        "id": "bld",
+        "kind": "building",
+        "x": 140,
+        "y": 520,
+        "scale": 0.6,
+        "label": "building"
+       },
+       {
+        "id": "off",
+        "kind": "office",
+        "x": 400,
+        "y": 520,
+        "scale": 0.6,
+        "label": "office",
+        "text": "LAW FIRM"
+       },
+       {
+        "id": "doc",
+        "kind": "document",
+        "x": 650,
+        "y": 530,
+        "scale": 0.6,
+        "label": "document",
+        "pages": 50
+       },
+       {
+        "id": "stk",
+        "kind": "stack",
+        "x": 900,
+        "y": 530,
+        "scale": 0.6,
+        "label": "stack",
+        "count": 300
+       },
+       {
+        "id": "twr",
+        "kind": "tower",
+        "x": 1160,
+        "y": 510,
+        "scale": 0.6,
+        "label": "tower"
+       },
+       {
+        "id": "mon",
+        "kind": "monitor",
+        "x": 160,
+        "y": 830,
+        "scale": 0.6,
+        "label": "monitor"
+       },
+       {
+        "id": "ph",
+        "kind": "phone",
+        "x": 400,
+        "y": 820,
+        "scale": 0.6,
+        "label": "phone"
+       },
+       {
+        "id": "nb",
+        "kind": "notebook",
+        "x": 620,
+        "y": 830,
+        "scale": 0.6,
+        "label": "notebook",
+        "title": "Shared notes"
+       },
+       {
+        "id": "dr",
+        "kind": "drawer",
+        "x": 900,
+        "y": 840,
+        "scale": 0.6,
+        "label": "drawer"
+       },
+       {
+        "id": "hs",
+        "kind": "headset",
+        "x": 1170,
+        "y": 840,
+        "scale": 0.6,
+        "label": "headset"
+       }
+      ],
+      "beats": []
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "from": 120,
+    "duration": 150,
+    "transitionIn": "blur",
+    "transitionOut": "cut",
+    "kind": "stage",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "story",
+      "frame": 0,
+      "end": 150,
+      "actors": [
+       {
+        "id": "ic",
+        "kind": "icon",
+        "x": 160,
+        "y": 260,
+        "label": "Claude",
+        "icon": "claude"
+       },
+       {
+        "id": "ic2",
+        "kind": "icon",
+        "x": 380,
+        "y": 260,
+        "label": "Memory",
+        "color": "info",
+        "icon": "database"
+       },
+       {
+        "id": "tx",
+        "kind": "text",
+        "x": 700,
+        "y": 230,
+        "text": "Plain *text* line",
+        "size": 52
+       },
+       {
+        "id": "cnt",
+        "kind": "counter",
+        "x": 1130,
+        "y": 250,
+        "label": "Spent",
+        "value": 0,
+        "decimals": 2,
+        "prefix": "$"
+       },
+       {
+        "id": "card",
+        "kind": "card",
+        "x": 300,
+        "y": 590,
+        "title": "50-page report",
+        "lines": [
+         "Read every page",
+         "Pull the 3 numbers",
+         "Draft the reply"
+        ],
+        "icon": "file-text"
+       },
+       {
+        "id": "box",
+        "kind": "box",
+        "x": 760,
+        "y": 560,
+        "text": "One clear box",
+        "icon": "zap"
+       },
+       {
+        "id": "mb",
+        "kind": "meter",
+        "x": 1100,
+        "y": 470,
+        "label": "Context",
+        "value": 20
+       },
+       {
+        "id": "md",
+        "kind": "meter",
+        "x": 1110,
+        "y": 690,
+        "label": "Load",
+        "value": 10,
+        "style": "dial"
+       },
+       {
+        "id": "bd",
+        "kind": "badge",
+        "x": 760,
+        "y": 790,
+        "color": "good",
+        "text": "Saved 80%",
+        "icon": "check"
+       },
+       {
+        "id": "st",
+        "kind": "sticker",
+        "x": 300,
+        "y": 870,
+        "text": "NEW",
+        "hidden": true
+       },
+       {
+        "id": "bb",
+        "kind": "bubble",
+        "x": 700,
+        "y": 520,
+        "text": "I read it all",
+        "side": "right",
+        "on": "ic",
+        "hidden": true
+       }
+      ],
+      "beats": [
+       {
+        "do": "count",
+        "frame": 12,
+        "dur": 48,
+        "actor": "cnt",
+        "to": 1250.5
+       },
+       {
+        "do": "fill",
+        "frame": 12,
+        "dur": 48,
+        "actor": "mb",
+        "to": 85
+       },
+       {
+        "do": "fill",
+        "frame": 12,
+        "dur": 48,
+        "actor": "md",
+        "to": 72
+       },
+       {
+        "do": "enter",
+        "frame": 18,
+        "actor": "bb"
+       },
+       {
+        "do": "enter",
+        "frame": 45,
+        "actor": "st"
+       },
+       {
+        "do": "swap",
+        "frame": 66,
+        "actor": "box",
+        "set": {
+         "text": "Swapped text"
+        }
+       },
+       {
+        "do": "highlight",
+        "frame": 72,
+        "dur": 45,
+        "actor": "card"
+       }
+      ],
+      "title": "Content *actors*"
+     }
+    ]
+   }
+  ]
+ }
+}

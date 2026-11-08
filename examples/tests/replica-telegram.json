@@ -1,0 +1,307 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "Features",
+      "logo": true
+    },
+    "chapters": [],
+    "durationInFrames": 1080,
+    "scenes": [
+      {
+        "id": "desktop",
+        "kind": "app",
+        "from": 0,
+        "duration": 760,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "telegram",
+          "data": {}
+        },
+        "state": {
+          "upto": "friday"
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "set",
+            "frame": 20,
+            "set": {
+              "typing": true
+            }
+          },
+          {
+            "do": "set",
+            "frame": 60,
+            "set": {
+              "typing": false,
+              "upto": "risk"
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 85,
+            "end": 125,
+            "target": "msg-risk-title",
+            "style": "marker"
+          },
+          {
+            "do": "callout",
+            "frame": 130,
+            "end": 185,
+            "target": "msg-risk-line-2",
+            "text": "Cash to 25%",
+            "side": "right",
+            "dim": true
+          },
+          {
+            "do": "set",
+            "frame": 190,
+            "set": {
+              "upto": "update"
+            }
+          },
+          {
+            "do": "lift",
+            "frame": 215,
+            "end": 265,
+            "target": "msg-update"
+          },
+          {
+            "do": "zoom",
+            "frame": 275,
+            "end": 325,
+            "target": "msg-update",
+            "scale": 1.35
+          },
+          {
+            "do": "focus",
+            "frame": 330,
+            "end": 365,
+            "target": "topics"
+          },
+          {
+            "do": "click",
+            "frame": 375,
+            "target": "topic-general",
+            "set": {
+              "topic": "general"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 410,
+            "target": "topic-trading",
+            "set": {
+              "topic": null
+            }
+          },
+          {
+            "do": "set",
+            "frame": 428,
+            "set": {
+              "stickyDate": "October 26"
+            }
+          },
+          {
+            "do": "tween",
+            "frame": 430,
+            "end": 470,
+            "key": "scroll",
+            "to": 1270
+          },
+          {
+            "do": "explode",
+            "frame": 480,
+            "end": 530,
+            "targets": [
+              "msg-tsla-reply",
+              "chat-hermes-team"
+            ],
+            "labels": [
+              "The reply",
+              "Hermes Team"
+            ]
+          },
+          {
+            "do": "tween",
+            "frame": 535,
+            "end": 555,
+            "key": "scroll",
+            "to": 0
+          },
+          {
+            "do": "set",
+            "frame": 556,
+            "set": {
+              "stickyDate": null
+            }
+          },
+          {
+            "do": "type",
+            "frame": 565,
+            "end": 615,
+            "key": "composer",
+            "text": "Don't touch TSLA again, I don't like it.",
+            "target": "composer"
+          },
+          {
+            "do": "click",
+            "frame": 625,
+            "target": "send",
+            "set": {
+              "composer": "",
+              "append": [
+                {
+                  "id": "again",
+                  "from": "me",
+                  "time": "4:20 PM",
+                  "text": "Don't touch TSLA again, I don't like it.",
+                  "status": "sent"
+                }
+              ]
+            }
+          },
+          {
+            "do": "set",
+            "frame": 650,
+            "set": {
+              "typing": true
+            }
+          },
+          {
+            "do": "set",
+            "frame": 690,
+            "set": {
+              "typing": false,
+              "append": [
+                {
+                  "id": "again",
+                  "from": "me",
+                  "time": "4:20 PM",
+                  "text": "Don't touch TSLA again, I don't like it.",
+                  "status": "read"
+                },
+                {
+                  "id": "got-it",
+                  "from": "bot",
+                  "time": "4:20 PM",
+                  "text": "Got it. TSLA is off the list."
+                }
+              ]
+            }
+          },
+          {
+            "do": "set",
+            "frame": 725,
+            "set": {
+              "sidebar": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "phone",
+        "kind": "app",
+        "from": 760,
+        "duration": 320,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "telegram",
+          "data": {}
+        },
+        "state": {
+          "view": "phone",
+          "upto": "risk"
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "set",
+            "frame": 20,
+            "set": {
+              "typing": true
+            }
+          },
+          {
+            "do": "set",
+            "frame": 55,
+            "set": {
+              "typing": false,
+              "upto": "update"
+            }
+          },
+          {
+            "do": "callout",
+            "frame": 85,
+            "end": 130,
+            "target": "msg-update-line-2",
+            "text": "25% cash sat it out",
+            "side": "left",
+            "dim": true
+          },
+          {
+            "do": "type",
+            "frame": 140,
+            "end": 190,
+            "key": "composer",
+            "text": "Nice. Keep the buffer this week.",
+            "target": "composer"
+          },
+          {
+            "do": "click",
+            "frame": 200,
+            "target": "send",
+            "set": {
+              "composer": "",
+              "append": [
+                {
+                  "id": "nice",
+                  "from": "me",
+                  "time": "4:21 PM",
+                  "text": "Nice. Keep the buffer this week.",
+                  "status": "sent"
+                }
+              ]
+            }
+          },
+          {
+            "do": "lift",
+            "frame": 225,
+            "end": 265,
+            "target": "msg-nice"
+          },
+          {
+            "do": "zoom",
+            "frame": 270,
+            "end": 310,
+            "target": "phone",
+            "scale": 1.25
+          }
+        ]
+      }
+    ]
+  }
+}

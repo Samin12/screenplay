@@ -12,7 +12,7 @@ import { createRequire } from 'node:module';
 import { compileWork, formatDiag, MIN_VISUAL_S, type CompileMeta, type Diag, type WorkCompile } from './compile.ts';
 import { loadManifest, matchTarget, suggestTargets, type ReplicaInfo } from './replicas.ts';
 import { c, fmtClock, parseArgs, workDir } from './util.ts';
-import type { Timeline } from '../src/types.ts';
+import type { Element, Timeline } from '../src/types.ts';
 
 export const MAX_STILL_S = 6;
 export const MAX_HEADLINE_WORDS = 7;
@@ -183,9 +183,17 @@ export function lint(meta: CompileMeta, timeline: Timeline | null, opts: CheckOp
       for (let f = a; f <= b; f += fps) pts.push(f);
       pts.push(b);
     };
+    // A story is changing while something in it moves, counts or fills (its beats are item events).
+    const story = (from: number, el: Element) => {
+      if (el.type !== 'story') return;
+      for (const b of el.beats) if ((b.do === 'move' || b.do === 'count' || b.do === 'fill') && b.dur > 0) fill(from + b.frame, from + b.frame + b.dur);
+    };
     for (const s of timeline.scenes) {
       if (s.kind === 'app') for (const a of s.actions) if (a.do === 'type' || a.do === 'zoom') fill(s.from + a.frame, s.from + a.end);
+      if (s.kind === 'app') for (const a of s.actions) if (a.do === 'show') story(s.from, a.element);
       if (s.kind === 'plug') for (const m of s.media) if (m.scroll) fill(s.from + m.scroll.start, s.from + m.scroll.end);
+      if (s.kind === 'talking' || s.kind === 'stage') for (const el of s.elements) story(s.from, el);
+      if (s.kind === 'board') for (const n of s.nodes) story(s.from, n.element);
     }
     const sorted = [...new Set(pts.map((p) => Math.round(p)))].sort((a, b) => a - b);
     for (let i = 1; i < sorted.length; i++) {

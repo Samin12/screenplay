@@ -59,8 +59,11 @@ export type ChapterScene = SceneBase & { kind: 'chapter'; index: number };
 
 export type Plate =
   | { type: 'replica'; app: string; data: Record<string, unknown> }
-  | { type: 'image'; src: string; size: [number, number]; targets: Record<string, Rect>; tone?: 'dark' | 'light' }
-  | { type: 'video'; src: string; size: [number, number]; startFrom: number; targets: Record<string, Rect>; tone?: 'dark' | 'light' };
+  | { type: 'image'; src: string; size: [number, number]; targets: Record<string, Rect>; tone?: 'dark' | 'light'; blur?: PlateBlur[] }
+  | { type: 'video'; src: string; size: [number, number]; startFrom: number; targets: Record<string, Rect>; tone?: 'dark' | 'light'; blur?: PlateBlur[] };
+
+// A privacy blur on a screen plate: a rect in media pixels, on from `frame` to `end` (scene-relative).
+export type PlateBlur = Rect & { frame: number; end: number };
 
 export type AppScene = SceneBase & {
   kind: 'app';
@@ -135,6 +138,74 @@ export type Element =
   | { type: 'stat'; frame: number; end: number; items: Item[] }
   | { type: 'quote'; frame: number; end: number; text: string; by?: string; mark?: { phrase: string; frame: number } }
   | { type: 'lower'; frame: number; end: number; title: string; sub?: string }
-  | { type: 'cta'; frame: number; end: number; text: string; sub?: string; icon?: string };
+  | { type: 'cta'; frame: number; end: number; text: string; sub?: string; icon?: string }
+  | { type: 'story'; frame: number; end: number; title?: string; actors: StoryActor[]; beats: StoryBeat[] };
 
 export type ElementType = Element['type'];
+
+// ---------- Story: a little animated scene (analogies) ----------
+// Actors stand on a fixed 1400x990 stage (x, y = the centre of the drawing, its label sits under it).
+// Beats carry every bit of timing (frames relative to the scene start, like items); actors are static.
+
+export type StoryActorKind =
+  | 'icon' | 'person' | 'car' | 'taxi' | 'building' | 'office' | 'document' | 'stack' | 'monitor' | 'phone'
+  | 'notebook' | 'drawer' | 'plane' | 'tower' | 'headset' | 'text' | 'box' | 'card' | 'counter' | 'meter'
+  | 'image' | 'arrow' | 'path' | 'bubble' | 'badge' | 'sticker';
+
+export type StoryPoint = string | [number, number]; // an actor id or [x, y]
+export type StorySide = 'top' | 'bottom' | 'left' | 'right';
+
+export type StoryActor = {
+  id: string;
+  kind: StoryActorKind;
+  x: number;
+  y: number;
+  hidden?: boolean; // off stage until its first enter beat
+  scale?: number;
+  rotate?: number;
+  flip?: boolean; // face left
+  label?: string;
+  role?: string;
+  color?: string; // tone name or #hex
+  text?: string;
+  title?: string;
+  lines?: string[];
+  icon?: string;
+  icons?: string[];
+  tile?: boolean;
+  value?: number;
+  prefix?: string;
+  suffix?: string;
+  decimals?: number;
+  pages?: number;
+  count?: number;
+  open?: boolean;
+  wear?: 'tie' | 'headset' | 'glasses';
+  style?: 'bar' | 'dial' | 'speech' | 'thought';
+  size?: number;
+  w?: number;
+  h?: number;
+  src?: string;
+  from?: StoryPoint;
+  to?: StoryPoint;
+  curve?: number;
+  dashed?: boolean;
+  on?: string;
+  side?: StorySide;
+};
+
+export type StorySwap = Partial<Pick<StoryActor, 'text' | 'label' | 'role' | 'title' | 'lines' | 'icon' | 'color' | 'pages' | 'count' | 'value' | 'open'>>;
+
+export type StoryBeat =
+  | { do: 'enter'; frame: number; actor: string; style?: 'blur' | 'pop'; pos?: [number, number] }
+  | { do: 'exit'; frame: number; actor: string }
+  | { do: 'move'; frame: number; dur: number; actor: string; to?: StoryPoint; by?: [number, number]; offset?: [number, number] }
+  | { do: 'say'; frame: number; dur: number; actor: string; text: string; style?: 'speech' | 'thought'; side?: StorySide }
+  | { do: 'count'; frame: number; dur: number; actor: string; to: number; ease?: 'linear' | 'smooth' }
+  | { do: 'fill'; frame: number; dur: number; actor: string; to: number }
+  | { do: 'highlight'; frame: number; dur: number; actor: string }
+  | { do: 'pulse'; frame: number; actor: string }
+  | { do: 'shake'; frame: number; actor: string }
+  | { do: 'swap'; frame: number; actor: string; set: StorySwap }
+  | { do: 'follow'; frame: number; dur?: number; actor?: string; rect?: [number, number, number, number]; scale?: number }
+  | { do: 'dim'; frame: number; dur: number; keep: string[] };

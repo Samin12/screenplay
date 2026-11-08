@@ -63,6 +63,7 @@ Plus: chapter grid cards (webcam hidden, ~3.4 s), cold-open board fly-through, c
 | "it shows A, B, C and D" (parts of one UI) | `explode: [a, b, c, d]` with labels, or successive `lift`s |
 | "type / ask Claude to ..." / a prompt | `type:` into the composer with `lift: true`, starting `-1s` |
 | "go to settings and turn on X" | `click` nav, `set: {view: settings}`, `click: toggle-x` with `set` |
+| an analogy ("it's like a taxi meter", "think of a law firm") | stage `story`: act it out with props and people, every move on its word (below) |
 | a concept with two sides | stage `compare` (good/bad pills) or `flow` (prompt → result arrows) |
 | one thing managing many | stage `tree` (root + children popping on each noun) |
 | a list of features/benefits | `bullets` or `chips`, each item on its word |
@@ -74,6 +75,73 @@ Plus: chapter grid cards (webcam hidden, ~3.4 s), cold-open board fly-through, c
 | a new chapter/feature/tip | `chapters.items` entry (grid card), webcam hidden |
 | sponsor / community plug | `plug` scene with real screenshots, plain cuts on sentence starts |
 | sign-off | talking full-frame + `cta` |
+
+## Analogy → story
+When he reaches for an analogy ("it's like a taxi meter", "think of a law firm"), the viewer should
+**see the story happen**, not read it. Build a `story` element (docs/EDIT-YAML.md, "Stories"):
+1. **Cast it.** One actor per thing in the analogy: people (`person`, `wear: tie | headset`), places
+   (`building`, `office`, `tower`), things (`taxi`, `car`, `plane`, `document`, `stack`, `phone`,
+   `monitor`, `notebook`, `drawer`), and the number that matters (`counter`, `meter`, the taxi's own
+   meter). Map the analogy to the real thing in the `title` or a `label`/`role` ("Partner" / "Opus").
+2. **Block it.** Lay them out on the 1400×990 stage like a stage play: who stands where, the ground
+   line under feet and wheels, room above heads for speech bubbles. A beat every 1–2 s.
+3. **Direct it on his words.** Each actor enters on the word that names it (`at:`), moves on the verb
+   ("hands the stack" → `move`), talks on the line (`say`), counts on the number (`count`), and the
+   punchline gets the emphasis (`highlight`, `pulse`, `sticker`, a `follow` push-in). The accent is
+   the one thing the analogy is about (the meter, the expensive partner, the free line).
+4. **Check stills** at the key beats: is the story readable with the sound off?
+
+**Taxi meter that keeps charging** (cost keeps running even when nothing happens):
+```yaml
+- type: story
+  title: "Your session is a *taxi meter*"
+  actors:
+    - { id: road, kind: path, from: [40, 742], to: [1360, 742] }
+    - { id: cab, kind: taxi, x: 300, y: 572, value: 2.5 }
+    - { id: jam, kind: car, x: 1130, y: 660, scale: 0.8, at: "sitting in traffic" }
+  beats:
+    - { at: "meter starts running", count: cab, to: 48.6, ease: linear, until: "than you expected" }
+    - { at: "Every message", move: cab, to: [700, 572], until: "keeps charging" }
+    - { at: "message you send", say: cab, text: "Fix this bug" }
+    - { at: "the fare", follow: cab, scale: 1.5 }
+```
+**Law firm partner and interns** (expensive model delegates to cheap ones):
+```yaml
+- type: story
+  title: "Opus is the *partner*, Haiku the interns"
+  actors:
+    - { id: partner, kind: person, x: 290, y: 470, wear: tie, color: accent, label: Partner, at: "senior partner" }
+    - { id: docs, kind: stack, x: 640, y: 540, count: 200, text: docs, at: "every single document" }
+    - { id: i1, kind: person, x: 930, y: 430, scale: 0.75, at: "the interns", enter: pop }
+    - { id: i2, kind: person, x: 1100, y: 430, scale: 0.75, label: Interns, role: Haiku, at: "the interns", enter: pop }
+    - { id: memo, kind: document, x: 1100, y: 800, pages: 1, title: Summary, at: "send back" }
+  beats:
+    - { at: "hands the boring stack", move: docs, to: [1100, 810], until: "to the interns" }
+    - { at: "the interns", connect: partner, to: i1, label: Delegate, curve: -0.2, until: "send back" }
+    - { at: "They read it all", count: docs, to: 0, until: "send back" }
+    - { at: "send back", exit: docs }
+    - { at: "one page summary", move: memo, to: [560, 700] }
+    - { at: "makes the call", say: partner, text: "Approved." }
+```
+**Call center rolling to the next free line** (fallback across accounts or models):
+```yaml
+- type: story
+  title: "A busy line *rolls over*"
+  actors:
+    - { id: caller, kind: phone, x: 190, y: 540, label: Caller }
+    - { id: a1, kind: person, x: 650, y: 560, wear: headset, label: "Line 1" }
+    - { id: a2, kind: person, x: 930, y: 560, wear: headset, label: "Line 2" }
+    - { id: call, kind: icon, icon: phone-call, x: 190, y: 250, size: 110, color: accent, at: "When one agent's line" }
+  beats:
+    - { at: "When one agent's line", move: call, to: a1, offset: [0, -260], until: "is busy" }
+    - { at: "is busy", swap: a1, role: Busy, color: bad }
+    - { at: "rolls over", move: call, to: a2, offset: [0, -260] }
+    - { at: "rolls over", swap: a2, role: Free, color: good }
+    - { at: "Nobody hangs up", connect: caller, to: a2, label: Connected, curve: -0.6 }
+    - { at: "always gets an answer", say: a2, text: "How can I help?" }
+```
+Full versions (with every beat) render from `examples/tests/story-analogies.json`; every prop is in
+`examples/tests/story-props.json`.
 
 ## Cursor grammar
 - Appears only when an action is narrated; pops in near the first target; leaves ~1 s after the

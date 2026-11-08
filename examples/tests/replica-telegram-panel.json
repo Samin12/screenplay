@@ -1,0 +1,195 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "theme": "velour",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.42
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [
+      {
+        "frame": 0,
+        "mode": "tile"
+      }
+    ],
+    "chapterGrid": {
+      "heading": "0 Features",
+      "logo": true
+    },
+    "chapters": [],
+    "durationInFrames": 740,
+    "scenes": [
+      {
+        "id": "panel-chat",
+        "kind": "app",
+        "from": 0,
+        "duration": 340,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "telegram",
+          "data": {}
+        },
+        "state": {
+          "upto": "friday",
+          "sidebar": false
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "set",
+            "frame": 15,
+            "set": {
+              "typing": true
+            }
+          },
+          {
+            "do": "set",
+            "frame": 45,
+            "set": {
+              "typing": false,
+              "upto": "risk"
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 70,
+            "end": 105,
+            "target": "msg-risk-line-2",
+            "style": "marker"
+          },
+          {
+            "do": "callout",
+            "frame": 110,
+            "end": 160,
+            "target": "msg-risk-title",
+            "text": "The day before the vote",
+            "side": "top",
+            "dim": true
+          },
+          {
+            "do": "set",
+            "frame": 165,
+            "set": {
+              "upto": "update"
+            }
+          },
+          {
+            "do": "lift",
+            "frame": 190,
+            "end": 240,
+            "target": "msg-update"
+          },
+          {
+            "do": "tween",
+            "frame": 250,
+            "end": 280,
+            "key": "scroll",
+            "to": 500
+          },
+          {
+            "do": "zoom",
+            "frame": 285,
+            "end": 325,
+            "target": "msg-risk-line-2",
+            "scale": 1.5
+          }
+        ]
+      },
+      {
+        "id": "panel-window",
+        "kind": "app",
+        "from": 340,
+        "duration": 160,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "telegram",
+          "data": {}
+        },
+        "state": {},
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "callout",
+            "frame": 40,
+            "end": 120,
+            "target": "topic-trading",
+            "text": "One topic per job",
+            "side": "bottom",
+            "dim": true
+          }
+        ]
+      },
+      {
+        "id": "panel-phone",
+        "kind": "app",
+        "from": 500,
+        "duration": 240,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "telegram",
+          "data": {}
+        },
+        "state": {
+          "view": "phone"
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "type",
+            "frame": 30,
+            "end": 80,
+            "key": "composer",
+            "text": "Don't touch TSLA again, I don't like it.",
+            "target": "composer"
+          },
+          {
+            "do": "click",
+            "frame": 90,
+            "target": "send",
+            "set": {
+              "composer": "",
+              "append": [
+                {
+                  "id": "again",
+                  "from": "me",
+                  "time": "4:20 PM",
+                  "text": "Don't touch TSLA again, I don't like it.",
+                  "status": "read"
+                }
+              ]
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 120,
+            "end": 180,
+            "target": "msg-again-tick",
+            "style": "ring"
+          }
+        ]
+      }
+    ],
+    "look": "panel",
+    "badges": []
+  }
+}

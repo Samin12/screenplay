@@ -1,0 +1,611 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 1499,
+  "look": "panel",
+  "theme": "velour",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.42
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [
+   {
+    "frame": 0,
+    "mode": "tile"
+   }
+  ],
+  "badges": [],
+  "chapterGrid": {
+   "heading": "0 Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "s0",
+    "from": 0,
+    "duration": 494,
+    "transitionIn": "cut",
+    "transitionOut": "blur",
+    "kind": "stage",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "story",
+      "frame": 0,
+      "end": 494,
+      "actors": [
+       {
+        "id": "road",
+        "kind": "path",
+        "x": 700,
+        "y": 520,
+        "from": [
+         40,
+         742
+        ],
+        "to": [
+         1360,
+         742
+        ]
+       },
+       {
+        "id": "cab",
+        "kind": "taxi",
+        "x": 300,
+        "y": 572,
+        "value": 2.5
+       },
+       {
+        "id": "you",
+        "kind": "person",
+        "x": 650,
+        "y": 586,
+        "label": "You",
+        "color": "accent"
+       },
+       {
+        "id": "jam",
+        "kind": "car",
+        "x": 1130,
+        "y": 660,
+        "scale": 0.8,
+        "hidden": true
+       },
+       {
+        "id": "traffic",
+        "kind": "badge",
+        "x": 1130,
+        "y": 450,
+        "text": "Stuck in traffic",
+        "icon": "clock",
+        "hidden": true
+       },
+       {
+        "id": "office",
+        "kind": "building",
+        "x": 1225,
+        "y": 528,
+        "label": "Done",
+        "hidden": true
+       },
+       {
+        "id": "wow",
+        "kind": "sticker",
+        "x": 1010,
+        "y": 330,
+        "text": "Way bigger!",
+        "hidden": true
+       }
+      ],
+      "beats": [
+       {
+        "do": "move",
+        "frame": 93,
+        "dur": 21,
+        "actor": "you",
+        "to": "cab",
+        "offset": [
+         60,
+         0
+        ]
+       },
+       {
+        "do": "exit",
+        "frame": 122,
+        "actor": "you"
+       },
+       {
+        "do": "count",
+        "frame": 155,
+        "dur": 327,
+        "actor": "cab",
+        "to": 48.6,
+        "ease": "linear"
+       },
+       {
+        "do": "move",
+        "frame": 194,
+        "dur": 69,
+        "actor": "cab",
+        "to": [
+         700,
+         572
+        ]
+       },
+       {
+        "do": "say",
+        "frame": 203,
+        "dur": 42,
+        "actor": "cab",
+        "text": "Fix this bug"
+       },
+       {
+        "do": "say",
+        "frame": 245,
+        "dur": 42,
+        "actor": "cab",
+        "text": "One more thing"
+       },
+       {
+        "do": "enter",
+        "frame": 307,
+        "actor": "jam"
+       },
+       {
+        "do": "enter",
+        "frame": 307,
+        "actor": "traffic"
+       },
+       {
+        "do": "enter",
+        "frame": 346,
+        "actor": "office"
+       },
+       {
+        "do": "exit",
+        "frame": 346,
+        "actor": "traffic"
+       },
+       {
+        "do": "move",
+        "frame": 346,
+        "dur": 24,
+        "actor": "jam",
+        "by": [
+         700,
+         0
+        ]
+       },
+       {
+        "do": "move",
+        "frame": 375,
+        "dur": 30,
+        "actor": "cab",
+        "to": [
+         850,
+         572
+        ]
+       },
+       {
+        "do": "follow",
+        "frame": 407,
+        "actor": "cab",
+        "scale": 1.5
+       },
+       {
+        "do": "enter",
+        "frame": 436,
+        "actor": "wow"
+       },
+       {
+        "do": "pulse",
+        "frame": 436,
+        "actor": "cab"
+       }
+      ],
+      "title": "Your session is a *taxi meter*"
+     }
+    ]
+   },
+   {
+    "id": "s1",
+    "from": 494,
+    "duration": 569,
+    "transitionIn": "blur",
+    "transitionOut": "blur",
+    "kind": "stage",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "story",
+      "frame": 0,
+      "end": 569,
+      "actors": [
+       {
+        "id": "partner",
+        "kind": "person",
+        "x": 290,
+        "y": 470,
+        "label": "Partner",
+        "color": "accent",
+        "wear": "tie",
+        "hidden": true
+       },
+       {
+        "id": "docs",
+        "kind": "stack",
+        "x": 640,
+        "y": 540,
+        "text": "docs",
+        "count": 200,
+        "hidden": true
+       },
+       {
+        "id": "i1",
+        "kind": "person",
+        "x": 930,
+        "y": 430,
+        "scale": 0.75,
+        "wear": "glasses",
+        "hidden": true
+       },
+       {
+        "id": "i2",
+        "kind": "person",
+        "x": 1100,
+        "y": 430,
+        "scale": 0.75,
+        "label": "Interns",
+        "role": "Haiku",
+        "hidden": true
+       },
+       {
+        "id": "i3",
+        "kind": "person",
+        "x": 1270,
+        "y": 430,
+        "scale": 0.75,
+        "hidden": true
+       },
+       {
+        "id": "memo",
+        "kind": "document",
+        "x": 1100,
+        "y": 800,
+        "title": "Summary",
+        "pages": 1,
+        "hidden": true
+       },
+       {
+        "id": "connect-1",
+        "kind": "arrow",
+        "x": 0,
+        "y": 0,
+        "hidden": true,
+        "from": "partner",
+        "to": "i1",
+        "label": "Delegate",
+        "curve": -0.2
+       }
+      ],
+      "beats": [
+       {
+        "do": "enter",
+        "frame": 97,
+        "actor": "partner"
+       },
+       {
+        "do": "swap",
+        "frame": 139,
+        "actor": "partner",
+        "set": {
+         "role": "$500 an hour"
+        }
+       },
+       {
+        "do": "say",
+        "frame": 191,
+        "dur": 105,
+        "actor": "partner",
+        "text": "200 documents?",
+        "style": "thought"
+       },
+       {
+        "do": "enter",
+        "frame": 201,
+        "actor": "docs"
+       },
+       {
+        "do": "move",
+        "frame": 269,
+        "dur": 65,
+        "actor": "docs",
+        "to": [
+         1100,
+         810
+        ]
+       },
+       {
+        "do": "enter",
+        "frame": 317,
+        "actor": "i1",
+        "style": "pop"
+       },
+       {
+        "do": "enter",
+        "frame": 317,
+        "actor": "i2",
+        "style": "pop"
+       },
+       {
+        "do": "enter",
+        "frame": 317,
+        "actor": "i3",
+        "style": "pop"
+       },
+       {
+        "do": "enter",
+        "frame": 317,
+        "actor": "connect-1"
+       },
+       {
+        "do": "count",
+        "frame": 346,
+        "dur": 66,
+        "actor": "docs",
+        "to": 0
+       },
+       {
+        "do": "enter",
+        "frame": 394,
+        "actor": "memo"
+       },
+       {
+        "do": "exit",
+        "frame": 394,
+        "actor": "docs"
+       },
+       {
+        "do": "exit",
+        "frame": 412,
+        "actor": "connect-1"
+       },
+       {
+        "do": "move",
+        "frame": 423,
+        "dur": 27,
+        "actor": "memo",
+        "to": [
+         560,
+         700
+        ]
+       },
+       {
+        "do": "dim",
+        "frame": 482,
+        "dur": 75,
+        "keep": [
+         "partner",
+         "memo"
+        ]
+       },
+       {
+        "do": "say",
+        "frame": 530,
+        "dur": 39,
+        "actor": "partner",
+        "text": "Approved."
+       },
+       {
+        "do": "highlight",
+        "frame": 530,
+        "dur": 39,
+        "actor": "partner"
+       }
+      ],
+      "title": "Opus is the *partner*, Haiku the interns"
+     }
+    ]
+   },
+   {
+    "id": "s2",
+    "from": 1063,
+    "duration": 436,
+    "transitionIn": "blur",
+    "transitionOut": "cut",
+    "kind": "stage",
+    "layout": "center",
+    "title": null,
+    "elements": [
+     {
+      "type": "story",
+      "frame": 0,
+      "end": 436,
+      "actors": [
+       {
+        "id": "caller",
+        "kind": "phone",
+        "x": 190,
+        "y": 540,
+        "label": "Caller"
+       },
+       {
+        "id": "a1",
+        "kind": "person",
+        "x": 650,
+        "y": 560,
+        "label": "Line 1",
+        "wear": "headset"
+       },
+       {
+        "id": "a2",
+        "kind": "person",
+        "x": 930,
+        "y": 560,
+        "label": "Line 2",
+        "wear": "headset"
+       },
+       {
+        "id": "a3",
+        "kind": "person",
+        "x": 1210,
+        "y": 560,
+        "label": "Line 3",
+        "wear": "headset"
+       },
+       {
+        "id": "call",
+        "kind": "icon",
+        "x": 190,
+        "y": 250,
+        "color": "accent",
+        "icon": "phone-call",
+        "size": 110,
+        "hidden": true
+       },
+       {
+        "id": "connect-1",
+        "kind": "arrow",
+        "x": 0,
+        "y": 0,
+        "hidden": true,
+        "from": "caller",
+        "to": "a1",
+        "curve": -0.3,
+        "dashed": true
+       },
+       {
+        "id": "connect-2",
+        "kind": "arrow",
+        "x": 0,
+        "y": 0,
+        "hidden": true,
+        "from": "caller",
+        "to": "a3",
+        "label": "Connected",
+        "curve": -0.62
+       }
+      ],
+      "beats": [
+       {
+        "do": "enter",
+        "frame": 68,
+        "actor": "call"
+       },
+       {
+        "do": "move",
+        "frame": 68,
+        "dur": 56,
+        "actor": "call",
+        "to": "a1",
+        "offset": [
+         0,
+         -260
+        ]
+       },
+       {
+        "do": "swap",
+        "frame": 106,
+        "actor": "a1",
+        "set": {
+         "role": "Busy",
+         "color": "bad"
+        }
+       },
+       {
+        "do": "shake",
+        "frame": 106,
+        "actor": "a1"
+       },
+       {
+        "do": "enter",
+        "frame": 148,
+        "actor": "connect-1"
+       },
+       {
+        "do": "move",
+        "frame": 188,
+        "dur": 27,
+        "actor": "call",
+        "to": "a2",
+        "offset": [
+         0,
+         -260
+        ]
+       },
+       {
+        "do": "swap",
+        "frame": 188,
+        "actor": "a2",
+        "set": {
+         "role": "Busy",
+         "color": "bad"
+        }
+       },
+       {
+        "do": "exit",
+        "frame": 205,
+        "actor": "connect-1"
+       },
+       {
+        "do": "move",
+        "frame": 259,
+        "dur": 27,
+        "actor": "call",
+        "to": "a3",
+        "offset": [
+         0,
+         -260
+        ]
+       },
+       {
+        "do": "swap",
+        "frame": 259,
+        "actor": "a3",
+        "set": {
+         "role": "Free",
+         "color": "good"
+        }
+       },
+       {
+        "do": "exit",
+        "frame": 307,
+        "actor": "call"
+       },
+       {
+        "do": "enter",
+        "frame": 307,
+        "actor": "connect-2"
+       },
+       {
+        "do": "say",
+        "frame": 369,
+        "dur": 67,
+        "actor": "a3",
+        "text": "How can I help?"
+       },
+       {
+        "do": "highlight",
+        "frame": 369,
+        "dur": 60,
+        "actor": "a3"
+       }
+      ],
+      "title": "A busy line *rolls over*"
+     }
+    ]
+   }
+  ]
+ }
+}

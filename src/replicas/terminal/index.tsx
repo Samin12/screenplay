@@ -15,6 +15,7 @@ type TermData = {
   commands: { name: string; desc: string }[];
   status: { left: string; right: string };
   anchor: 'top' | 'bottom';
+  config: { label: string; value: string | boolean }[]; // /config panel rows (labels from Claude Code 2.1.302)
 };
 
 type TermState = {
@@ -25,6 +26,7 @@ type TermState = {
   append: Line[];
   thinking: string | null;
   mode: 'normal' | 'plan' | 'accept';
+  config: null | { hover?: string; values?: Record<string, string | boolean>; tab?: string }; // /config panel
 };
 
 const P = {
@@ -84,9 +86,26 @@ const defaultData: TermData = {
   ],
   status: { left: '? for shortcuts', right: 'Opus 5.5 · 28% context used' },
   anchor: 'top',
+  config: [
+    { label: 'Theme', value: 'Dark mode' },
+    { label: 'Auto-compact', value: true },
+    { label: 'Idle compaction', value: true },
+    { label: 'Continue automatically at usage limit', value: true },
+    { label: 'Show tips', value: true },
+    { label: 'Reduce motion', value: false },
+    { label: 'Thinking mode', value: true },
+    { label: 'Prompt suggestions', value: true },
+    { label: 'Session recap', value: true },
+    { label: 'Rewind code (checkpoints)', value: true },
+    { label: 'Dynamic workflows', value: true },
+    { label: 'Terminal progress bar', value: true },
+    { label: 'Default permission mode', value: 'Default' },
+    { label: 'Output style', value: 'default' },
+    { label: 'Model', value: 'Default (recommended)' },
+  ],
 };
 
-const defaultState: TermState = { prompt: '', slash: null, slashHover: null, upto: null, append: [], thinking: null, mode: 'normal' };
+const defaultState: TermState = { prompt: '', slash: null, slashHover: null, upto: null, append: [], thinking: null, mode: 'normal', config: null };
 
 const ToolText: React.FC<{ text: string }> = ({ text }) => {
   const m = /^([A-Za-z_][\w-]*)(\(.*\))?$/.exec(text);
@@ -145,6 +164,43 @@ const LineView: React.FC<{ l: Line; n: number }> = ({ l, n }) => {
       <div data-target={t} style={hug}>
         {body}
       </div>
+    </div>
+  );
+};
+
+// `/config` panel (Claude Code's Settings, Config tab): replaces the input box while open.
+const ConfigPanel: React.FC<{ data: TermData; state: TermState; ui: ReplicaProps['ui'] }> = ({ data, state, ui }) => {
+  const c = state.config!;
+  const tabs = ['Status', 'Config', 'Usage', 'Stats'];
+  const tab = c.tab ?? 'Config';
+  return (
+    <div data-target="config" style={{ marginTop: 22, borderTop: `1.5px solid ${P.purple}`, paddingTop: 12 }}>
+      <div style={{ display: 'flex', gap: '2ch', color: P.purple }}>
+        <span style={{ fontWeight: 700 }}>Settings:</span>
+        {tabs.map((t) => (
+          <span key={t} style={t === tab ? { background: P.purple, color: '#151515', padding: '0 1ch' } : { color: P.dim, padding: '0 1ch' }}>
+            {t}
+          </span>
+        ))}
+        <span style={{ color: P.faint }}>(←/→ or tab to cycle)</span>
+      </div>
+      <div style={{ color: P.dim, marginTop: 10 }}>Configure Claude Code preferences</div>
+      <div style={{ border: `1.5px solid ${P.box}`, borderRadius: 8, padding: '2px 1.5ch', margin: '10px 0 8px', width: '60ch', color: P.faint }}>⌕ Search settings…</div>
+      {data.config.map((r) => {
+        const k = slug(r.label);
+        const v = c.values?.[k] ?? r.value;
+        const on = c.hover === r.label || isHover(ui, `config-${k}`);
+        return (
+          <div key={r.label} data-target={`config-${k}`} style={{ display: 'flex', width: 'fit-content', height: LH, alignItems: 'center', color: on ? P.purple : '#d0d0d0' }}>
+            <span style={{ width: '2ch' }}>{on ? '❯' : ' '}</span>
+            <span style={{ width: '48ch', whiteSpace: 'pre' }}>{r.label}</span>
+            <span data-target={`config-value-${k}`} style={{ color: on ? P.purple : typeof v === 'boolean' ? (v ? P.green : P.dim) : P.text }}>
+              {String(v)}
+            </span>
+          </div>
+        );
+      })}
+      <div style={{ color: P.faint, marginTop: 8, fontSize: FS - 2 }}>Enter/Space to change · Esc to close</div>
     </div>
   );
 };
@@ -231,7 +287,9 @@ const Terminal: React.FC<ReplicaProps<Partial<TermData>, Partial<TermState>>> = 
               </div>
             ) : null}
 
+            {state.config ? <ConfigPanel data={data} state={state} ui={ui} /> : null}
             {/* input box */}
+            {state.config ? null : (<>
             <div
               data-target="composer"
               style={{ marginTop: 22, border: `1.5px solid ${ui.caret === 'prompt' ? '#a0a0a0' : P.box}`, borderRadius: 10, padding: '12px 18px', display: 'flex', minHeight: LH + 24, boxSizing: 'border-box', background: P.win }}
@@ -269,6 +327,7 @@ const Terminal: React.FC<ReplicaProps<Partial<TermData>, Partial<TermState>>> = 
                 <span>{data.status.right}</span>
               </div>
             )}
+            </>)}
           </div>
         </div>
       </div>
@@ -295,6 +354,9 @@ export const terminal: ReplicaDef = {
     status: 'status line under the input box (hidden while the slash popup is open)',
     slash: 'slash-command list under the input box (state.slash)',
     'slash-<slug>': 'one command row, e.g. slash-compact',
+    config: '/config panel (state.config), replaces the input box',
+    'config-<slug>': '/config row, e.g. config-auto-compact, config-prompt-suggestions, config-continue-automatically-at-usage-limit',
+    'config-value-<slug>': 'value cell of a /config row (true / false / text)',
   },
   stateDoc: {
     prompt: 'string: input box text (block caret while typing)',
@@ -304,5 +366,6 @@ export const terminal: ReplicaDef = {
     append: 'lines appended after data.lines: [{kind, text}] (kinds: prompt | out | text | tool | ok | err | dim | blank)',
     thinking: "string | null: spinner line, e.g. 'Drafting reports… (12s · ↑ 1.2k tokens)'",
     mode: "'normal' | 'plan' | 'accept': status-line mode text",
+    config: "null | {hover?: 'Auto-compact', values?: {'auto-compact': false}, tab?: 'Config'}: Claude Code's /config Settings panel (rows from data.config, real CLI labels); values override by slug",
   },
 };

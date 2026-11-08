@@ -15,6 +15,7 @@ export type UiState = {
   frame: number; // scene-relative frame, for blinking carets or spinners
   fps: number;
   measuring?: boolean; // the invisible copy used to measure targets: skip video and anything heavy
+  changes?: Record<string, { frame: number; prev: unknown }>; // state key -> when `set` last changed it and from what, so a replica can animate what just appeared
 };
 
 export type ReplicaProps<D = Record<string, any>, S = Record<string, any>> = {
@@ -33,7 +34,16 @@ export type ReplicaDef = {
   defaults: { data: Record<string, any>; state: Record<string, any> };
   targets: Record<string, string>; // target name -> what it is (docs for the editing agent)
   stateDoc: Record<string, string>; // state key -> allowed values / meaning
+  // Optional: build the full data from the scene's `data:` (presets, themes). Without it the engine
+  // uses `{...defaults.data, ...plateData}`.
+  resolveData?: (plateData: Record<string, any>) => Record<string, any>;
+  // Optional: tone that depends on the data (e.g. a light theme of a dark app). Defaults to `tone`.
+  toneOf?: (data: Record<string, any>) => 'dark' | 'light';
 };
+
+// Full data a replica is drawn with: its resolveData hook, else defaults merged with the scene data.
+export const resolvePlateData = (def: ReplicaDef, plateData: Record<string, any> | undefined) =>
+  def.resolveData ? def.resolveData(plateData ?? {}) : { ...def.defaults.data, ...(plateData ?? {}) };
 
 // The plate a replica is being drawn on. The design size by default; the panel look asks for the
 // panel's aspect instead, and replicas reflow into it (text stays the same size).

@@ -216,8 +216,25 @@ function idle(st: CursorState, frame: number, fps: number): CursorState {
   return { ...st, p: { x: st.p.x + Math.sin(t * 0.9) * 5, y: st.p.y + Math.cos(t * 0.7) * 3 } };
 }
 
+// When each state key last changed through `set` (or a click's `set`), and what it changed from.
+export function changesAt(scene: AppScene, frame: number): NonNullable<UiState['changes']> {
+  const st: Record<string, unknown> = { ...scene.state };
+  const out: NonNullable<UiState['changes']> = {};
+  const ordered = [...scene.actions].sort((a, b) => a.frame - b.frame);
+  for (const a of ordered) {
+    if (a.frame > frame) break;
+    if ((a.do !== 'set' && a.do !== 'click') || !a.set) continue;
+    for (const [k, v] of Object.entries(a.set)) {
+      if (JSON.stringify(st[k]) === JSON.stringify(v)) continue;
+      out[k] = { frame: a.frame, prev: st[k] };
+      st[k] = v;
+    }
+  }
+  return out;
+}
+
 export function uiAt(scene: AppScene, cursor: CursorState, frame: number, fps: number): UiState {
-  const ui: UiState = { frame, fps, hover: cursor.hover, pressed: cursor.pressed };
+  const ui: UiState = { frame, fps, hover: cursor.hover, pressed: cursor.pressed, changes: changesAt(scene, frame) };
   for (const a of typeActions(scene)) if (frame >= a.frame && frame <= a.end + fps) ui.caret = a.key;
   return ui;
 }

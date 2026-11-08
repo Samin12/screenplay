@@ -1,0 +1,587 @@
+{
+  "timeline": {
+    "version": 1,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "durationInFrames": 1350,
+    "theme": "ember-dark",
+    "aroll": null,
+    "camera": {
+      "focus": [
+        0.5,
+        0.4
+      ],
+      "zoom": 1,
+      "mirror": false
+    },
+    "webcam": [],
+    "chapterGrid": {
+      "heading": "Features",
+      "logo": true
+    },
+    "chapters": [],
+    "scenes": [
+      {
+        "id": "flow",
+        "kind": "app",
+        "from": 0,
+        "duration": 840,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "openusage",
+          "data": {}
+        },
+        "state": {
+          "open": false,
+          "accounts": [
+            "claude-work",
+            "codex",
+            "cursor",
+            "grok"
+          ],
+          "tab": "today"
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "move",
+            "frame": 12,
+            "target": "menubar-icon"
+          },
+          {
+            "do": "click",
+            "frame": 30,
+            "target": "menubar-icon",
+            "set": {
+              "open": true
+            }
+          },
+          {
+            "do": "callout",
+            "frame": 45,
+            "end": 100,
+            "target": "strip-1",
+            "text": "% left, right in the menu bar",
+            "side": "bottom",
+            "dim": false
+          },
+          {
+            "do": "click",
+            "frame": 110,
+            "target": "options",
+            "set": {
+              "menu": "options"
+            }
+          },
+          {
+            "do": "move",
+            "frame": 135,
+            "target": "accounts-nav"
+          },
+          {
+            "do": "click",
+            "frame": 150,
+            "target": "accounts-nav",
+            "set": {
+              "menu": null,
+              "view": "accounts"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 185,
+            "target": "add-account",
+            "set": {
+              "sheet": "add"
+            }
+          },
+          {
+            "do": "move",
+            "frame": 215,
+            "target": "provider-claude"
+          },
+          {
+            "do": "click",
+            "frame": 235,
+            "target": "provider-claude",
+            "set": {
+              "sheet": "signin",
+              "provider": "claude",
+              "signin": "waiting"
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 260,
+            "end": 300,
+            "target": "signin-status",
+            "style": "ring"
+          },
+          {
+            "do": "click",
+            "frame": 305,
+            "target": "open-browser",
+            "tooltip": "Opens claude.ai sign-in"
+          },
+          {
+            "do": "set",
+            "frame": 330,
+            "set": {
+              "signin": "signing"
+            }
+          },
+          {
+            "do": "set",
+            "frame": 350,
+            "set": {
+              "sheet": null,
+              "accounts": [
+                "claude-work",
+                "claude-personal",
+                "codex",
+                "cursor",
+                "grok"
+              ]
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 360,
+            "end": 400,
+            "target": "account-row-claude-personal",
+            "style": "ring"
+          },
+          {
+            "do": "click",
+            "frame": 410,
+            "target": "account-row-claude-personal",
+            "set": {
+              "view": "account",
+              "account": "claude-personal"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 450,
+            "target": "back",
+            "set": {
+              "view": "accounts"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 480,
+            "target": "back",
+            "set": {
+              "view": "popup"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 510,
+            "target": "tab-30-days",
+            "set": {
+              "tab": "30-days"
+            }
+          },
+          {
+            "do": "callout",
+            "frame": 540,
+            "end": 600,
+            "target": "donut",
+            "text": "$10.5K in 30 days",
+            "side": "left",
+            "dim": true
+          },
+          {
+            "do": "lift",
+            "frame": 610,
+            "end": 660,
+            "target": "limit-claude-work-weekly"
+          },
+          {
+            "do": "explode",
+            "frame": 670,
+            "end": 730,
+            "targets": [
+              "cost-row-claude-work",
+              "cost-row-codex",
+              "cost-row-grok"
+            ],
+            "labels": [
+              "Claude",
+              "Codex",
+              "Grok"
+            ]
+          },
+          {
+            "do": "zoom",
+            "frame": 740,
+            "end": 790,
+            "target": "trend-claude-work",
+            "scale": 1.6
+          },
+          {
+            "do": "focus",
+            "frame": 795,
+            "end": 835,
+            "target": "panel"
+          }
+        ]
+      },
+      {
+        "id": "history",
+        "kind": "app",
+        "from": 840,
+        "duration": 180,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "openusage",
+          "data": {}
+        },
+        "state": {
+          "open": true,
+          "tab": "30-days"
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "tween",
+            "frame": 5,
+            "end": 55,
+            "key": "scroll",
+            "to": 2600
+          },
+          {
+            "do": "set",
+            "frame": 60,
+            "set": {
+              "scrollTo": "grok"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 75,
+            "target": "caret-grok",
+            "set": {
+              "expanded": [
+                "grok"
+              ]
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 95,
+            "end": 135,
+            "target": "value-grok-last-30-days",
+            "style": "marker"
+          },
+          {
+            "do": "set",
+            "frame": 140,
+            "set": {
+              "scrollTo": null,
+              "scroll": 0,
+              "menu": "options",
+              "menuHover": "settings"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 160,
+            "target": "settings-nav",
+            "set": {
+              "menu": null,
+              "view": "settings"
+            }
+          }
+        ]
+      },
+      {
+        "id": "fresh",
+        "kind": "app",
+        "from": 1020,
+        "duration": 150,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "openusage",
+          "data": {}
+        },
+        "state": {
+          "open": true,
+          "accounts": []
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "click",
+            "frame": 15,
+            "target": "add-account",
+            "set": {
+              "sheet": "add"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 40,
+            "target": "provider-openrouter",
+            "set": {
+              "sheet": "signin",
+              "provider": "openrouter"
+            }
+          },
+          {
+            "do": "type",
+            "frame": 55,
+            "end": 85,
+            "key": "code",
+            "text": "sk-or-v1-8f2c41d9",
+            "target": "code-field",
+            "lift": true
+          },
+          {
+            "do": "set",
+            "frame": 105,
+            "set": {
+              "provider": "grok",
+              "code": ""
+            }
+          },
+          {
+            "do": "mark",
+            "frame": 115,
+            "end": 145,
+            "target": "device-code",
+            "style": "ring"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "kind": "app",
+        "from": 1170,
+        "duration": 120,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "openusage",
+          "data": {}
+        },
+        "state": {
+          "open": true,
+          "view": "settings"
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": [
+          {
+            "do": "click",
+            "frame": 15,
+            "target": "settings-tab-display",
+            "set": {
+              "settingsTab": "display"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 45,
+            "target": "settings-tab-alerts",
+            "set": {
+              "settingsTab": "alerts"
+            }
+          },
+          {
+            "do": "click",
+            "frame": 70,
+            "target": "toggle-almost-out",
+            "set": {
+              "toggles": {
+                "almost-out": true
+              }
+            }
+          },
+          {
+            "do": "set",
+            "frame": 95,
+            "set": {
+              "open": false,
+              "view": "popup",
+              "menu": "status",
+              "menuHover": "settings"
+            }
+          }
+        ]
+      },
+      {
+        "id": "site-look",
+        "kind": "app",
+        "from": 1290,
+        "duration": 60,
+        "transitionIn": "cut",
+        "transitionOut": "cut",
+        "plate": {
+          "type": "replica",
+          "app": "openusage",
+          "data": {
+            "strip": [
+              {
+                "provider": "claude",
+                "values": [
+                  "100%",
+                  "36%"
+                ],
+                "account": "claude"
+              },
+              {
+                "provider": "codex",
+                "values": [
+                  "58%",
+                  "12%"
+                ],
+                "account": "codex"
+              },
+              {
+                "provider": "cursor",
+                "values": [
+                  "73%",
+                  "98%"
+                ],
+                "account": "cursor"
+              }
+            ],
+            "accounts": [
+              {
+                "id": "claude",
+                "provider": "claude",
+                "plan": "Team 5x",
+                "metrics": [
+                  {
+                    "label": "Session",
+                    "left": 100,
+                    "resets": "Resets in 5h"
+                  },
+                  {
+                    "label": "Weekly",
+                    "left": 36,
+                    "resets": "Resets in 1d 6h",
+                    "note": "~22% left at reset",
+                    "tick": 52
+                  },
+                  {
+                    "label": "Fable",
+                    "left": 27,
+                    "resets": "Resets in 1d 6h",
+                    "note": "~11% left at reset",
+                    "tick": 52
+                  }
+                ],
+                "more": [
+                  {
+                    "kind": "value",
+                    "label": "Today",
+                    "value": "$49.85 \u00b7 35.8M tokens"
+                  },
+                  {
+                    "kind": "value",
+                    "label": "Yesterday",
+                    "value": "$61.30 \u00b7 43.4M tokens"
+                  },
+                  {
+                    "kind": "value",
+                    "label": "Last 30 Days",
+                    "value": "$2.5K \u00b7 2.3B tokens"
+                  }
+                ],
+                "spend": {
+                  "today": 49.85,
+                  "yesterday": 61.3,
+                  "30-days": 2500
+                }
+              },
+              {
+                "id": "codex",
+                "provider": "codex",
+                "plan": "Pro 5x",
+                "metrics": [
+                  {
+                    "label": "Session",
+                    "left": 58,
+                    "resets": "Resets in 2h 14m"
+                  },
+                  {
+                    "label": "Weekly",
+                    "left": 12,
+                    "resets": "Resets in 3d 6h",
+                    "note": "Limit in 1d 4h",
+                    "flame": true,
+                    "tone": "red",
+                    "tick": 40
+                  }
+                ],
+                "spend": {
+                  "today": 31.2
+                }
+              },
+              {
+                "id": "cursor",
+                "provider": "cursor",
+                "plan": "Ultra",
+                "metrics": [
+                  {
+                    "label": "Total Usage",
+                    "left": 73,
+                    "resets": "Resets in 18d 23h"
+                  }
+                ],
+                "spend": {
+                  "today": 12.4
+                }
+              },
+              {
+                "id": "grok",
+                "provider": "grok",
+                "metrics": [
+                  {
+                    "label": "Weekly",
+                    "left": 90,
+                    "resets": "Resets in 4d"
+                  }
+                ],
+                "spend": {
+                  "today": 0.9
+                }
+              }
+            ],
+            "nextUpdate": "Next update in 3m"
+          }
+        },
+        "state": {
+          "open": true,
+          "tab": "today",
+          "expanded": [
+            "claude"
+          ]
+        },
+        "camera": {
+          "scale": 1
+        },
+        "actions": []
+      }
+    ]
+  }
+}

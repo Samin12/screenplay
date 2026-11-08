@@ -1,22 +1,26 @@
 // Kept source ranges → output segments → output-time words. Pure (the envelope is passed in).
 import { quietest, speechIslands } from './audio.ts';
 import type { Island } from './audio.ts';
+import { endsClause } from './text.ts';
 import type { CutRange, Envelope, OutWord, Segment, Word } from './types.ts';
 
 export type RangeOptions = {
   duration: number; // source duration (seconds)
-  maxGap: number; // inter-word gaps longer than this are compressed
+  maxGap: number; // gaps after a clause end (, ; : . ? ! or a cut-off word) longer than this are compressed
+  midGap: number; // gaps inside a clause are compressed only when longer than this (0 = same as maxGap)
   head: number; // silence kept before speech after a compressed gap / cut
   tail: number; // silence kept after speech before a compressed gap / cut
   pad: number; // minimum padding around every kept word
   orphanKeep: number; // unattributed speech islands at least this long inside a gap are kept (untranscribed words)
+  minPiece: number; // never trim a pause that would leave a kept piece shorter than this between two joins (0 = off)
   joins?: Map<string, number>; // verified cut points (source seconds) for boundaries, keyed by boundaryKey()
+  holds?: Map<number, number>; // word id -> seconds of the pause after it to keep (demo pauses, the live feel)
 };
 
 /** Key of the boundary between adjacent source words x and x + 1. */
 export const boundaryKey = (x: number) => `${x}|${x + 1}`;
 
-export const DEFAULT_RANGES: Omit<RangeOptions, 'duration'> = { maxGap: 0.18, head: 0.08, tail: 0.07, pad: 0.04, orphanKeep: 0.6 };
+export const DEFAULT_RANGES: Omit<RangeOptions, 'duration'> = { maxGap: 0.18, midGap: 0, head: 0.08, tail: 0.07, pad: 0.04, orphanKeep: 0.6, minPiece: 0 };
 
 export type Range = { start: number; end: number };
 
@@ -31,7 +35,8 @@ export function cutMask(count: number, cuts: CutRange[], keep: CutRange[] = []):
 /**
  * Source ranges to keep. Every run of kept words becomes a range from just before its first word to just
  * after its last (cut points between a kept and a removed word sit at the quietest moment between them);
- * inside a run, every gap between words longer than maxGap is compressed to head + tail seconds.
+ * inside a run, a gap after a clause end longer than maxGap (inside a clause: longer than midGap) is
+ * compressed to head + tail seconds, unless that would leave a piece shorter than minPiece.
  * `words` should already be snapped to the audio (audio.snapWords).
  */
 export function keptRanges(words: Word[], removed: boolean[], env: Envelope | null, options: Partial<RangeOptions> & { duration: number }): Range[] {
@@ -59,8 +64,8 @@ export function keptRanges(words: Word[], removed: boolean[], env: Envelope | nu
       start = Math.max(start, Math.min(prev.end, words[a].start - o.pad));
     }
     // Run end.
-    let end = Math.min(o.duration, words[b].end + o.tail);
-    if (b < N - 1 && o.joins?.has(boundaryKey(b))) end = o.joins.get(boundaryKey(b)) as number;
+    let end = Math.min(o.duration, words[b].end + Math.max(o.tail, o.holds?.get(b) ?? 0));
+    if (b < N - 1 && o.joins?.has(boundaryKey(b)) && !o.holds?.has(b)) end = o.joins.get(boundaryKey(b)) as number;
     else if (b < N - 1) {
       const next = words[b + 1]; // removed
       if (next.start - words[b].end < o.tail + o.pad) end = joinPoint(words[b], next, env, o.pad);
@@ -73,12 +78,26 @@ export function keptRanges(words: Word[], removed: boolean[], env: Envelope | nu
     for (let m = a; m < b; m++) {
       const g0 = words[m].end;
       const g1 = words[m + 1].start;
-      if (g1 - g0 <= o.maxGap) continue;
+      // A held demo pause: keep its first `hold` seconds (the click and what it changed), cut the rest.
+      const hold = o.holds?.get(m);
+      if (hold !== undefined) {
+        if (g1 - g0 > hold + o.head + 0.15) {
+          out.push({ start: cur, end: g0 + hold });
+          cur = g1 - o.head;
+        }
+        continue;
+      }
+      // A pause inside a clause is phrasing (a breath, a beat before the key word): only real hesitations go.
+      const limit = endsClause(words[m].text) ? o.maxGap : Math.max(o.maxGap, o.midGap);
+      if (g1 - g0 <= limit) continue;
+      // A trim that strands a sliver of speech between two joins buys a jump cut for almost nothing
+      // (unless the pause is so long that keeping it whole is worse).
+      if (g1 - g0 < limit + 0.5 && (g0 + o.tail - cur < o.minPiece || end - (g1 - o.head) < o.minPiece)) continue;
       // Long unattributed speech inside the gap (an untranscribed word) is kept with its own padding.
       const keepIslands = islands.filter((isl) => isl.start > g0 + o.tail && isl.end < g1 - o.head && isl.end - isl.start >= o.orphanKeep);
       let from = g0;
       for (const isl of [...keepIslands, { start: g1, end: g1 } as Island]) {
-        if (isl.start - from > o.maxGap) {
+        if (isl.start - from > limit) {
           out.push({ start: cur, end: from + o.tail });
           cur = isl.start - o.head;
         }

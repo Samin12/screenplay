@@ -2,6 +2,7 @@
 // Used by talking.elements, stage.elements, board.nodes[].element and app `show:` beats.
 
 import type { Element, ImageMark, Item, Rect, Tone } from '../src/types.ts';
+import { compileStory } from './story.ts';
 
 export type P = (string | number)[];
 
@@ -45,6 +46,7 @@ export const ELEMENT_FIELDS: Record<string, string[]> = {
   quote: ['text', 'by', 'mark'],
   lower: ['title', 'sub'],
   cta: ['text', 'sub', 'icon'],
+  story: ['title', 'actors', 'beats'],
 };
 export const ELEMENT_TYPES = Object.keys(ELEMENT_FIELDS);
 const COMMON = ['type', 'at', 'until', 'hold'];
@@ -290,6 +292,8 @@ export function compileElement(raw: unknown, path: P, ctx: FrameCtx, env: Elemen
       return { type, ...base, title: str('title', true, true)!, sub: str('sub') };
     case 'cta':
       return { type, ...base, text: str('text', true, true)!, sub: str('sub'), icon: ctx.icon([...path, 'icon'], raw.icon) };
+    case 'story':
+      return compileStory(raw, path, ctx, frame, end);
   }
   return null;
 }

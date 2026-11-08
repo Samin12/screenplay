@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { AbsoluteFill, Img, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { Action, AppScene, Rect, WebcamMode } from '../types';
 import { replicas } from '../replicas';
-import { PlateSizeProvider, type ReplicaDef, type UiState } from './replica';
+import { PlateSizeProvider, resolvePlateData, type ReplicaDef, type UiState } from './replica';
 import { useMeasuredTargets } from './Measure';
 import { boundaryIndex, cameraAt, cursorAt, measureState, rectFor, screenTransform, stateAt, stateBoundaries, uiAt, type Rects } from './logic';
 import { Callout, ClickRing, Cursor, Mark, Scrim, Tooltip, fadeWindow } from './Overlays';
@@ -34,7 +34,7 @@ export const AppSceneView: React.FC<{ scene: AppScene; webcam?: WebcamMode; view
 
 const ReplicaPlate: React.FC<{ scene: AppScene; def: ReplicaDef; webcam?: WebcamMode; view?: [number, number] }> = ({ scene, def, webcam, view }) => {
   const plate = scene.plate as Extract<AppScene['plate'], { type: 'replica' }>;
-  const data = useMemo(() => ({ ...def.defaults.data, ...plate.data }), [def, plate.data]);
+  const data = useMemo(() => resolvePlateData(def, plate.data), [def, plate.data]);
   const base = def.defaults.state;
   const bounds = useMemo(() => stateBoundaries(scene), [scene]);
   const states = useMemo(() => bounds.map((_, i) => measureState(scene, base, bounds, i)), [scene, base, bounds]);
@@ -43,7 +43,7 @@ const ReplicaPlate: React.FC<{ scene: AppScene; def: ReplicaDef; webcam?: Webcam
   const Comp = def.component;
   const adapter: PlateAdapter = {
     size,
-    tone: def.tone,
+    tone: def.toneOf ? def.toneOf(data) : def.tone,
     render: (state, ui) => (
       <PlateSizeProvider value={size}>
         <Comp data={data} state={state} ui={ui} />
@@ -60,15 +60,38 @@ const ReplicaPlate: React.FC<{ scene: AppScene; def: ReplicaDef; webcam?: Webcam
 
 const MediaPlate: React.FC<{ scene: AppScene; webcam?: WebcamMode; view?: [number, number] }> = ({ scene, webcam, view }) => {
   const plate = scene.plate as Exclude<AppScene['plate'], { type: 'replica' }>;
+  const tone = plate.tone ?? 'dark';
   const adapter: PlateAdapter = {
     size: plate.size,
-    tone: plate.tone ?? 'dark',
-    render: () =>
-      plate.type === 'image' ? (
-        <Img src={staticFile(plate.src)} style={{ width: plate.size[0], height: plate.size[1] }} />
-      ) : (
-        <OffthreadVideo src={staticFile(plate.src)} startFrom={plate.startFrom} muted style={{ width: plate.size[0], height: plate.size[1] }} />
-      ),
+    tone,
+    render: (_state, ui) => (
+      <>
+        {plate.type === 'image' ? (
+          <Img src={staticFile(plate.src)} style={{ width: plate.size[0], height: plate.size[1] }} />
+        ) : (
+          // The media is stretched to `size`, so a lighter encode (e.g. 2/3 res) keeps the recording's pixel grid.
+          <OffthreadVideo src={staticFile(plate.src)} startFrom={plate.startFrom} muted style={{ width: plate.size[0], height: plate.size[1] }} />
+        )}
+        {/* privacy blurs (part of the plate, so lifted clones and zooms carry them too) */}
+        {(plate.blur ?? [])
+          .filter((b) => ui.frame >= b.frame && ui.frame < b.end)
+          .map((b, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: b.x,
+                top: b.y,
+                width: b.w,
+                height: b.h,
+                borderRadius: Math.min(b.w, b.h) * 0.2,
+                backdropFilter: `blur(${Math.max(8, Math.min(28, Math.min(b.w, b.h) * 0.35)).toFixed(1)}px)`,
+                background: tone === 'light' ? 'rgba(236,236,234,0.35)' : 'rgba(28,28,28,0.35)',
+              }}
+            />
+          ))}
+      </>
+    ),
   };
   return <Stage scene={scene} adapter={adapter} rects={[plate.targets]} bounds={[0]} base={{}} webcam={webcam} view={view} />;
 };

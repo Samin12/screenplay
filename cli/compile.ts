@@ -21,6 +21,7 @@ import type {
   Element,
   Look,
   Plate,
+  PlateBlur,
   PlugScene,
   Rect,
   Scene,
@@ -46,7 +47,7 @@ type Kind = (typeof KINDS)[number];
 
 const SCENE_FIELDS: Record<Kind, string[]> = {
   talking: ['dim', 'elements'],
-  app: ['app', 'data', 'state', 'camera', 'beats', 'screen', 'size', 'targets', 'start', 'tone'],
+  app: ['app', 'data', 'state', 'camera', 'beats', 'screen', 'size', 'targets', 'start', 'tone', 'blur'],
   stage: ['layout', 'title', 'elements'],
   plug: ['media'],
   board: ['line', 'nodes'],
@@ -287,7 +288,8 @@ class Compiler {
     this.event(sc, { frame: el.frame, end: el.end, kind: 'element', label, path: fmtPath(p) });
     walkFrames(el, (o, k) => {
       if (o === el) return;
-      const t = typeof o.text === 'string' ? o.text : typeof o.label === 'string' ? o.label : typeof o.phrase === 'string' ? o.phrase : typeof o.title === 'string' ? o.title : k;
+      // story beats: {do: 'move', actor: 'cab'} -> "move cab"
+      const t = typeof o.do === 'string' ? `${o.do}${typeof o.actor === 'string' ? ` ${o.actor}` : ''}` : typeof o.text === 'string' ? o.text : typeof o.label === 'string' ? o.label : typeof o.phrase === 'string' ? o.phrase : typeof o.title === 'string' ? o.title : k;
       this.event(sc, { frame: o.frame as number, kind: 'item', label: `${el.type} item "${short(String(t))}"`, path: fmtPath(p) });
     });
   }
@@ -700,22 +702,42 @@ class Compiler {
           if (t && size && (t.x < 0 || t.y < 0 || t.x + t.w > size[0] + 1 || t.y + t.h > size[1] + 1)) this.warn([...p, 'targets', name], `rect [${t.x}, ${t.y}, ${t.w}, ${t.h}] extends outside the ${size[0]}×${size[1]} media`);
         }
       } else if (raw.targets !== undefined) this.err([...p, 'targets'], 'targets must be a mapping name: [x, y, w, h]');
+      // Privacy blurs in media pixels: [x, y, w, h] (the whole scene) or {rect, at, until | hold}.
+      const blur: PlateBlur[] = [];
+      if (Array.isArray(raw.blur)) {
+        raw.blur.forEach((b, k) => {
+          const bp: P = [...p, 'blur', k];
+          const o = isObj(b) ? b : {};
+          const r = Array.isArray(b) ? b : o.rect;
+          if (!(Array.isArray(r) && r.length === 4 && r.every((v) => typeof v === 'number' && Number.isFinite(v)) && r[2] > 0 && r[3] > 0)) {
+            return this.err(isObj(b) ? [...bp, 'rect'] : bp, 'blur needs a rect in media pixels: `- [x, y, w, h]` (whole scene) or `- {rect: [x, y, w, h], at, until}`');
+          }
+          for (const key of Object.keys(o)) if (!['rect', 'at', 'until', 'hold', 'note'].includes(key)) this.warn([...bp, key], `unknown field "${key}" for a blur (ignored); fields: rect, at, until, hold`);
+          const frame = ctx.at(o.at, [...bp, 'at'], 0);
+          const end = o.until === undefined && o.hold === undefined ? sc.durF : ctx.holdEnd(o, bp, frame, sc.durF);
+          blur.push({ x: r[0], y: r[1], w: r[2], h: r[3], frame, end });
+        });
+      } else if (raw.blur !== undefined) this.err([...p, 'blur'], 'blur must be a list of [x, y, w, h] rects (media pixels) or {rect, at, until}');
+      const extra = { ...(raw.tone === 'light' ? { tone: 'light' as const } : {}), ...(blur.length ? { blur } : {}) };
       const sz = size ?? [1920, 1080];
       if (isVideo) {
         let startFrom = 0;
         if (raw.start !== undefined) {
-          if (typeof raw.start === 'number' && raw.start >= 0) startFrom = this.f(raw.start);
-          else this.err([...p, 'start'], 'start must be seconds into the recording, e.g. 12.5');
+          // `auto`: the recording runs in OUTPUT time (re-timed to the cut, one frame per output frame),
+          // so the plate seeks to this scene's own start and stays in sync with the voice.
+          if (raw.start === 'auto') startFrom = sc.baseF;
+          else if (typeof raw.start === 'number' && raw.start >= 0) startFrom = this.f(raw.start);
+          else this.err([...p, 'start'], 'start must be seconds into the recording, e.g. 12.5, or `auto` for a recording that runs in output time (it seeks to the scene start)');
         }
-        plate = { type: 'video', src, size: sz, startFrom, targets, ...(raw.tone === 'light' ? { tone: 'light' as const } : {}) };
+        plate = { type: 'video', src, size: sz, startFrom, targets, ...extra };
       } else {
         if (raw.start !== undefined) this.warn([...p, 'start'], '`start` only applies to video plates');
-        plate = { type: 'image', src, size: sz, targets, ...(raw.tone === 'light' ? { tone: 'light' as const } : {}) };
+        plate = { type: 'image', src, size: sz, targets, ...extra };
       }
     } else if (typeof raw.app === 'string' && raw.app) {
       if (raw.data !== undefined && !isObj(raw.data)) this.err([...p, 'data'], 'data must be a mapping');
       plate = { type: 'replica', app: raw.app, data: isObj(raw.data) ? raw.data : {} };
-      for (const k of ['size', 'targets', 'start']) if (raw[k] !== undefined) this.warn([...p, k], `\`${k}\` only applies to screen plates`);
+      for (const k of ['size', 'targets', 'start', 'blur']) if (raw[k] !== undefined) this.warn([...p, k], `\`${k}\` only applies to screen plates`);
     } else {
       this.err(p, 'app scene needs `app: <replica id>` (see `screenplay replicas`) or `screen: media/file.png`');
       return null;
@@ -1050,6 +1072,12 @@ export function fragment(scene: Scene, shift: number, dur: number, part: number)
       const state = { ...s.state };
       const out: Action[] = [];
       for (const a of s.actions) {
+        if (a.do === 'show') {
+          // The element carries its own frames: shift it with the piece, or it lands past the piece's end.
+          const el = shiftEl(a.element);
+          if (el) out.push({ ...a, frame: el.frame, end: el.end, element: el });
+          continue;
+        }
         const f = a.frame - shift;
         if (f < 0) {
           // happened before this piece: keep only its state effect
@@ -1074,6 +1102,9 @@ export function fragment(scene: Scene, shift: number, dur: number, part: number)
       s.actions = out;
       // A recording split by a chapter card carries on where it left off.
       if (s.plate.type === 'video') s.plate.startFrom += shift;
+      if (s.plate.type !== 'replica' && s.plate.blur) {
+        s.plate.blur = s.plate.blur.filter((b) => keep(b.frame, b.end)).map((b) => ({ ...b, frame: Math.max(0, b.frame - shift), end: Math.min(dur, b.end - shift) }));
+      }
       break;
     }
     case 'plug': {

@@ -175,6 +175,41 @@ test('screen plates: image targets -> Rects, video start -> startFrom; set/type 
   assert.ok(errors(abs).some((d) => /must be inside the work dir/.test(d.message)));
 });
 
+test('screen plates: start: auto follows the scene (and a chapter split); blur rects with anchors', () => {
+  const scene = (extra: string[], chapters: string[] = [], start = 'auto') =>
+    compile(['scenes:', '  - kind: talking', '    at: w0', '  - kind: app', '    at: w41', '    screen: media/screen-out.mp4', '    size: [3612, 2648]', `    start: ${start}`, ...extra.map((l) => `    ${l}`), ...chapters].join('\n'));
+  const blur = ['blur:', '  - [10, 20, 300, 40]', '  - { rect: [1, 2, 30, 40], at: "show panel", until: "session rail" }', '  - { rect: [5, 6, 70, 80], at: "pick a folder", hold: 1s }'];
+  const r = scene(blur);
+  assert.equal(errors(r).length, 0, JSON.stringify(errors(r)));
+  const s = r.timeline!.scenes.find((x) => x.kind === 'app') as AppScene;
+  assert.equal(s.plate.type, 'video');
+  if (s.plate.type !== 'video') return;
+  assert.equal(s.plate.startFrom, s.from); // the recording is in output time: frame T of the scene shows output T
+  assert.equal(s.from, BASE);
+  assert.deepEqual(s.plate.blur, [
+    { x: 10, y: 20, w: 300, h: 40, frame: 0, end: s.duration },
+    { x: 1, y: 2, w: 30, h: 40, frame: at('w58'), end: end('w64') },
+    { x: 5, y: 6, w: 70, h: 80, frame: at('w88'), end: at('w88') + 30 },
+  ]);
+  // a chapter card inside the scene splits it; the second part seeks on by the same amount
+  const split = scene(blur, ['chapters:', '  items:', '    - { at: w73, title: Rail }']);
+  assert.equal(errors(split).length, 0, JSON.stringify(errors(split)));
+  const parts = split.timeline!.scenes.filter((x) => x.kind === 'app') as AppScene[];
+  assert.equal(parts.length, 2);
+  for (const part of parts) assert.equal((part.plate as { startFrom: number }).startFrom, part.from);
+  const b2 = (parts[1].plate as { blur?: { frame: number; end: number }[] }).blur!;
+  assert.equal(b2.length, 2); // the whole-scene blur and "pick a folder"; "show panel" ended before the card
+  assert.deepEqual(b2[0], { x: 10, y: 20, w: 300, h: 40, frame: 0, end: parts[1].duration });
+  assert.equal(parts[1].from + b2[1].frame, BASE + at('w88'));
+  // bad values
+  const bad = scene(['blur: [ [1, 2], { rect: [1, 2, 3, 4], colour: red } ]'], [], 'soon');
+  const e = errors(bad).map((d) => `${d.path}: ${d.message}`);
+  assert.ok(e.some((m) => m.startsWith('scenes[1].start: start must be seconds into the recording, e.g. 12.5, or `auto`')), e.join('\n'));
+  assert.ok(e.some((m) => m.startsWith('scenes[1].blur[0]: blur needs a rect')), e.join('\n'));
+  assert.ok(warnings(bad).some((d) => d.path === 'scenes[1].blur[1].colour'));
+  assert.ok(warnings(compile(appScene([], ['blur: [[1, 2, 3, 4]]']))).some((d) => d.path === 'scenes[1].blur' && /only applies to screen plates/.test(d.message)));
+});
+
 test('sceneStateAt: yaml state + set/click/type effects up to a frame', () => {
   const { scene } = app(['{ at: "show panel", click: toggle, set: { panel: true } }', '{ at: "pick a folder", click: item-3, set: { active: 3 } }', '{ at: "this prompt", type: composer, key: prompt, text: "abcd" }'], ['state: { panel: false }']);
   const s = scene!;

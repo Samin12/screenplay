@@ -9,9 +9,11 @@ Library: `src/replicas/` (registry in `src/replicas/index.ts`).
 
 | id | what | design size |
 |---|---|---|
-| `claude-desktop` | Claude desktop app, dark, macOS chrome (or Windows) | 1920x1080 |
+| `claude-desktop` | Claude desktop app, dark, macOS chrome (or Windows); `data.theme: light` / `data.preset: samin` = Samin's real light setup | 1920x1080 |
 | `terminal` | Claude Code CLI in a macOS Terminal window | 1920x1080 |
 | `browser` | Chrome-like window: screenshot or simple page blocks | 1920x1080 |
+| `openusage` | OpenUsage menu-bar strip + panel (spend ring, limit bars, Accounts, Add Account, Settings), light | 1920x1080 |
+| `telegram` | Telegram Desktop forum group (topic tabs, chat list) or the same chat on an iPhone (`state.view: phone`), dark | 1920x1080 |
 | `_fixture` | minimal example used by tests | 1920x1080 |
 
 ---
@@ -21,13 +23,15 @@ Library: `src/replicas/` (registry in `src/replicas/index.ts`).
 `src/app/replica.ts`:
 
 ```ts
-type ReplicaProps = { data; state; ui: { hover?, pressed?, caret?, frame, fps } };
+type ReplicaProps = { data; state; ui: { hover?, pressed?, caret?, frame, fps, changes? } };
 type ReplicaDef = {
   id, title, size: [w, h], tone: 'dark' | 'light',
   component,                       // React.FC<ReplicaProps>
   defaults: { data, state },       // rich fictional defaults
   targets: { name: 'what it is' }, // every pointable element (docs for the editing agent)
   stateDoc: { key: 'values' },     // every state key
+  resolveData?: (plateData) => data, // optional: presets/themes (default: {...defaults.data, ...plateData})
+  toneOf?: (data) => 'dark' | 'light', // optional: tone that depends on the data (a light theme)
 };
 ```
 
@@ -157,6 +161,87 @@ Overlays: `menu`, `menu-item-<slug>`, `submenu`, `submenu-item-<slug>`, `setting
     - { at: "type slash", set: { slash: [output-style, doctor, skill-doctor], slashHover: doctor, prompt: "/" } }
 ```
 
+### Light theme: Samin's real setup (`data.theme: light`, `data.preset: samin`)
+
+`data.theme: light` draws the app the way Samin actually runs it: Claude Desktop in light mode, Code
+tab, vibrancy sidebar, flat session rail (Environment / Context / Connectors / Changes), his composer
+and model line. `data.preset: samin` also loads **his** content (project `ai-youtube-course`, his
+session list, `Samin · Ultra`, Sonnet 5.5 Medium, context 10%, "3 to reconnect", +3,401 −218,
+the "hi" chat) and implies the light theme. The dark theme is unchanged and stays the default.
+
+```yaml
+- kind: app
+  app: claude-desktop
+  data: { preset: samin }            # or { theme: light } for the fictional agency world in light
+  state: { active: new-session, rail: true }
+```
+
+Built from his screen recording (`media/screen/*.png`, raw .mov frames): his window (3724 retina
+px incl. ~52 px off-screen) fills the 1920 plate, so the UI is the same size as his screen shown
+full-width; the 16:9 plate just shows fewer sidebar rows. SF Pro via `BlinkMacSystemFont` (Inter
+elsewhere), sizes from his cap heights, `letter-spacing: 0.022em` to match his zoomed line widths.
+Files: `src/replicas/claude-desktop/light/` (`tokens.ts`, `Chrome.tsx` title bar + sidebar + rail,
+`Chat.tsx` messages + composer + slash popover + model menu, `Overlays.tsx` dialog + user menu +
+Settings, `LightDesktop.tsx`), presets in `presets.ts`. Every scene `data:` key still overrides
+(nested objects merge), e.g. `{preset: samin, model: "Opus 5.5", context: {pct: 51}}`.
+
+Extra **data** (light): `theme`, `preset`, `menubar` (macOS menu bar strip), `environment.branch`,
+`changes: {added, removed}` (null hides Changes), `connectorsNote` ("3 to reconnect"), `models`
+(`[{name, key}]` model menu), `efforts` (Effort submenu), `commands[].tag` ("Custom command") and
+`.hint` (`[auto|<tokens>]`), `settings.nav` items may be `{label, group, icon}` and rows
+`{label, desc, on, control: switch|select|input, value, section, indent}`.
+
+Extra **messages** (light): `{kind: meta, text, link}` ("Started on this computer · ai-youtube-course
+· Save as environment"), `{kind: notice, text}` ("Claude Code notice ▸"), `{kind: context, used?,
+total?, pct?, when?}` (the /context card), `{kind: usage, limits?, session?, breakdown?, whats?}`
+(the /usage card; defaults are his numbers), `{kind: limit, text, sub?, on?}` (usage-limit card with
+the "Auto-continue when limits reset" switch), `{kind: code, title, text}` (e.g. `~/.claude/settings.json`).
+A user message starting with a known command (`/context`, `/autocompact 200k`) draws the command blue.
+
+Extra **state** (light): `modelMenu` (`true` | `effort` | `more`), `modelHover`, `dialog`
+(`{kind: switch-model, from, to, dontAsk}`), `userMenu`, `view: settings` + `settingsPage`,
+`settingsScroll`, `settingsHover`, `toggles` (unset = the row's default; `false` turns a default-on
+row off), `slashTip`, `connectorsOpen`; `prompt: "/aut"` + `slash: [...]` bolds the typed part,
+`prompt: "/autocompact "` shows the command chip with its grey argument hint.
+
+Extra **targets** (light): `settings-gear`, `user-menu`, `user-menu-<slug>`, `model-menu`,
+`model-<slug>` (`model-haiku-5-5`, `model-effort`, `model-more-models`, `model-fast-mode`),
+`effort-menu`, `effort-<slug>`, `buy-credits`, `dialog`, `dialog-cancel`, `dialog-confirm`,
+`dialog-checkbox`, `slash-tip`, `mic`, `save-as-environment`, `env-head`, `env-branch`,
+`context-head`, `connectors-head`, `connectors-note`, `changes-card`, `changes-head`, `changes`,
+`create-pr`, `context-window-bar`, `usage-limit-<n>`, `usage-session`, `usage-breakdown`,
+`usage-whats`, `usage-what-<n>`, `settings-search`, `settings-close`, `settings-page`,
+`settings-section-<slug>`, `env-choice`, `choose-environment`, `connect-github`, `env-picker`.
+`env-card` / `context-card` / `connectors-card` cover the rail sections (lift / explode them).
+
+**Where the four settings live** (from the installed app 4.16336.0, CLI 2.1.302 and the docs; full
+sources in the v2 work dir `review/claude-settings-path.md`):
+
+| setting | desktop | CLI `/config` | settings.json / env |
+|---|---|---|---|
+| Prompt suggestions | gear (tooltip "Code settings") or user menu → Settings ⌘, → **Claude Code** → Sessions → switch "Prompt suggestions" (on by default) | "Prompt suggestions" | `promptSuggestionEnabled: false`, `CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false` |
+| Auto-continue at usage limit | not in Settings: switch "Auto-continue when limits reset" on the usage-limit card in a session | "Continue automatically at usage limit" | `autoContinueAtUsageLimit: false` |
+| Subagent model | none | none | env only: `CLAUDE_CODE_SUBAGENT_MODEL=haiku` (+ `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` for Explore/Plan) |
+| Auto-compact window | `/autocompact 200k` (or `auto`) in the composer | "Auto-compact" (on/off) and `/autocompact` | `autoCompactWindow`, `modelSettings.<model>.autoCompactWindow`, `autoCompactEnabled`, `CLAUDE_CODE_AUTO_COMPACT_WINDOW`, `DISABLE_AUTO_COMPACT=1` |
+
+How to show each one here: Settings path with `click: settings-gear` (or `user` → `user-menu-settings`)
+→ `set: {view: settings}` → `toggle-prompt-suggestions` with `set: {toggles: {prompt-suggestions: false}}`;
+auto-continue with a `{kind: limit}` message and `toggle-auto-continue-when-limits-reset`; the
+subagent model with a `{kind: code, title: "~/.claude/settings.json"}` card (or the terminal); the
+auto-compact window with `prompt: "/aut"` + `slash: [autocompact, ...]` → `prompt: "/autocompact 200k"`;
+the CLI rows with the `terminal` replica's `state.config`.
+
+The Settings window (modal: "Settings" + close, 212 px nav with "Search settings" and the groups
+Preferences / This computer / Customize, section titles, label + description + control rows, 36x20
+switches in blue-450) is built from the app's own code (labels, descriptions, defaults, order, layout
+classes) at his zoom and palette: it never appears in his recording. The app can also show Settings
+as a full page and may label the nav item "Code"; that choice is a server flag we could not read.
+
+Test timeline: `examples/tests/replica-claude-desktop-light.json` (hi, /context, /usage, slash
+popover with tooltip, /autocompact, model menu + empty session, switch-model dialog, the Settings
+path, user menu, usage-limit card, settings.json card, the fictional world in light, gear, Effort
+submenu, terminal `/config`).
+
 ### Video inside a replica
 
 Replicas may play real footage (a video player in the UI). The engine renders one invisible copy per
@@ -172,10 +257,13 @@ data: `title`, `header` (`{title, lines, tips}` orange welcome box, `null` hides
 input box).
 
 state: `prompt` (block caret while typing), `slash` + `slashHover` (list under the input, purple
-selection), `upto`, `append`, `thinking` (orange spinner line), `mode: normal | plan | accept`.
+selection), `upto`, `append`, `thinking` (orange spinner line), `mode: normal | plan | accept`,
+`config` (`{hover: 'Auto-compact', values: {'prompt-suggestions': false}}`: Claude Code's `/config`
+Settings panel, Config tab, in place of the input box; rows are `data.config` with the real CLI
+labels: Auto-compact, Continue automatically at usage limit, Prompt suggestions, ...).
 
 targets: `window`, `titlebar`, `header`, `scrollback`, `line-<n>` (hugs its text), `thinking`,
-`composer`, `status`, `slash`, `slash-<slug>`.
+`composer`, `status`, `slash`, `slash-<slug>`, `config`, `config-<slug>`, `config-value-<slug>`.
 
 ## 4. `browser`
 
@@ -201,6 +289,171 @@ targets: `window`, `tab-<n>`, `new-tab`, `nav-back`, `nav-forward`, `nav-reload`
 T3 Code (sidebar of projects and threads, chat column, inline video player), built from a real screen
 recording. Run `screenplay replicas t3-code` for its targets, state keys and data shape. Has
 `state.scroll` for `tween`.
+
+## `openusage`
+
+OpenUsage, the free macOS menu-bar tracker for AI plan limits (openusage.ai,
+github.com/robinebers/openusage), on a Mac desktop strip: the menu bar with OpenUsage's strip
+(provider mark + % left; two limits of one provider stack), and the light panel under it. Files:
+`src/replicas/openusage/` (`tokens.ts` palette + grid, `geometry.ts` strip / panel / scroll maths,
+`MenuBar`, `Dashboard`, `Screens` (Accounts, account page, Settings), `Sheets` (Add Account sheet +
+pull-down menus), `icons.ts` (the app's own provider marks), `defaults.ts`).
+
+Sources: the dashboard is OpenUsage 0.7.16 as on Samin's screen (`media/screen/openusage.png` and
+the raw recording at 16-45 s): "Cost ⌄ ⓘ", the Today / Yesterday / 30 Days capsule, the spend ring
+with "$10.5K / dollars" and the ranked legend (long values shrink like SwiftUI's scale-to-fit, names
+truncate "Claude…"), account sections "Claude — you@work.com  Max 20x" with Session / Weekly
+(flame "Limit reached") / Fable / Extra Usage bars, Usage Trend (30 daily bars), the expand caret
+(On Demand rows Today / Yesterday / Last 30 Days, "Usage ↗"), footer "OpenUsage 0.7.16 / Next
+update in 5m" + "Options ⌄". The Accounts flow is the app's current source
+(`Sources/OpenUsage/Views`: PopoverFooter's Options menu "Accounts ↩ / Settings ⌘, / Check for
+Updates… / Report an Issue… / About OpenUsage / Quit OpenUsage ⌘Q"; AccountListView + "Add New
+Account"; AddAccountSheet "Add Account / Choose a provider to sign in to." with Claude, ChatGPT,
+Cursor, Antigravity, Copilot, Devin, Grok, Ollama, OpenCode, OpenRouter, Z.ai, CLIProxyAPI; "Sign In
+to Claude / Continue in your browser…", Code field, Copy Link / Open Browser, "Waiting for your
+browser…"; device code for Copilot and Grok; API key for Ollama / OpenCode / OpenRouter / Z.ai;
+AccountDetailView metric switches + "Remove Account…"; SettingsScreen General / Display / Alerts /
+Advanced). Numbers are his displayed ones; account names are fictional (`you@work.com`, `Personal`).
+
+Scale: 1.62 px per macOS point (panel 518 px wide) so the Total Spend card and the whole first
+account card fit above the footer on a 1080-high plate. The panel hangs under the strip's right end
+and keeps its place while the strip grows. Overlays (sheet, menus) are placed from `geometry.ts`.
+
+### data
+
+| key | shape |
+|---|---|
+| `accounts` | `[{id, provider, label?, title?, legend?, plan?, color?, metrics, more?, links?, spend?}]`; `provider` is a mark id (claude, codex, cursor, grok, antigravity, copilot, devin, ollama, opencode, openrouter, zai); `title` defaults to "Claude — <label>"; `spend: {today, yesterday, '30-days'}` dollars feed the ring |
+| Metric | `{label, left: 0..100 \| null, resets?, note?, flame?, tone?: blue\|yellow\|red, tick?}` limit bar (`left: null` = "—  No data"); `{kind: 'trend', bars: number[] \| null}`; `{kind: 'value', label, value: string \| null}` |
+| `strip` | `[{provider, values: ['93%'] \| ['96%', '88%'], account?}]` menu-bar strip; items show only for added accounts, the app mark when none |
+| `providers` | Add Account list `[{id, name}]` (app order) |
+| `optionsMenu`, `statusMenu` | menu items: `'-'` or `{label, icon?, key?}` |
+| `footer` | `'options'` ("Options ⌄", 0.7.16, default) or `'ellipsis'` (newer round ⋯) |
+| `version`, `nextUpdate`, `costTitle`, `clock`, `activeApp`, `appMenus`, `deviceCode` | strings |
+| `desktop` | `{image?}`: a work-dir screenshot drawn under the menu bar instead of the wallpaper |
+
+### state
+
+| key | values |
+|---|---|
+| `open` | panel showing (click `menubar-icon` with `set: {open: true}`) |
+| `view` | `'popup'` (dashboard) \| `'accounts'` \| `'account'` (page of `state.account`) \| `'settings'` |
+| `tab` | `'today'` \| `'yesterday'` \| `'30-days'` |
+| `menu`, `menuHover` | `null` \| `'options'` (above the footer button) \| `'status'` (right-click under the strip); highlighted item slug |
+| `accounts` | `null` = every account in data; `[ids]` = the accounts added so far (`[]` = fresh install: empty dashboard "Add an Account", app icon in the strip). Add one = set the list with the new id |
+| `account` | account id for `view: 'account'` |
+| `expanded` | `[ids]` cards with the caret open |
+| `scroll`, `scrollTo` | dashboard scroll in px (tween it); `scrollTo: '<id>'` puts that section at the top (clamped like a real scroll view) |
+| `sheet`, `provider` | `null` \| `'add'` (provider list) \| `'signin'` (browser / device code / API key step for `provider`) |
+| `pickHover` | provider id highlighted in the list |
+| `signin` | `'preparing'` \| `'waiting'` \| `'signing'` \| `'error'` |
+| `code` | pasted code or API key (type with `key: code`; the primary button becomes Continue) |
+| `settingsTab`, `toggles` | `'general'` \| `'display'` \| `'alerts'` \| `'advanced'`; `{'<setting slug>': bool}`, `{'hide-<metric slug>': true}` on an account page |
+
+### targets
+
+Menu bar: `menubar`, `apple-menu`, `active-app`, `menubar-icon` (the whole strip), `strip-<n>`, `wifi`,
+`battery`, `control-center`, `clock`. Panel: `panel`, `dashboard`, `cost`, `cost-title`, `cost-info`,
+`cost-share`, `cost-card`, `tabs`, `tab-today`, `tab-yesterday`, `tab-30-days`, `donut`, `donut-total`,
+`legend`, `cost-row-<id>`, `cost-row-<n>`, `cost-value-<id>`, `account-<id>`, `account-<id>-header`,
+`plan-<id>`, `card-<id>`, `limit-<id>-<slug>` (+ `-bar`, `-note`, `-left`, `-resets`), `trend-<id>`,
+`value-<id>-<slug>`, `caret-<id>`, `link-<id>-<slug>`, `footer`, `version`, `next-update`, `options`,
+`empty`. Menus: `menu`, `menu-item-<slug>` (accounts, settings, check-for-updates, report-an-issue,
+about-openusage, quit-openusage), aliases `accounts-nav`, `settings-nav`. Accounts: `top-bar`, `back`,
+`screen-title`, `accounts-screen`, `accounts-list`, `account-row-<id>`, `account-row-<id>-open`,
+`add-account`, `account-page`, `account-title`, `metrics-card`, `metric-row-<slug>`,
+`metric-pin-<slug>`, `metric-switch-<slug>`, `remove-account`. Sheet: `sheet`, `sheet-title`,
+`provider-list`, `provider-<provider>`, `cancel`, `signin-close`, `code-field`, `name-field`,
+`device-code`, `copy-link`, `open-browser`, `signin-status`. Settings: `settings`,
+`settings-tab-<slug>`, `setting-<slug>`, `toggle-<slug>`, `picker-<slug>`, `button-<slug>`,
+`priority-preview`.
+
+```yaml
+- kind: app
+  at: "it lives in your Mac menu bar"
+  app: openusage
+  state: { open: false, accounts: [claude-work, codex, cursor, grok], tab: today }
+  beats:
+    - { at: "menu bar", click: menubar-icon, set: { open: true } }
+    - { at: "go to accounts", click: options, set: { menu: options } }
+    - { at: "accounts", click: accounts-nav, set: { menu: null, view: accounts } }
+    - { at: "add", click: add-account, set: { sheet: add } }
+    - { at: "Claude", click: provider-claude, set: { sheet: signin, provider: claude } }
+    - { at: "log into", click: open-browser, set: { signin: signing } }
+    - { at: "every one of the plans", set: { sheet: null, accounts: [claude-work, claude-personal, codex, cursor, grok] } }
+    - { at: "limit bars", click: back, set: { view: popup } }
+    - { at: "last 30 days", click: tab-30-days, set: { tab: 30-days } }
+    - { at: "this much money", callout: donut, text: "$10.5K in 30 days" }
+```
+
+Test timeline: `examples/tests/replica-openusage.json` (open, Options menu, Accounts, Add Account,
+Sign In to Claude, connected row, account page, 30 Days, callout / lift / explode / zoom / focus,
+scrollTo + expanded card, Settings tabs, fresh install with an API-key and a device-code sign-in,
+right-click menu).
+
+## `telegram`
+
+Samin's Telegram Desktop, night theme: the forum group "Hermes Team", topic "Trading", with the bot
+Hermes texting him. Built from his recording (window 1638 pt wide; `src/replicas/telegram/tokens.ts`
+has the sampled palette and every size in points). Real text is 14 pt Open Sans on a 19 pt line, drawn
+at 1.6x so it is 22 px; the bubble keeps his 472 pt width, so lines wrap where his do. Files: `tokens.ts`,
+`types.ts`, `text.ts` (pure: message parsing and reveal logic, tested in
+`cli/test/replica-telegram.test.ts`), `defaults.ts`, `Glyphs.tsx`, `Messages.tsx` (the thread, both
+views), `Desktop.tsx`, `Phone.tsx`, `Telegram.tsx`.
+
+**The hook messages are illustrative.** `risk` (Nov 2) and `update` (Nov 5) carry `illustrative: true`:
+they are written for the video in the bot's style, never sent by the real bot. All chat names are
+fictional. Drop his real avatars in with `data.bot.avatar` (a work-dir image).
+
+### data
+
+| key | shape |
+|---|---|
+| `group` | `{title, unread}`: title bar count "Trading – (421)" |
+| `bot` | `{name, tag, color, avatar?}`: "Hermes", green "admin" (`tag: null` hides it), pink name; `avatar` replaces the drawn portrait |
+| `topics` | `[{name, icon?, count?}]`: the tabs; `icon` is an emoji or `'#'`, `count` drives "258 messages" |
+| `messages`, `topic` | the thread, and the topic slug it belongs to (`trading`); the `All` tab shows it too |
+| `threads` | `{'<slug>': [Message]}` other topics |
+| Message | `{id, from: 'bot'\|'me', name?, time, date?, title?, text?, card?: {site, title, desc?, image?}, reactions?: [{emoji, count}], status?: 'read'\|'sent'\|'sending', illustrative?}`. `date` draws a pill above it. `text`: `\n` lines, `**bold**`, `[label](url)`, bare `https://` links, bullets as lines starting `• ` |
+| `activeChat`, `archived`, `chats` | sidebar: `{id, name, kind?: user\|group\|bot\|channel\|forum, preview, previewFrom?, time, unread?, muted?, pinned?, initials?, color?: 0..6, avatar?: 'bot'\|'team'\|path}` |
+| `folders` | folder tabs above the chat list; `[]` by default, as his setup has none |
+| `placeholder`, `phonePlaceholder`, `clock` | "Write a message...", "Message", phone status bar |
+| `bubbleW` | bubble width in px (default his 472 pt = 755 px); widen it to fill the panel with `sidebar: false` |
+
+### state
+
+`view` (`desktop` \| `phone`), `sidebar`, `topic`, `upto` (count, message id or null), `append`,
+`typing` (`true`, or `'header'` for the title line only), `scroll` (px up from the newest message, tween
+it), `composer` (type with `key: composer`), `stickyDate` (floating pill for a long message), `folder`.
+
+**Arrivals need no extra beat:** raising `upto` or growing `append` with `set` makes the thread make
+room and the new bubble rise from behind the composer while it sharpens. The engine tells replicas when
+a key last changed through `ui.changes[key] = {frame, prev}`.
+
+### targets
+
+Both views: `messages`, `msg-<id>`, `msg-<id>-title`, `msg-<id>-line-<k>` (hugs one line of text, blanks
+not counted), `msg-<id>-name`, `-admin`, `-avatar`, `-card`, `-time`, `-tick`, `-reactions`, `-reaction-<k>`,
+`date-<id>`, `date-sticky`, `avatar`, `typing`, `scroll-down`, `empty`, `header`, `header-title`,
+`header-status`, `composer`, `composer-text`, `attach`, `send`. Desktop: `window`, `titlebar`, `chat`,
+`topics`, `topics-view`, `topic-<slug>`, `header-search`, `panel-toggle`, `header-more`, `commands`,
+`emoji`, `sidebar`, `menu`, `search`, `archived`, `chat-<id>`, `folders`, `folder-<slug>`. Phone: `phone`,
+`screen`, `status-bar`, `back`, `header-avatar`.
+
+```yaml
+- kind: app
+  at: "before the vote"
+  app: telegram
+  state: { upto: friday, sidebar: false }
+  beats:
+    - { at: "my bot", set: { typing: true } }
+    - { at: "literally told me", set: { typing: false, upto: risk } }
+    - { at: "saved me", mark: msg-risk-line-2, style: marker, until: "bunch of money" }
+```
+
+Test timelines: `examples/tests/replica-telegram.json` (full frame: reveal, mark, callout, lift, zoom,
+focus, topic switch, scroll, explode, type and send, then the phone) and
+`examples/tests/replica-telegram-panel.json` (the same in the panel look).
 
 ## 5. Building a new replica from screenshots
 

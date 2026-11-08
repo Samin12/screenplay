@@ -151,7 +151,7 @@ One verb per beat: `click`, `move`, `type`, `set`, `tween`, `callout`, `lift`, `
 | `move: t` | `tooltip` | instant | cursor glides to t and rests (hover state) |
 | `type: t` | `key` (state key), `text`, `cps` (40), `lift` | until typed | cursor clicks t, text types into `state[key]` |
 | `set: {..}` | | instant | hard UI state swap |
-| `tween: key` | `to`, `from` | 1.2 s | eases a numeric state key (scroll positions: `scroll` on t3-code and browser, `chatScroll` and `sidebarScroll` on claude-desktop); targets re-measure when it ends |
+| `tween: key` | `to`, `from` | 1.2 s | eases a numeric state key (scroll positions: `scroll` on t3-code, browser and telegram, `chatScroll` and `sidebarScroll` on claude-desktop); targets re-measure when it ends |
 | `callout: t` | `text`, `sub`, `side` (left/right/top/bottom, default right), `dim` (true) | 3 s | dot pops, line draws, label blurs in; rest of UI dims |
 | `lift: t` | `scale`, `to: [x, y]` | 2.5 s | live enlarged clone flies toward the centre, UI dims to 38 % |
 | `explode: [t..]` | `labels: [..]` | 3 s | several elements lift into a labelled row |
@@ -166,14 +166,43 @@ For a real screenshot or recording instead of a replica:
 ```yaml
 - kind: app
   at: "here's the settings page"
-  screen: media/settings.png     # or .mp4/.mov (add start: 12.5 to start the recording at 12.5 s)
+  screen: media/settings.png     # or .mp4/.mov (add start: 12.5 to start the recording at 12.5 s, or start: auto, below)
   size: [2880, 1800]             # pixel size of the media
   tone: light                    # for light pages: markers and callouts switch to dark-on-light (default dark)
   targets:                       # named rectangles in media pixels: [x, y, w, h]
     remote-toggle: [2410, 512, 96, 54]
     connectors: [1980, 900, 820, 420]
-  beats: [ ...same verbs, except set/type... ]
+  blur:                          # optional privacy blurs, media pixels (frosted, carried into zooms and lifts)
+    - [0, 300, 560, 1900]                                   # the whole scene
+    - { rect: [2196, 398, 230, 52], at: "hit this button", until: "last 30 days" }   # or hold: 2s
+  beats: [ ...same verbs, except set/type/tween... ]
 ```
+
+**The real screen, synced to the voice.** When the creator is showing his screen, show the whole
+recording playing in sync, not a cropped screenshot with a slow zoom. Re-time the screen recording to
+output time first (one frame per output frame, the same cut as `aroll.json`: for each segment, the
+screen frames for `[srcStart, srcEnd]`), then use it with `start: auto`:
+
+```yaml
+- kind: app
+  at: "if you just hit this button"
+  screen: media/screen-out.mp4   # the screen recording re-timed to the cut (output time)
+  size: [3612, 2648]             # the RECORDING's pixels: targets and blurs stay in them even if the
+                                 # re-timed file is a lighter encode (it is stretched to `size`)
+  start: auto                    # seek to this scene's own output start: frame T shows the screen at word T
+  tone: light
+  targets: { usage-popup: [1990, 60, 640, 2240], total: [2040, 120, 300, 240] }
+  beats:
+    - { at: "spent this much money", callout: total, text: "30-day spend", side: left, until: "most of it" }
+    - { at: "my Grok", mark: usage-popup, style: ring, hold: 2s }
+```
+
+`start: auto` = `start: <the scene's output start>`; it follows the scene if a chapter card pushes or
+splits it, and re-timing after a cut change needs no edit.yaml change. The plate fills the panel as
+the whole window (scale 1 = the full screen; a plate at another aspect sits on the panel as a framed
+card, flush to its height), and `callout`, `mark`, `focus`, `zoom`, `lift` and `explode` all work on
+the moving recording (targets are fixed rects, so point them at things that hold still while they
+show). Use a short-GOP encode (a keyframe every 30 frames) so `<OffthreadVideo>` seeks fast.
 
 ### `kind: stage`: concepts and proof, in the panel (reference look: big webcam left, diagram right)
 
@@ -240,8 +269,96 @@ Items inside take their own `at` so each one lands on its word.
 | `quote` | `text`, `by`, `mark: {phrase, at}` |
 | `lower` | `title`, `sub`: lower third (talking scenes) |
 | `cta` | `text`, `sub`, `icon`: "In the description below" style call to action |
+| `story` | `title`, `actors: [{id, kind, x, y, ...}]`, `beats: [{at, <verb>: id, ...}]`: an analogy acted out by illustrated props, people and numbers (below) |
 
 In text fields, `*word*` draws that word in the accent colour.
+
+### Stories (`type: story`): analogies as little animated scenes
+
+When he explains with an analogy (a taxi meter, a law firm, a call center), don't put the words on
+screen: **act it out**. A story is a small stage (1400×990, the panel's viewport) with **actors** on it
+and **beats** that move them, each on a spoken word. Write it like stage directions; the engine does
+the drawing, the timing and the motion (blur-in entrances, one terracotta accent, cubic ease-in-out,
+only stickers bounce). It usually fills a whole `stage` scene.
+
+```yaml
+- kind: stage
+  at: "Think of your session"
+  elements:
+    - type: story
+      title: "Your session is a *taxi meter*"      # optional; fades while the camera is pushed in
+      actors:                                     # x, y = centre of the drawing, story px (0..1400, 0..990)
+        - { id: road, kind: path, from: [40, 742], to: [1360, 742] }
+        - { id: cab, kind: taxi, x: 300, y: 572, value: 2.5 }          # meter starts at $2.50
+        - { id: you, kind: person, x: 650, y: 586, label: You, color: accent }
+        - { id: jam, kind: car, x: 1130, y: 660, scale: 0.8, at: "sitting in traffic" }   # waits for its word
+        - { id: traffic, kind: badge, x: 1130, y: 450, text: "Stuck in traffic", icon: clock, at: "sitting in traffic" }
+        - { id: office, kind: building, x: 1225, y: 528, label: Done, at: "By the end" }
+        - { id: wow, kind: sticker, x: 1010, y: 330, text: "Way bigger!", at: "way bigger" }
+      beats:
+        - { at: "The moment you get in", move: you, to: cab, offset: [60, 0], hold: 0.7s }
+        - { at: "get in", exit: you }
+        - { at: "meter starts running", count: cab, to: 48.6, ease: linear, until: "than you expected" }
+        - { at: "Every message", move: cab, to: [700, 572], until: "keeps charging" }
+        - { at: "message you send", say: cab, text: "Fix this bug" }
+        - { at: "keeps charging", say: cab, text: "One more thing", hold: 1.4s }
+        - { at: "By the end", exit: traffic }
+        - { at: "By the end", move: jam, by: [700, 0], hold: 0.8s }
+        - { at: "of the ride", move: cab, to: [850, 572], hold: 1s }
+        - { at: "the fare", follow: cab, scale: 1.5 }
+        - { at: "way bigger", pulse: cab }
+```
+
+**Actors.** Every actor has `id` and `kind`; most have `x, y`. Common fields: `label` (34 px, under the
+drawing), `role` (a smaller second line), `color` (`accent good bad info warn muted` or `#hex`; the
+body of a person or car, the tint of an icon or badge), `scale`, `rotate`, `flip` (face left), `at`
+(the word it appears on; without `at` it is there when the story appears), `enter: pop`. Actors
+without `x` share the width evenly; without `y` they stand at 520. Later actors draw on top.
+
+| kind | what it draws | own fields |
+|---|---|---|
+| `person` | a friendly figure (head and shoulders), shirt in `color` | `wear: tie \| headset \| glasses` |
+| `car`, `taxi` | side view, wheels turn as it moves; the taxi has a TAXI sign and a fare meter | taxi: `value`, `prefix` ($), `decimals` (2), `suffix` |
+| `plane`, `tower` | airliner (tail in `color`), control tower with a blinking light | |
+| `building`, `office` | tall building with lit windows; office with a sign | office: `text` (the sign) |
+| `document` | a page (more sheets behind it when `pages` > 1) with a page-count tag | `pages`, `title` (on the page) |
+| `stack` | a pile of paper that grows and shrinks with its count | `count` (number in the tag), `text` ("docs") |
+| `monitor`, `phone` | a screen showing `text`, a lucide `icon`, or placeholder UI | `text`, `icon` |
+| `notebook`, `drawer`, `headset` | spiral notebook; an open drawer full of gadgets; a headset | notebook `title`; drawer `icons: [..]`, `open` |
+| `icon` | a lucide icon (or `claude`) on a rounded tile | `icon`, `size` (150), `tile: false` |
+| `text` | a line of text (`*word*` = accent) | `text`, `size` (48), `w` (wrap width) |
+| `box`, `card` | a card: icon + title, and `lines` as bullets | `title` or `text`, `lines`, `icon`, `w` |
+| `counter` | a big accent number | `value`, `prefix`, `suffix`, `decimals`, `size` |
+| `meter` | a bar (default) or `style: dial` gauge, in % | `value` (0..100), `style`, `w` |
+| `image` | a picture from the work dir | `src`, `w`, `h` |
+| `arrow`, `path` | a line between two actors (or `[x, y]` points) that draws on; paths are dashed, no head | `from`, `to`, `label`, `curve` (-1..1), `dashed` |
+| `bubble` | a speech bubble that stays on an actor | `on`, `text`, `style: speech \| thought`, `side` |
+| `badge`, `sticker` | a pill (pops in); the rotated accent sticker | `text`, badge `icon`, sticker `size` |
+
+**Beats.** One verb per beat; the verb's value is the actor id. `at` is any anchor (phrases are found
+from the story's start, `w123`, `o:12.5`, `±1s`); a beat without `at` happens as the story appears.
+`until` / `hold` set how long it lasts.
+
+| beat | extra fields | default length | what happens |
+|---|---|---|---|
+| `enter: id` | `style: blur \| pop`, `pos: [x, y]` | | blurs (or pops) in, at `pos` if given; arrows draw on |
+| `exit: id` | | | blurs out |
+| `move: id` | `to: [x, y]` or `to: <actor>` (+ `offset: [dx, dy]`), or `by: [dx, dy]` | 0.9 s | glides there, cubic ease-in-out; cars turn their wheels |
+| `say: id` | `text`, `style: thought`, `side` | 2.5 s, or until its next `say` | a speech bubble above the actor (or `side: left/right/bottom`) |
+| `count: id` | `to`, `ease: linear \| smooth` | 1.2 s | counter, taxi meter or stack counts to `to` (`linear` for a meter that keeps running) |
+| `fill: id` | `to` (0..100) | 1 s | a meter fills to `to` % |
+| `connect: a` | `to: b`, `label`, `curve`, `dashed`, `color` | until the end | an arrow from a to b draws on (and leaves at `until`) |
+| `draw: id` | | | an `arrow` / `path` actor draws on (same as `enter`) |
+| `highlight: id` | | 2 s | accent ring and glow around the actor and its label |
+| `pulse: id` / `shake: id` | | 0.6 s / 0.5 s | a quick swell with a ring / a quick no-no shake |
+| `swap: id` | any of `text label role title lines icon color pages count value open` | | changes those fields (a new label, a busy line turns red) |
+| `follow: id` | `scale` (1.6), or `follow: [x, y, w, h]`, or `follow: all` | until the next `follow` (or `until`) | the camera pushes in on the actor (tracking it if it moves) or region; `all` = the whole stage |
+| `dim: id` or `dim: [ids]` | | 2.5 s | everything else dims to ~30 % |
+
+Tips: design on the 1400×990 grid (props draw ~1.35× their nominal size: a person is ~230×310, a
+taxi ~445×340); put the ground under the wheels and feet, with labels below it; keep actors that appear
+during a `follow` near its target (the push-in crops the rest); one idea per beat, a beat every 1–2 s.
+
 
 ## Rules the checker enforces
 
@@ -252,3 +369,6 @@ In text fields, `*word*` draws that word in the accent colour.
 - Talking scenes with nothing to show (warning, panel look): an empty panel.
 - No em dashes in on-screen text. Headlines under ~7 words.
 - Media files exist.
+- Stories: unknown actor kinds, duplicate ids and beats or arrows that name a missing actor are errors; a beat
+  on an actor that is off stage is a warning. A story counts as changing on each beat and while something
+  in it moves, counts or fills.

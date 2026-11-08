@@ -111,7 +111,7 @@ export const fmtSec = (s: number) => `${s.toFixed(1)} s`;
 // 75.25 -> "1:15.3"
 export function fmtClock(s: number, decimals = 1): string {
   const neg = s < 0;
-  s = Math.abs(s);
+  s = Number(Math.abs(s).toFixed(decimals)); // round first, so 1979.97 is "33:00.0", not "32:60.0"
   const m = Math.floor(s / 60);
   const rest = s - m * 60;
   const sec = rest.toFixed(decimals).padStart(decimals ? decimals + 3 : 2, '0');

@@ -25,13 +25,36 @@ export type Message =
   | { kind: 'notice'; text: string; icon?: string }
   | { kind: 'table'; title?: string; columns: string[]; rows: { cells: string[]; bar?: number; on?: boolean; tone?: 'muted' | 'warn' | 'good' | 'bad' }[]; footer?: [string, string] }
   | { kind: 'checklist'; title: string; items: { text: string; sub?: string; status?: 'ok' | 'warn' | 'bad' | 'fixed'; note?: string }[] }
-  | { kind: 'thinking'; text?: string };
+  | { kind: 'thinking'; text?: string }
+  // light theme only (the dark theme skips these):
+  | { kind: 'meta'; text: string; link?: string } // "Started on this computer · ai-youtube-course · Save as environment"
+  | { kind: 'context'; used: string; total: string; pct: number; when?: string } // /context output card
+  | { kind: 'usage'; title?: string; limits: UsageLimit[]; session?: { cells: string[]; extra?: string }; breakdown?: { model: string; rows: [string, string][] }; whats?: { range: string; scope: string; note: string; always?: [string, string]; rows: { label: string; pct: number }[] } } // /usage output card
+  | { kind: 'limit'; text: string; sub?: string; on?: boolean } // usage-limit card with the "Auto-continue when limits reset" switch
+  | { kind: 'code'; title?: string; text: string }; // code block card (settings.json, a command)
+
+export type UsageLimit = { label: string; reset: string; pct: number };
 
 export type MenuItem = string | { label: string; key?: string; sub?: string[]; danger?: boolean; icon?: string };
 
 export type ContextRow = { label: string; size: string; pct: string; color?: string; dotted?: boolean };
 
+export type SettingsRow = {
+  label: string;
+  desc?: string;
+  on?: boolean; // default switch position (light settings); state.toggles overrides
+  control?: 'switch' | 'select' | 'input' | 'none';
+  value?: string; // select / input value
+  section?: string; // light settings: section heading this row sits under
+  indent?: boolean;
+};
+
+export type ModelItem = { name: string; key?: string };
+
 export type DesktopData = {
+  theme?: 'dark' | 'light'; // light = his Claude Desktop (Code tab, light mode); default dark
+  preset?: 'samin'; // samin = his real setup (sessions, ai-youtube-course, Sonnet 5.5 Medium, Ultra); implies light
+  menubar?: boolean; // light: draw a macOS menu bar strip above the window
   chrome: 'mac' | 'windows';
   windowTitle?: string; // title bar text when state.active is not a known session
   user: { name: string; plan: string; initial?: string };
@@ -45,14 +68,19 @@ export type DesktopData = {
   mode: string;
   placeholder: string;
   greeting: string;
-  environment: { location: string; folder: string; drive?: string };
+  environment: { location: string; folder: string; drive?: string; branch?: string };
+  changes?: { added: string; removed: string } | null; // light rail "Changes" (+3,401 −218, Create PR)
+  connectorsNote?: string; // light rail: right side of "Connectors" ("3 to reconnect")
+  models?: ModelItem[]; // light model menu rows
+  efforts?: string[]; // light model menu: Effort submenu
+  startedOn?: string; // light: "Started on this computer · <folder>" meta line under the title
   context: { pct: number; used: string; total: string; rows: ContextRow[] };
   connectors: { name: string; letter?: string; status: string }[];
   outputs: { name: string; meta: string; icon?: string }[];
-  commands: { name: string; desc: string }[];
+  commands: { name: string; desc: string; tag?: string; hint?: string }[]; // tag: grey label in the light slash menu ("Custom command"); hint: argument hint shown after the command in the composer
   menu: MenuItem[];
   moreMenu: MenuItem[];
-  settings: { nav: string[]; pages: Record<string, { label: string; desc?: string }[]> };
+  settings: { nav: (string | { label: string; group?: string; icon?: string })[]; pages: Record<string, SettingsRow[]> };
   ribbon: { week: { pct: string; reset: string }; window: { pct: string; reset: string }; cache: { label: string; left: string } };
   agents: { title: string; stats: [string, string][]; running: { name: string; tier: string; model: string; effort: string; done: number; total: number; meta: string; color?: string }[]; finished: number };
 };
@@ -68,7 +96,7 @@ export type DesktopState = {
   view: 'chat' | 'settings';
   settingsPage: string;
   toggles: Record<string, boolean>;
-  slash: null | (string | { name: string; desc?: string })[];
+  slash: null | (string | { name: string; desc?: string; tag?: string })[];
   slashHover: string | null;
   append: Message[];
   upto: number | null;
@@ -77,4 +105,13 @@ export type DesktopState = {
   contextFull: boolean;
   ribbon: boolean;
   panel: null | 'agents';
+  // light theme
+  modelMenu?: null | boolean | 'effort' | 'more'; // model menu above the model picker; 'effort' opens the Effort submenu
+  modelHover?: string | null; // row highlighted in the model menu ("Haiku 5.5", "Effort", "High")
+  dialog?: null | { kind: 'switch-model'; from?: string; to?: string; dontAsk?: boolean }; // "Switch model?" dialog
+  userMenu?: boolean; // user menu above the sidebar footer (Settings ⌘, ...)
+  settingsScroll?: number; // px the settings page scrolled
+  settingsHover?: string | null; // settings row highlighted (label)
+  slashTip?: boolean; // tooltip next to the highlighted slash row
+  connectorsOpen?: boolean; // light rail: Connectors section expanded
 };

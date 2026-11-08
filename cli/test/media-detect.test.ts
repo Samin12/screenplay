@@ -35,8 +35,14 @@ describe('fillers', () => {
 
 describe('stutters', () => {
   it('cuts the first of a doubled word', () => {
-    const w = say('I I think the the plan works.');
+    const w = say('I I think the | the plan works.');
     assert.deepEqual(confident(w, detectCuts(w)), ['I', 'the']);
+  });
+  it('sends a one-word stutter said in one breath to review (the splice would sit inside speech)', () => {
+    const w = say('So I think the the plan works.');
+    const ps = detectCuts(w);
+    assert.deepEqual(confident(w, ps), []);
+    assert.deepEqual(ambiguous(w, ps), ['the']);
   });
   it('leaves legit doubles for review', () => {
     const w = say('I know that that is true.');

@@ -9,6 +9,8 @@ import { ChatPane } from './Chat';
 import { AgentsPanel, Rail } from './Rail';
 import { ContextMenu, SettingsModal, menuHeight } from './Menus';
 import { defaultData, defaultState } from './defaults';
+import { resolveDesktopData } from './presets';
+import { LightDesktop } from './light/LightDesktop';
 
 // Claude desktop app, dark theme, macOS chrome by default. 1920x1080 design size at ~1.5x real UI.
 // Pure function of (data, state, ui).
@@ -23,8 +25,17 @@ const findSession = (list: Session[], id: string | null): Session | undefined =>
   return undefined;
 };
 
+const DEEP: (keyof DesktopData)[] = ['user', 'environment', 'context', 'settings', 'ribbon', 'agents', 'chats'];
+
 export const ClaudeDesktop: React.FC<ReplicaProps<Partial<DesktopData>, Partial<DesktopState>>> = ({ data: rawData, state: rawState, ui }) => {
-  const data = mergeData(defaultData, rawData, ['user', 'environment', 'context', 'settings', 'ribbon', 'agents', 'chats']);
+  const theme = rawData?.theme ?? (rawData?.preset === 'samin' ? 'light' : 'dark');
+  if (theme === 'light') {
+    // light: defaults + light layer (or the samin preset), then the scene's data (nested objects merge)
+    const base = resolveDesktopData({ preset: rawData?.preset, theme: 'light' });
+    const data = mergeData(base, { ...rawData, theme: 'light' } as Partial<DesktopData>, DEEP);
+    return <LightDesktop data={data} state={{ ...defaultState, ...rawState } as DesktopState} ui={ui} />;
+  }
+  const data = mergeData(defaultData, rawData, DEEP);
   const state = { ...defaultState, ...rawState } as DesktopState;
 
   const all = [...(data.pinned ?? []), ...data.sections.flatMap((s) => s.sessions)];

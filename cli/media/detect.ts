@@ -11,6 +11,9 @@ export type DetectOptions = {
 
 export const DEFAULT_DETECT: DetectOptions = { window: 20, pause: 0.3, maxSpanWords: 45 };
 
+/** A one-word stutter with less silence than this on both sides is a review proposal, not an automatic cut. */
+const FLOWING_GAP = 0.15;
+
 /** Phrases after which "you know" is part of the sentence, not a filler. */
 const YOU_KNOW_CONTENT = new Set(['what', 'how', 'that', 'the', 'why', 'when', 'where', 'who', 'it', 'this', 'him', 'her', 'them', 'me', 'about', 'if', 'whether', 'which', 'a', 'an', 'your', 'my', 'more', 'nothing', 'everything', 'something', 'anything', 'exactly']);
 
@@ -48,8 +51,11 @@ export function detectCuts(words: Word[], options: Partial<DetectOptions> = {}):
       if (!same) continue;
       // A sentence that ends and the next starting with the same word ("...do it. It works") is fine for L=1.
       if (L === 1 && endsSentence(words[k].text) && !isCutOff(words[k].text)) break;
-      const confident = L > 1 || !isLegitDouble(n[k]) || isCutOff(words[k].text);
-      props.push({ from: k, to: k + L - 1, kind: 'stutter', why: 'stutter', confident, note: `${quote(k, k + L - 1)} repeated immediately` });
+      // A one-word repeat said in one breath ("the AC on, on full blast") can only be removed with a splice
+      // inside continuous voicing, which is what makes a cut jarring: send it to review instead of auto-cutting.
+      const flowing = L === 1 && k > 0 && words[k].start - words[k - 1].end < FLOWING_GAP && words[k + 1].start - words[k].end < FLOWING_GAP;
+      const confident = (L > 1 || !isLegitDouble(n[k]) || isCutOff(words[k].text)) && !flowing;
+      props.push({ from: k, to: k + L - 1, kind: 'stutter', why: 'stutter', confident, note: `${quote(k, k + L - 1)} repeated immediately${flowing ? ' (no pause on either side: a cut would splice inside speech)' : ''}` });
       break;
     }
     // "lit- literally": a cut-off fragment followed by the full word.

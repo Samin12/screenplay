@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { allCuts, readCuts } from './cutsfile.ts';
-import { computeEnvelope, readWav } from './audio.ts';
+import { computeEnvelope, frameAt, readWav } from './audio.ts';
 import { verifyJoins } from './joins.ts';
 import { face } from './face.ts';
 import { ensureAudio, ffmpeg, filterScriptArgs, mediaDir } from './media.ts';
@@ -18,9 +18,11 @@ const USAGE = 'screenplay aroll <work> [--plan] [--no-verify] [--crf 18] [--pres
 export const OUT_FPS = 30;
 export const OUT_W = 1920;
 export const OUT_H = 1080;
-const FADE = 0.008; // seconds of fade at every join (no clicks)
+const EDGE_FADE = 0.008; // seconds of fade at the very start and end (no clicks)
+const XFADE = 0.06; // equal-power crossfade centred on a join in room tone
+const XFADE_TIGHT = 0.03; // ...and on a join inside continuous speech (less of the removed word bleeds in)
 
-export type Plan = { src: SourceInfo; words: Word[]; removed: boolean[]; segments: Segment[]; outWords: OutWord[]; duration: number; maxGap: number };
+export type Plan = { src: SourceInfo; words: Word[]; removed: boolean[]; segments: Segment[]; xfades: number[]; outWords: OutWord[]; duration: number; maxGap: number };
 
 /** Everything aroll decides, without rendering. `verify` checks cut points inside continuous speech by ear. */
 export async function makePlan(work: string, verify = true): Promise<Plan> {
@@ -52,11 +54,14 @@ export async function makePlan(work: string, verify = true): Promise<Plan> {
     if (!removed[x] && removed[y]) timed[x].end = Math.round(Math.max(timed[x].end, t - 0.03) * 1000) / 1000;
     else if (removed[x] && !removed[y]) timed[y].start = Math.round(Math.min(timed[y].start, t + 0.03) * 1000) / 1000;
   }
-  const ranges = keptRanges(timed, removed, env, { duration: src.duration, maxGap: cuts.maxGap, joins: joinsAt });
+  const ranges = keptRanges(timed, removed, env, { duration: src.duration, maxGap: cuts.maxGap, midGap: cuts.midGap, head: cuts.head, tail: cuts.tail, minPiece: cuts.minPiece, joins: joinsAt, holds: new Map(cuts.holds.map((h) => [h.after, h.keep])) });
   const segments = buildSegments(ranges, OUT_FPS, 0.06, src.duration);
   if (!segments.length) throw new Error('nothing left to keep: every word is cut');
+  // One crossfade per join: short where either edge is voiced (a splice inside speech), longer in room tone.
+  const voiced = (t: number) => env.db[frameAt(env, t)] > env.threshold + 6;
+  const xfades = segments.slice(1).map((s, k) => (voiced(segments[k].srcEnd - 0.01) || voiced(s.srcStart + 0.01) ? XFADE_TIGHT : XFADE));
   const outWords = mapWords(timed, removed, segments);
-  return { src, words: timed, removed, segments, outWords, duration: outputDuration(segments, OUT_FPS), maxGap: cuts.maxGap };
+  return { src, words: timed, removed, segments, xfades, outWords, duration: outputDuration(segments, OUT_FPS), maxGap: cuts.maxGap };
 }
 
 export function writePlan(work: string, plan: Plan): void {
@@ -88,23 +93,37 @@ function parseLoudnorm(stderr: string): Loudness {
   return JSON.parse(blocks[blocks.length - 1]) as Loudness;
 }
 
-/** Cut audio (sample-exact, frame-aligned, faded at every join) + loudness measurement in one pass. */
-async function renderAudio(work: string, wav48: string, segs: Segment[], lufs: number): Promise<{ file: string; loud: Loudness }> {
+/**
+ * Audio cut graph: sample-exact, frame-aligned segments joined by an equal-power (qsin) crossfade centred on
+ * every join. Each segment borrows half its joins' crossfade as a handle of source audio past each inner edge
+ * and acrossfade overlaps those handles, so the output is exactly as long as the video (A/V sync unchanged).
+ */
+export function audioGraph(segs: Segment[], xfades: number[], lufs: number, sr = 48000): string {
+  const half = segs.slice(1).map((_, k) => Math.max(1, Math.round(((xfades[k] ?? XFADE) * sr) / 2)));
+  const n = segs.length;
+  const lines: string[] = [`[0:a]asplit=${n}${segs.map((_, k) => `[s${k}]`).join('')};`];
+  segs.forEach((s, k) => {
+    const a = Math.round(frame(s.srcStart) * (sr / OUT_FPS)) - (k > 0 ? half[k - 1] : 0);
+    const b = Math.round(frame(s.srcEnd) * (sr / OUT_FPS)) + (k < n - 1 ? half[k] : 0);
+    const fades = [k === 0 ? `afade=t=in:d=${EDGE_FADE}` : '', k === n - 1 ? `afade=t=out:st=${((b - a) / sr - EDGE_FADE).toFixed(5)}:d=${EDGE_FADE}` : ''].filter(Boolean);
+    lines.push(`[s${k}]atrim=start_sample=${a}:end_sample=${b},asetpts=N/SR/TB${fades.map((f) => ',' + f).join('')}[c${k}];`);
+  });
+  let last = 'c0';
+  for (let k = 1; k < n; k++) {
+    lines.push(`[${last}][c${k}]acrossfade=ns=${2 * half[k - 1]}:c1=qsin:c2=qsin[x${k}];`);
+    last = `x${k}`;
+  }
+  lines.push(`[${last}]asplit=2[out][m];`);
+  lines.push(`[m]loudnorm=I=${lufs}:TP=-1.5:LRA=11:print_format=json[mm]`);
+  return lines.join('\n');
+}
+
+/** Cut audio (crossfaded at every join, see audioGraph) + loudness measurement in one pass. */
+async function renderAudio(work: string, wav48: string, segs: Segment[], xfades: number[], lufs: number): Promise<{ file: string; loud: Loudness }> {
   const dir = mediaDir(work);
   const file = path.join(dir, 'aroll-audio.wav');
-  const sr = 48000;
-  const lines: string[] = [`[0:a]asplit=${segs.length}${segs.map((_, k) => `[s${k}]`).join('')};`];
-  segs.forEach((s, k) => {
-    const a = Math.round(frame(s.srcStart) * (sr / OUT_FPS));
-    const b = Math.round(frame(s.srcEnd) * (sr / OUT_FPS));
-    const dur = (b - a) / sr;
-    const f = Math.min(FADE, dur / 4);
-    lines.push(`[s${k}]atrim=start_sample=${a}:end_sample=${b},asetpts=N/SR/TB,afade=t=in:d=${f.toFixed(4)},afade=t=out:st=${(dur - f).toFixed(5)}:d=${f.toFixed(4)}[c${k}];`);
-  });
-  lines.push(`${segs.map((_, k) => `[c${k}]`).join('')}concat=n=${segs.length}:v=0:a=1,asplit=2[out][m];`);
-  lines.push(`[m]loudnorm=I=${lufs}:TP=-1.5:LRA=11:print_format=json[mm]`);
   const graph = path.join(dir, 'aroll-audio.filter');
-  fs.writeFileSync(graph, lines.join('\n'));
+  fs.writeFileSync(graph, audioGraph(segs, xfades, lufs));
   const stderr = await ffmpeg(['-i', wav48, ...(await filterScriptArgs(graph)), '-map', '[out]', '-c:a', 'pcm_s16le', file, '-map', '[mm]', '-f', 'null', '-'], `cut audio: ${segs.length} segments`);
   return { file, loud: parseLoudnorm(stderr) };
 }
@@ -166,7 +185,7 @@ export async function aroll(argv: string[]): Promise<void> {
 
   if (!args.flags.plan) {
     const { wav48 } = await ensureAudio(work, src);
-    const { file, loud } = await renderAudio(work, wav48, segments, lufs);
+    const { file, loud } = await renderAudio(work, wav48, segments, plan.xfades, lufs);
     const norm = await normaliseAudio(work, file, loud, lufs);
     log(`  loudness ${loud.input_i} → ${norm.lufs.toFixed(1)} LUFS`);
     const out = await renderVideo(work, plan, norm.file, flagNum(args, 'crf', 18), flagStr(args, 'preset') ?? 'medium');

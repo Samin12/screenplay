@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { basicYaml, compile, words } from './fixtures/load.ts';
 import { buildSrt, wrap, youtubeChapters } from '../captions.ts';
 import { fragment, subtract } from '../compile.ts';
-import type { AppScene } from '../../src/types.ts';
+import type { AppScene, Element } from '../../src/types.ts';
 
 test('srt: <= 42 chars per line, <= 2 lines, ordered non-overlapping cues', () => {
   const srt = buildSrt(words);
@@ -100,4 +100,25 @@ test('fragment: a recording plate split by a chapter card keeps playing where it
   const scene = { id: 's1', kind: 'app', from: 0, duration: 300, transitionIn: 'cut', transitionOut: 'cut', plate: { type: 'video', src: 'media/r.mp4', size: [1920, 1080], startFrom: 30, targets: {} }, state: {}, camera: { scale: 1 }, actions: [] } as unknown as AppScene;
   const cont = fragment(scene, 120, 180, 1) as AppScene;
   assert.equal((cont.plate as { startFrom: number }).startFrom, 150);
+});
+
+test('fragment: a shown element moves with the piece a chapter card splits off', () => {
+  const el = (frame: number, end: number) => ({ type: 'lower', frame, end, title: 'x', sub: null }) as unknown as Element;
+  const scene = {
+    id: 's1', kind: 'app', from: 0, duration: 300, transitionIn: 'cut', transitionOut: 'cut',
+    plate: { type: 'replica', app: '_fixture', data: {} }, state: {}, camera: { scale: 1 },
+    actions: [
+      { do: 'show', frame: 20, end: 60, element: el(20, 60) },
+      { do: 'show', frame: 100, end: 160, element: el(100, 160) },
+      { do: 'show', frame: 200, end: 260, element: el(200, 260) },
+    ],
+  } as unknown as AppScene;
+  const cont = fragment(scene, 120, 180, 1) as AppScene;
+  assert.deepEqual(
+    cont.actions.map((a) => [a.do, a.frame, 'end' in a ? a.end : null, a.do === 'show' ? [a.element.frame, a.element.end] : null]),
+    [
+      ['show', 0, 40, [0, 40]],
+      ['show', 80, 140, [80, 140]],
+    ],
+  );
 });

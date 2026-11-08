@@ -4,6 +4,8 @@ import { claudeDesktop } from './claude-desktop';
 import { terminal } from './terminal';
 import { browser } from './browser';
 import { t3Code } from './t3-code';
+import { openUsage } from './openusage';
+import { telegram } from './telegram';
 
 // Replica library. Each entry is a reusable, data-driven copy of an app's UI.
 // See docs/REPLICAS.md for the contract and how to add one.
@@ -13,4 +15,6 @@ export const replicas: Record<string, ReplicaDef> = {
   [terminal.id]: terminal,
   [browser.id]: browser,
   [t3Code.id]: t3Code,
+  [openUsage.id]: openUsage,
+  [telegram.id]: telegram,
 };

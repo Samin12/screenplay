@@ -155,6 +155,37 @@ function everyShots(meta: CompileMeta, t: Timeline, f0: number, f1: number, step
   return shots;
 }
 
+/** Size + mtime of the A-roll and of every work-dir file the timeline points at (a re-rendered plate changes it). */
+function mediaStamp(work: string): string {
+  const parts: string[] = [];
+  const add = (p: string) => {
+    try {
+      const st = fs.statSync(p);
+      if (st.isFile()) parts.push(`${p}:${st.size}:${st.mtimeMs}`);
+    } catch {
+      // not a file: ignore
+    }
+  };
+  for (const f of ['aroll.mp4', 'face.json']) add(path.join(work, f));
+  const tl = path.join(buildDir(work), 'timeline.json');
+  const seen = new Set<string>();
+  const walk = (v: unknown) => {
+    if (typeof v === 'string') {
+      if (/\.(mp4|mov|webm|png|jpe?g|webp|gif)$/i.test(v) && !seen.has(v)) {
+        seen.add(v);
+        add(path.isAbsolute(v) ? v : path.join(work, v));
+      }
+    } else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') Object.values(v).forEach(walk);
+  };
+  try {
+    walk(JSON.parse(fs.readFileSync(tl, 'utf8')));
+  } catch {
+    // no compiled timeline yet: the A-roll alone keys it
+  }
+  return parts.sort().join('|');
+}
+
 export async function sheetCommand(argv: string[]) {
   const a = parseArgs(argv, ['beats']);
   const work = workDir(a);
@@ -181,11 +212,16 @@ export async function sheetCommand(argv: string[]) {
   try {
     const { renderStill, selectComposition } = await import('@remotion/renderer');
     const s = await session(work, res);
-    // thumbnails, cached per (timeline, bundle)
-    const key = sha1(JSON.stringify(t) + s.key).slice(0, 12);
+    // thumbnails, cached per (timeline, bundle, media files): a re-rendered plate or clip is a new key.
+    // The key is written only after every thumbnail rendered, so a crashed run never blesses stale frames.
+    const key = sha1(JSON.stringify(t) + s.key + mediaStamp(work)).slice(0, 12);
     const keyFile = path.join(framesDir, '.key');
-    const fresh = fs.existsSync(keyFile) && fs.readFileSync(keyFile, 'utf8') === key ? new Set(fs.readdirSync(framesDir)) : new Set<string>();
-    fs.writeFileSync(keyFile, key);
+    const same = fs.existsSync(keyFile) && fs.readFileSync(keyFile, 'utf8') === key;
+    if (!same) {
+      for (const f of fs.readdirSync(framesDir)) if (/^f-\d+\.jpg$/.test(f)) fs.unlinkSync(path.join(framesDir, f));
+      fs.rmSync(keyFile, { force: true });
+    }
+    const fresh = new Set(fs.readdirSync(framesDir));
     const todo = [...new Set(shots.map((x) => x.frame))].filter((f) => !fresh.has(`f-${f}.jpg`));
     let done = 0;
     await pool(todo, defaultConcurrency(), async (f) => {
@@ -194,6 +230,7 @@ export async function sheetCommand(argv: string[]) {
       if (process.stderr.isTTY) process.stderr.write(c.dim(`\rrendering thumbnails ${done}/${todo.length}`));
     });
     if (todo.length && process.stderr.isTTY) process.stderr.write('\n');
+    fs.writeFileSync(keyFile, key);
     const pages = Math.ceil(shots.length / perPage);
     for (let p = 0; p < pages; p++) {
       const items = shots.slice(p * perPage, (p + 1) * perPage).map((x) => ({ src: `_sheet/frames/f-${x.frame}.jpg`, time: fmtClock(x.frame / t.fps), label: x.label, sub: x.sub }));

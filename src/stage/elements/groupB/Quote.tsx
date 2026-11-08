@@ -5,7 +5,7 @@ import { msToFrames, progress } from '../../../lib/anim';
 import { Fit, Marker, markerMs, partIn, splitPhrase } from './kit';
 
 // Big serif quote: a large accent opening mark, the text in the display serif, an optional marker
-// phrase that wipes in on its word, and an attribution line ("— Dario Amodei").
+// phrase that wipes in on its word, and an attribution line ("Dario Amodei", no dash: house rule, no em dashes on screen).
 
 const linear = (x: number) => x;
 
@@ -21,7 +21,7 @@ export const Quote: React.FC<ElementProps<'quote'>> = ({ el, box, frame, fps }) 
   const blockW = Math.min(W, est / lines + fs * 1.2);
   const split = splitPhrase(el.text, el.mark?.phrase);
   const markP = el.mark && split ? progress(frame, el.mark.frame, msToFrames(markerMs(split[1]), fps), linear) : 0;
-  const by = el.by ? (/^[—–-]/.test(el.by) ? el.by : `— ${el.by}`) : null;
+  const by = el.by ? el.by.replace(/^\s*[—–-]+\s*/, '') : null;
   const markSize = fs * 2.9;
 
   return (

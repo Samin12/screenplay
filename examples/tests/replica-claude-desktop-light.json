@@ -1,0 +1,576 @@
+{
+ "timeline": {
+  "version": 1,
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 990,
+  "theme": "ember-dark",
+  "aroll": null,
+  "camera": {
+   "focus": [
+    0.5,
+    0.4
+   ],
+   "zoom": 1,
+   "mirror": false
+  },
+  "webcam": [],
+  "chapterGrid": {
+   "heading": "Features",
+   "logo": true
+  },
+  "chapters": [],
+  "scenes": [
+   {
+    "id": "hi",
+    "kind": "app",
+    "from": 0,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "context",
+    "kind": "app",
+    "from": 60,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "append": [
+      {
+       "role": "user",
+       "text": "/context"
+      },
+      {
+       "kind": "context",
+       "when": "Just now"
+      }
+     ]
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "usage",
+    "kind": "app",
+    "from": 120,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "append": [
+      {
+       "role": "user",
+       "text": "/context"
+      },
+      {
+       "kind": "context",
+       "when": "Just now"
+      },
+      {
+       "role": "user",
+       "text": "/usage"
+      },
+      {
+       "kind": "usage"
+      }
+     ],
+     "chatScroll": 0
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "slash",
+    "kind": "app",
+    "from": 180,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "append": [
+      {
+       "role": "user",
+       "text": "/context"
+      },
+      {
+       "kind": "context",
+       "when": "Just now"
+      },
+      {
+       "role": "user",
+       "text": "/usage"
+      },
+      {
+       "kind": "usage"
+      }
+     ],
+     "prompt": "/aut",
+     "slash": [
+      "autocompact",
+      {
+       "name": "autocompact",
+       "tag": "Custom command"
+      },
+      "auto-mode-setup",
+      "gui-automation",
+      "plugin-authoring",
+      "workflow-authoring",
+      "agent-desktop-macos",
+      "browser-use",
+      "rea:audit_residual_unknowns (MCP)",
+      "run-skill-generator",
+      "update-config",
+      "ytstudio"
+     ],
+     "slashHover": "autocompact",
+     "slashTip": true
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "autocompact",
+    "kind": "app",
+    "from": 240,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "append": [
+      {
+       "role": "user",
+       "text": "/context"
+      },
+      {
+       "kind": "context",
+       "when": "Just now"
+      },
+      {
+       "role": "user",
+       "text": "/usage"
+      },
+      {
+       "kind": "usage"
+      },
+      {
+       "role": "user",
+       "text": "/autocompact 200k"
+      },
+      {
+       "role": "assistant",
+       "text": "Auto-compact window for Sonnet 5.5 set to 200k tokens"
+      }
+     ]
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "modelmenu",
+    "kind": "app",
+    "from": 300,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": null,
+     "rail": false,
+     "modelMenu": true,
+     "modelHover": null
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "switch",
+    "kind": "app",
+    "from": 360,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "dialog": {
+      "kind": "switch-model",
+      "from": "Opus 5.5",
+      "to": "Fable 5.1"
+     }
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "settings",
+    "kind": "app",
+    "from": 420,
+    "duration": 150,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": [
+     {
+      "do": "click",
+      "frame": 12,
+      "target": "user",
+      "set": {
+       "userMenu": true
+      }
+     },
+     {
+      "do": "click",
+      "frame": 40,
+      "target": "user-menu-settings",
+      "set": {
+       "userMenu": false,
+       "view": "settings",
+       "settingsPage": "Claude Code"
+      }
+     },
+     {
+      "do": "focus",
+      "frame": 62,
+      "end": 90,
+      "target": "settings-section-sessions"
+     },
+     {
+      "do": "set",
+      "frame": 92,
+      "set": {
+       "settingsHover": "Prompt suggestions"
+      }
+     },
+     {
+      "do": "click",
+      "frame": 100,
+      "target": "toggle-prompt-suggestions",
+      "set": {
+       "toggles": {
+        "prompt-suggestions": false
+       }
+      },
+      "ring": true
+     },
+     {
+      "do": "callout",
+      "frame": 108,
+      "end": 148,
+      "target": "toggle-prompt-suggestions",
+      "text": "Prompt suggestions: off",
+      "side": "left",
+      "dim": false
+     }
+    ]
+   },
+   {
+    "id": "usermenu",
+    "kind": "app",
+    "from": 570,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "userMenu": true
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "limit",
+    "kind": "app",
+    "from": 630,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "append": [
+      {
+       "role": "user",
+       "text": "Draft the next three video outlines"
+      },
+      {
+       "kind": "limit",
+       "text": "You hit your usage limit. Held messages will send when it resets.",
+       "sub": "Paused at usage limit \u00b7 continues after Thu, 3:00 PM if the app stays open"
+      }
+     ]
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "code",
+    "kind": "app",
+    "from": 690,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "append": [
+      {
+       "role": "user",
+       "text": "Make every subagent use Haiku"
+      },
+      {
+       "kind": "code",
+       "title": "~/.claude/settings.json",
+       "text": "{\n  \"env\": {\n    \"CLAUDE_CODE_SUBAGENT_MODEL\": \"haiku\",\n    \"CLAUDE_CODE_SUBAGENT_MODEL_FORCE\": \"1\"\n  }\n}"
+      }
+     ]
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "light-fictional",
+    "kind": "app",
+    "from": 750,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "theme": "light"
+     }
+    },
+    "state": {
+     "rail": true,
+     "active": "saltmarsh"
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "gear",
+    "kind": "app",
+    "from": 810,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": [
+     {
+      "do": "click",
+      "frame": 10,
+      "target": "settings-gear",
+      "tooltip": "Code settings",
+      "set": {
+       "view": "settings",
+       "settingsPage": "Claude Code"
+      }
+     },
+     {
+      "do": "set",
+      "frame": 30,
+      "set": {
+       "toggles": {
+        "summary-and-next-steps": false
+       }
+      }
+     }
+    ]
+   },
+   {
+    "id": "effort",
+    "kind": "app",
+    "from": 870,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "claude-desktop",
+     "data": {
+      "preset": "samin"
+     }
+    },
+    "state": {
+     "active": "new-session",
+     "rail": true,
+     "modelMenu": "effort",
+     "modelHover": "High"
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   },
+   {
+    "id": "cli-config",
+    "kind": "app",
+    "from": 930,
+    "duration": 60,
+    "transitionIn": "cut",
+    "transitionOut": "cut",
+    "plate": {
+     "type": "replica",
+     "app": "terminal",
+     "data": {
+      "header": null,
+      "lines": [
+       {
+        "kind": "prompt",
+        "text": "/config"
+       }
+      ]
+     }
+    },
+    "state": {
+     "config": {
+      "hover": "Auto-compact",
+      "values": {
+       "prompt-suggestions": false
+      }
+     }
+    },
+    "camera": {
+     "scale": 1
+    },
+    "actions": []
+   }
+  ]
+ }
+}

@@ -139,7 +139,8 @@ export const SettingsModal: React.FC<{ data: DesktopData; state: DesktopState; u
       <div data-target="settings" style={{ width: 1240, height: 680, background: C.modal, border: '1px solid #333', borderRadius: 22, display: 'flex', overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}>
         <div style={{ width: 320, borderRight: '1px solid #2e2e2e', padding: '40px 18px', boxSizing: 'border-box', background: '#1c1c1c' }}>
           <div style={{ font: `600 30px ${FONT_UI}`, color: '#f2f2f2', padding: '0 18px 30px' }}>Settings</div>
-          {data.settings.nav.map((n) => {
+          {data.settings.nav.map((item) => {
+            const n = typeof item === 'string' ? item : item.label;
             const t = `settings-nav-${slug(n)}`;
             return (
               <div key={n} data-target={t} style={{ height: 52, borderRadius: 10, display: 'flex', alignItems: 'center', padding: '0 18px', marginBottom: 6, background: fill(ui, t, { hover: C.hover, pressed: C.press, active: n === page, activeBg: '#333333' }) }}>

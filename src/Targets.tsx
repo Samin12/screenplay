@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { AbsoluteFill, Composition, Img, continueRender, delayRender, staticFile } from 'remotion';
 import { replicas } from './replicas';
-import { PlateSizeProvider } from './app/replica';
+import { PlateSizeProvider, resolvePlateData } from './app/replica';
 import type { Rect } from './types';
 import { ThemeProvider } from './theme/ThemeContext';
 import './theme/fonts';
@@ -153,7 +153,7 @@ const ReplicaTargets: React.FC<TargetsProps & { app: string }> = ({ app, data, s
       <div style={{ position: 'absolute', left: o.x, top: o.y, width: size[0], height: size[1], transform: `scale(${o.k})`, transformOrigin: '0 0', overflow: 'hidden' }}>
         <div ref={ref} style={{ width: size[0], height: size[1], position: 'relative' }}>
           <PlateSizeProvider value={size}>
-            <Comp data={{ ...def.defaults.data, ...(data ?? {}) }} state={st} ui={{ frame: 0, fps: 30 }} />
+            <Comp data={resolvePlateData(def, data)} state={st} ui={{ frame: 0, fps: 30 }} />
           </PlateSizeProvider>
         </div>
       </div>
