@@ -103,6 +103,34 @@ test('step badge: intro before the first card, one per chapter, earlier parts al
   ]);
 });
 
+test('step badge: with `badge` set and no anchored item, the intro shows for the whole video', () => {
+  const tiles = (badge: string) => y`
+    chapters:
+      heading: "2 Parts"
+      ${badge}
+      items:
+        - { title: "One", icon: code }
+        - { title: "Two", icon: code }
+    scenes:
+      - { kind: stage, at: w0, title: Hi }
+  `;
+  assert.deepEqual(panel(tiles('badge: { intro: "4 steps" }')).timeline!.badges, [{ frame: 0, eyebrow: 'Intro', title: '4 steps', step: 0, total: 2 }]);
+  assert.deepEqual(panel(tiles('badge: { eyebrow: Tip, introEyebrow: "Level 2" }')).timeline!.badges, [{ frame: 0, eyebrow: 'Level 2', title: '2 Parts', step: 0, total: 2 }]);
+  assert.deepEqual(panel(tiles('logo: true')).timeline!.badges, []);
+});
+
+test('step badge: introEyebrow replaces "Intro" before a late first card', () => {
+  const t = panel(y`
+    chapters:
+      badge: { introEyebrow: "Level 2" }
+      items:
+        - { at: w41, title: "One", icon: code }
+    scenes:
+      - { kind: stage, at: w0, title: Hi }
+  `).timeline!;
+  assert.deepEqual(t.badges[0], { frame: 0, eyebrow: 'Level 2', title: '1 Features', step: 0, total: 1 });
+});
+
 test('step badge: a plain intro when nothing came before, none without chapters', () => {
   const t = panel(y`
     chapters:

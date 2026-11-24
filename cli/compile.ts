@@ -590,16 +590,20 @@ class Compiler {
 
     // Step badge: one per chapter from its card on, plus an intro before the first card.
     const badgeRaw = isObj(raw) && isObj(raw.badge) ? raw.badge : {};
-    if (isObj(raw) && raw.badge !== undefined && !isObj(raw.badge)) this.err(['chapters', 'badge'], 'badge must be {eyebrow, intro}');
+    if (isObj(raw) && raw.badge !== undefined && !isObj(raw.badge)) this.err(['chapters', 'badge'], 'badge must be {eyebrow, intro, introEyebrow}');
     const eyebrow = typeof badgeRaw.eyebrow === 'string' ? textCtx.text(['chapters', 'badge', 'eyebrow'], badgeRaw.eyebrow) : 'Part';
     const badges: StepBadge[] = [];
     chapterInfos.forEach((ci, k) => {
       if (ci.frame >= 0) badges.push({ frame: ci.frame, eyebrow, title: stepTitles[k], step: k + 1, total: chapterInfos.length });
     });
-    if (badges.length && badges[0].frame > 0) {
+    const introEyebrow = typeof badgeRaw.introEyebrow === 'string' ? textCtx.text(['chapters', 'badge', 'introEyebrow'], badgeRaw.introEyebrow) : 'Intro';
+    // No anchored item at all (every item is tile only): with `chapters.badge` set, the intro badge
+    // still shows for the whole video, no dash lit.
+    const introOnly = badges.length === 0 && chapterInfos.length > 0 && isObj(raw) && isObj(raw.badge);
+    if ((badges.length && badges[0].frame > 0) || introOnly) {
       const title = typeof badgeRaw.intro === 'string' ? textCtx.text(['chapters', 'badge', 'intro'], badgeRaw.intro, true) : grid.heading.replace(/\*/g, '');
-      const lit = badges[0].step - 1; // parts covered earlier stay filled
-      badges.unshift({ frame: 0, eyebrow: lit > 0 ? eyebrow : 'Intro', title, step: lit, total: chapterInfos.length });
+      const lit = introOnly ? 0 : badges[0].step - 1; // parts covered earlier stay filled
+      badges.unshift({ frame: 0, eyebrow: lit > 0 ? eyebrow : introEyebrow, title, step: lit, total: chapterInfos.length });
     }
     return { cards, chapterInfos, grid, badges };
   }

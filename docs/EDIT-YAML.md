@@ -56,6 +56,7 @@ chapters:
   badge:                     # step badge above the tile (panel look)
     eyebrow: Tips            # "TIPS · 3 / 10"
     intro: "10 Opus 5.5 Tips"  # title before the first card (default: the heading)
+    introEyebrow: "Level 2"  # replaces the word "INTRO" above that title (default: Intro). With `badge` set and no item anchored (`at`), this intro badge stays up for the whole video
   items:                     # each item inserts a chapter-grid card at its anchor: 2 s (panel), 3.4 s (reference)
     - { title: "Skills", icon: sparkles }          # no `at`: tile only, no card (earlier ones show as done, later ones as upcoming)
     - { at: "the big one", title: "Session rail", badge: "The Session Rail", icon: panel-right }  # `badge`: longer name for the step badge
