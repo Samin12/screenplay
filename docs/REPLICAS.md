@@ -13,6 +13,7 @@ Library: `src/replicas/` (registry in `src/replicas/index.ts`).
 | `terminal` | Claude Code CLI in a macOS Terminal window | 1920x1080 |
 | `browser` | Chrome-like window: screenshot or simple page blocks | 1920x1080 |
 | `openusage` | OpenUsage menu-bar strip + panel (spend ring, limit bars, Accounts, Add Account, Settings), light | 1920x1080 |
+| `finder` | macOS Finder window, light: sidebar, toolbar, icon and list view, real thumbnails, new folder, rename, drag and drop | 1920x1080 |
 | `telegram` | Telegram Desktop forum group (topic tabs, chat list) or the same chat on an iPhone (`state.view: phone`), dark | 1920x1080 |
 | `_fixture` | minimal example used by tests | 1920x1080 |
 
@@ -202,6 +203,52 @@ header + the image), `{kind: video, src, title?, meta?, start?, ...}` (plays mut
 `{kind: progress, text, pct?, meta?}` (a bar that follows `state.progress` when `pct` is unset: `tween: progress`),
 and `attachments: [{name, icon?, meta?}]` on a user message (file/folder chips above the bubble). Messages revealed
 by `upto` / `append` blur in. `data.stamp: Recreated` puts an amber pill in the title bar for rebuilt windows.
+
+Connector (MCP) work, light theme (`light/Tools.tsx`). All of it is optional and additive:
+
+- **Model chip:** `data.model` / `data.effort` set the chip under the composer (`model: "Fable 5.2", effort: "High"`);
+  `model: false` hides it, `effort: ""` drops the grey word.
+- **Connectors popover:** `data.connectors[]` entries take `tools: [name | {name, desc}]`, `icon` (lucide name or a work-dir
+  logo image), `color` (letter tile). `state.connectors: {open: true}` opens the list above the composer; `{open: "Higgsfield"}`
+  also shows that connector's tool pane. Tools revealed by a `set` cascade in on their own; `upto: N` shows only the first N.
+  Columns are added as needed; what does not fit ends in "+ N more". Targets: `connectors-popover`, `connectors-list`,
+  `mcp-<slug>`, `mcp-switch-<slug>`, `add-connector`, `mcp-tools`, `mcp-tools-head`, `mcp-tool-<slug>`. (The rail keeps
+  `connector-<slug>` and `state.connectorsOpen`; the title bar keeps `tool-*`.)
+- **Tool call:** `{role: tool, connector, tool, args?, open?, status?: running|done|error, id?, icon?, result?: {image | video,
+  title?, meta?, start?, w?, h?, maxH?} | {text}}`: Claude's collapsed tool row (logo, connector, tool name, spinner → check),
+  `open: true` shows `args`, and the result card sits under it once the call is done. `state.toolStatus: {<id or message
+  number>: done}` flips it with one `set`: the result blurs in and a video starts playing from that frame. Targets: `msg-<n>`,
+  `msg-<n>-status`, `msg-<n>-result`, `msg-<n>-result-media`. The dark theme draws a plain "Connector · tool" line.
+- **Chips:** attachments take `kind: folder` (blue folder, `count` → "6 items"), `kind: pasted` (`lines` → "Pasted · 212 lines"),
+  `kind: image`, `thumb` (a work-dir image). `state.attachments: [..]` puts chips inside the composer (targets `attachments`,
+  `attachment-<k>`); the same list on a user message draws them above the bubble.
+- **Drop on the composer:** `state.dropping: {name, kind?, count?, thumb?}`. While it is set and the cursor is on screen the
+  item rides under the cursor (`drop-ghost`) and the composer shows a dashed blue "Drop to add to this chat". Drive it with
+  `move: composer` then `click: composer` with `set: {dropping: null, attachments: [...]}`.
+- **Long prompts:** the composer wraps, breaks on `\n`, grows to 9 lines, then shows the tail like a scrolled field.
+
+```yaml
+- kind: app
+  app: claude-desktop
+  data:
+    preset: samin
+    stamp: Recreated
+    model: "Opus 5.5"
+    connectors:
+      - { name: Higgsfield, letter: H, color: "#111111", status: Connected, tools: [generate_image, generate_video, generate_audio, upscale_video] }
+    messages:
+      - { role: user, text: "Animate shot 3." }
+      - { role: tool, id: gen, connector: Higgsfield, tool: generate_video, status: running, result: { video: media/shot-03.mp4, title: "shot-03.mp4", meta: "5 s" } }
+  state: { active: dfw, sidebar: false, upto: 1 }
+  beats:
+    - { at: "drop it", set: { dropping: { name: "footage", kind: folder, count: 6 } } }
+    - { at: "drop it +0.5s", move: composer }
+    - { at: "into Claude", click: composer, set: { dropping: null, attachments: [ { name: "footage", kind: folder, count: 6 } ] } }
+    - { at: "the tools", click: attach, set: { attachments: null, connectors: { open: true } } }
+    - { at: "Higgsfield", click: mcp-higgsfield, set: { connectors: { open: Higgsfield } } }
+    - { at: "generate", set: { connectors: null, upto: 2 } }
+    - { at: "comes back", set: { toolStatus: { gen: done } } }
+```
 
 Extra **state** (light): `modelMenu` (`true` | `effort` | `more`), `modelHover`, `dialog`
 (`{kind: switch-model, from, to, dontAsk}`), `userMenu`, `view: settings` + `settingsPage`,
@@ -459,6 +506,76 @@ not counted), `msg-<id>-name`, `-admin`, `-avatar`, `-card`, `-time`, `-tick`, `
 Test timelines: `examples/tests/replica-telegram.json` (full frame: reveal, mark, callout, lift, zoom,
 focus, topic switch, scroll, explode, type and send, then the phone) and
 `examples/tests/replica-telegram-panel.json` (the same in the panel look).
+
+## `finder`
+
+macOS Finder in light appearance, measured from a real window on macOS 27 (grey sidebar, capsule toolbar groups, icon view and
+list view, path bar), drawn at ~1.55x so names read on a phone. Files: `src/replicas/finder/` (`Finder.tsx`, `types.ts`,
+`defaults.ts`, `index.ts`). It fills the plate and reflows into the panel (sidebar 286 px, 5 icon columns; 372 px and more
+toolbar buttons at 1920). Defaults are a neutral "Brand Kit" folder: no real names, drives or paths.
+
+### data
+
+| key | shape |
+|---|---|
+| `title` | folder name in the toolbar |
+| `path` | path bar: `"Macintosh HD/Users/you/Brand Kit"` or a list; `null` hides it |
+| `view` | `icon` (default) \| `list` |
+| `items` | `[{id, name, kind?, thumb?, thumbAt?, meta?, date?, items?}]`. `kind`: `folder image video audio doc code` (guessed from the name). `thumb`: work-dir image, or a video (frame at `thumbAt` s, default 0.5; skipped in the measuring copy; a poster jpg is faster). `meta`: blue info line under the name, Size column in list view. `items`: folder contents |
+| `folders` | `{<key>: {title?, path?, items}}` other folders `state.path` can open; key `new` = inside the new folder |
+| `sidebar` | `[{section, items: [{name, icon?, active?}]}]` or `false` |
+| `stamp` | `Recreated`: amber pill next to the title |
+| `columns`, `date`, `search` | icon columns, default date text, `search: false` drops the search field |
+
+### state
+
+| key | values |
+|---|---|
+| `view` | `icon` \| `list` (overrides data) |
+| `path` | key of `data.folders`, or the id of a folder item with `items`; `null` = top folder |
+| `items` | replaces the item list on screen; new ids pop in |
+| `shown` / `upto` | `[ids]` visible / first N. Ids added by a `set` pop in (files landing one by one) |
+| `selected` | id or `[ids]` |
+| `moved` | `[ids]` moved out: icon view keeps their slots empty (nothing reflows), list view drops the rows |
+| `newFolder` | `true` \| `{id?, name?}`: a new folder at the end (id `new`), name field open |
+| `rename` | text in the open name field (`type: item-new-name, key: rename`) |
+| `renaming` | unset = the new folder's field is open; `null` = committed; `'<id>'` = that item's field |
+| `names` | `{id: name}` permanent renames |
+| `drag` | `{ids, count?}`: ghost stack of those items at `ui.cursor`, originals dim |
+| `dropTarget` | folder id or `side-<slug>` highlighted; automatic for the hovered folder while `drag` is set |
+| `scroll` | px scrolled (tween) |
+
+### targets
+
+`window`, `sidebar`, `side-<slug>`, `toolbar`, `back`, `forward`, `title`, `stamp`, `view-switch`, `view-icon`, `view-list`,
+`view-columns`, `view-gallery`, `tags` (1920 only), `new-folder`, `share`, `more`, `search`, `content`, `items`, `list-header`,
+`item-<id>`, `item-<id>-icon`, `item-<id>-name` (open name field), `path`, `drag-ghost`.
+
+```yaml
+- kind: app
+  at: "make a folder"
+  app: finder
+  data:
+    title: Downloads
+    stamp: Recreated
+    items:
+      - { id: logo, name: "logo.png", thumb: media/logo.png, meta: "1200 × 393" }
+      - { id: clip, name: "ad.mp4", thumb: media/ad.mp4, thumbAt: 3, meta: "00:16" }
+  beats:
+    - { at: "make a folder", click: new-folder, set: { newFolder: true } }
+    - { at: "make a folder +0.8s", type: item-new-name, key: rename, text: "ad assets" }
+    - { at: "drop", set: { renaming: null } }
+    - { at: "drop +0.4s", click: item-logo, set: { selected: [logo, clip], drag: { ids: [logo, clip] } } }
+    - { at: "footage", move: item-new }
+    - { at: "footage +0.6s", click: item-new, set: { drag: null, selected: null, moved: [logo, clip] } }
+```
+
+**Drag ghosts and `ui.cursor`.** The engine now passes the scripted cursor's plate position as `ui.cursor` while the cursor
+is on screen (`src/app/logic.ts` `uiAt`). A replica draws what is being dragged there (`finder` `state.drag`,
+`claude-desktop` `state.dropping`) and hides it when `ui.cursor` is absent or `ui.measuring` is set. Authoring rules: pick up
+with a `click` that sets the drag, travel with `move`, drop with a `click` that clears it; keep those beats under 5 s apart
+(after 5 s the cursor leaves and re-enters); a click target is measured in the state after its own `set`, so do not reflow
+the layout in the drop's `set` (that is what `moved` is for).
 
 ## 5. Building a new replica from screenshots
 
