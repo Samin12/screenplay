@@ -52,7 +52,7 @@ const SCENE_FIELDS: Record<Kind, string[]> = {
   plug: ['media'],
   board: ['line', 'nodes'],
 };
-const SCENE_COMMON = ['kind', 'at', 'webcam', 'transition', 'note', 'notes'];
+const SCENE_COMMON = ['kind', 'at', 'webcam', 'transition', 'note', 'notes', 'badge'];
 
 export const VERBS = ['click', 'move', 'type', 'set', 'tween', 'callout', 'lift', 'explode', 'focus', 'zoom', 'mark', 'title', 'show'] as const;
 export type Verb = (typeof VERBS)[number];
@@ -363,7 +363,7 @@ class Compiler {
     if (pre.length && pre[0].anchorT > 0.5) this.warn(['scenes', pre[0].i, 'at'], `the first scene starts at ${pre[0].anchorT.toFixed(1)} s; it is extended back to 0:00`);
 
     // ---- chapters ----
-    const { cards, chapterInfos, grid, badges } = this.chapters(root.chapters);
+    const { cards, chapterInfos, grid, badges, introBadge } = this.chapters(root.chapters);
 
     // ---- push scenes that start inside a card ----
     for (const sc of pre) {
@@ -387,6 +387,29 @@ class Compiler {
       }
       alive.push(sc);
     });
+
+    // ---- scene `badge:` overrides ----
+    // From the scene's start until the next scene that sets `badge:` or the next chapter card. The
+    // dashes stay lit as the chapter state has them.
+    for (const s of alive) {
+      const b = s.raw.badge;
+      if (b === undefined) continue;
+      const p: P = ['scenes', s.i, 'badge'];
+      const lit = badges.filter((x) => x.frame <= s.startF).pop()?.step ?? 0;
+      const state = { frame: s.startF, step: lit, total: chapterInfos.length };
+      let entry: StepBadge | null = null;
+      if (b === 'none') entry = { ...state, eyebrow: '', title: '', hidden: true };
+      else if (b === 'intro') entry = { ...state, ...introBadge, plain: true };
+      else if (isObj(b) && typeof b.eyebrow === 'string' && typeof b.text === 'string' && b.eyebrow.trim() && b.text.trim()) {
+        for (const k of Object.keys(b)) if (!['eyebrow', 'text'].includes(k)) this.warn([...p, k], `unknown field "${k}" (ignored); fields: eyebrow, text`);
+        const tc = this.ctx({ i: s.i, path: ['scenes', s.i], kind: s.kind, raw: s.raw, anchorT: s.anchorT, baseF: s.startF, endF: this.totalF, durF: this.totalF - s.startF, window: { from: 0, to: this.total } });
+        entry = { ...state, eyebrow: tc.text([...p, 'eyebrow'], b.eyebrow), title: tc.text([...p, 'text'], b.text, true), plain: true };
+      } else this.err(p, 'badge must be {eyebrow, text}, `intro` or `none`');
+      if (!entry) continue;
+      const at = badges.findIndex((x) => x.frame >= s.startF);
+      if (at < 0) badges.push(entry);
+      else badges.splice(at, badges[at].frame === s.startF ? 1 : 0, entry);
+    }
 
     // ---- compile each scene against its window ----
     const compiled: { sc: SceneCtx; scene: Scene }[] = [];
@@ -599,13 +622,14 @@ class Compiler {
     const introEyebrow = typeof badgeRaw.introEyebrow === 'string' ? textCtx.text(['chapters', 'badge', 'introEyebrow'], badgeRaw.introEyebrow) : 'Intro';
     // No anchored item at all (every item is tile only): with `chapters.badge` set, the intro badge
     // still shows for the whole video, no dash lit.
+    const introTitle = typeof badgeRaw.intro === 'string' ? textCtx.text(['chapters', 'badge', 'intro'], badgeRaw.intro, true) : grid.heading.replace(/\*/g, '');
     const introOnly = badges.length === 0 && chapterInfos.length > 0 && isObj(raw) && isObj(raw.badge);
     if ((badges.length && badges[0].frame > 0) || introOnly) {
-      const title = typeof badgeRaw.intro === 'string' ? textCtx.text(['chapters', 'badge', 'intro'], badgeRaw.intro, true) : grid.heading.replace(/\*/g, '');
+      const title = introTitle;
       const lit = introOnly ? 0 : badges[0].step - 1; // parts covered earlier stay filled
       badges.unshift({ frame: 0, eyebrow: lit > 0 ? eyebrow : introEyebrow, title, step: lit, total: chapterInfos.length });
     }
-    return { cards, chapterInfos, grid, badges };
+    return { cards, chapterInfos, grid, badges, introBadge: { eyebrow: introEyebrow, title: introTitle } };
   }
 
   // ----- scenes -----

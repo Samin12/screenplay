@@ -34,7 +34,9 @@ export type Timeline = {
   scenes: Scene[];
 };
 
-export type StepBadge = { frame: number; eyebrow: string; title: string; step: number; total: number };
+// `plain` / `hidden` come from a scene's `badge:` override: `plain` shows the eyebrow without the
+// "· 3 / 10" count (step still lights the dashes), `hidden` draws no badge.
+export type StepBadge = { frame: number; eyebrow: string; title: string; step: number; total: number; plain?: boolean; hidden?: boolean };
 
 export type ChapterInfo = { index: number; title: string; icon: string; frame: number };
 

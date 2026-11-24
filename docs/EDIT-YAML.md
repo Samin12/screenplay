@@ -83,6 +83,12 @@ break is a chapter switch: the card takes the full screen, then cuts back.
 - Replicas fill the panel and reflow into it. Coordinates like `lift ... to: [x, y]` are in the panel's
   viewport, 1400×990 (`src/theme/panel.ts`).
 - Screen plates at another aspect (a 16:9 recording) sit on the panel as a framed card.
+- **Scene badge override.** Any scene can set `badge:` to change the step badge from that scene's
+  start until the next scene that sets `badge:` or the next chapter card, whichever comes first:
+  `badge: { eyebrow: "LEVEL 3", text: "Photoreal product ads" }` shows that eyebrow and title (no
+  "· 3 / 10" count; the dashes stay lit as the chapter has them), `badge: intro` goes back to the
+  `chapters.badge.intro` / `introEyebrow` text, `badge: none` draws no badge. Use it when the sections
+  after the last chapter are not part of it (a closing, a bonus). Anything else is a `check` error.
 - Chapter cards take the full screen for 2 s on the bare canvas, over the tile and badge, with hard cuts
   in and out (no white flash). Speech carries on underneath. The badge shows the new chapter when the
   layout comes back.

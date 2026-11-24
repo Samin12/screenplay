@@ -19,7 +19,7 @@ const fitTitle = (title: string) => {
   return Math.max(15, Math.min(29, (29 * TITLE_W) / natural));
 };
 
-const eyebrowOf = (b: StepBadge) => (b.step > 0 ? `${b.eyebrow} · ${b.step} / ${b.total}` : b.eyebrow).toUpperCase();
+const eyebrowOf = (b: StepBadge) => (b.step > 0 && !b.plain ? `${b.eyebrow} · ${b.step} / ${b.total}` : b.eyebrow).toUpperCase();
 
 export const StepBadgeLayer: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
   const t = useTheme();
@@ -34,8 +34,13 @@ export const StepBadgeLayer: React.FC<{ timeline: Timeline }> = ({ timeline }) =
   const prev = i > 0 ? badges[i - 1] : null;
   const swapF = msToFrames(300, fps);
   const p = prev ? progress(frame, cur.frame, swapF, easeInOut) : 1;
-  const shown = p < 0.5 && prev ? prev : cur;
-  const textOpacity = prev && p < 1 ? Math.abs(2 * p - 1) : 1;
+  // A scene's `badge: none` fades the whole badge out (and the next state fades it back in).
+  const gone = (b: StepBadge | null) => (b?.hidden ? 1 : 0);
+  const vis = prev ? 1 - (gone(prev) + (gone(cur) - gone(prev)) * p) : 1 - gone(cur);
+  if (vis <= 0) return null;
+  const fading = gone(prev) !== gone(cur);
+  const shown = fading ? (cur.hidden && prev ? prev : cur) : p < 0.5 && prev ? prev : cur;
+  const textOpacity = prev && p < 1 && !fading ? Math.abs(2 * p - 1) : 1;
 
   // Bows out with the panel when the head goes full frame.
   let w = 0;
@@ -50,7 +55,7 @@ export const StepBadgeLayer: React.FC<{ timeline: Timeline }> = ({ timeline }) =
   const gap = 6;
   const barW = (TITLE_W - gap * (total - 1)) / total;
   return (
-    <div style={{ position: 'absolute', left: BADGE.x, top: BADGE.y, width: BADGE.w, height: BADGE.h, opacity: 1 - hide }}>
+    <div style={{ position: 'absolute', left: BADGE.x, top: BADGE.y, width: BADGE.w, height: BADGE.h, opacity: (1 - hide) * vis }}>
       <div
         style={{
           position: 'absolute',

@@ -218,3 +218,36 @@ test('house geometry: panel and tile match the Borumi standard look and never ov
   assert.ok(PANEL.x + PANEL.w < TILE.x);
   assert.ok(Math.abs(PANEL_VIEW[0] / PANEL_VIEW[1] - PANEL.w / PANEL.h) < 0.002);
 });
+
+test('scene badge override: {eyebrow, text}, intro and none, each until the next chapter card', () => {
+  const lane = (b0: string, b1: string) => y`
+    chapters:
+      heading: "2 Parts"
+      badge: { eyebrow: Tip, intro: "The plan", introEyebrow: "Level 2" }
+      items:
+        - { at: w20, title: "One", icon: code }
+        - { at: w41, title: "Two", icon: code }
+    scenes:
+      - { kind: stage, at: w0, title: Hi${b0} }
+      - { kind: stage, at: w60, title: Later${b1} }
+  `;
+  const plainRun = panel(lane('', '')).timeline!.badges;
+  assert.equal(plainRun.length, 3);
+  const t = panel(lane('', ', badge: { eyebrow: "Level 3", text: "Photoreal product ads" }')).timeline!;
+  assert.deepEqual(t.badges, [...plainRun, { frame: F(w('w60').start), step: 2, total: 2, eyebrow: 'Level 3', title: 'Photoreal product ads', plain: true }]);
+  assert.deepEqual(panel(lane('', ', badge: intro')).timeline!.badges[3], { frame: F(w('w60').start), step: 2, total: 2, eyebrow: 'Level 2', title: 'The plan', plain: true });
+  assert.deepEqual(panel(lane('', ', badge: none')).timeline!.badges[3], { frame: F(w('w60').start), step: 2, total: 2, eyebrow: '', title: '', hidden: true });
+  // at 0:00 it replaces the intro badge, and the first chapter card takes over again
+  const first = panel(lane(', badge: none', '')).timeline!.badges;
+  assert.deepEqual(first[0], { frame: 0, step: 0, total: 2, eyebrow: '', title: '', hidden: true });
+  assert.deepEqual(first.slice(1), plainRun.slice(1));
+});
+
+test('scene badge override: unknown values are errors', () => {
+  const bad = (b: string) => panel(y`
+    scenes:
+      - { kind: stage, at: w0, title: Hi, badge: ${b} }
+  `);
+  for (const b of ['off', '{ eyebrow: "Level 3" }', '{ text: "x" }', '7', '[a]']) assert.match(errors(bad(b)).map((d) => d.message).join('\n'), /badge must be \{eyebrow, text\}, `intro` or `none`/, b);
+  assert.equal(errors(bad('{ eyebrow: "Level 3", text: "Ads" }')).length, 0);
+});
