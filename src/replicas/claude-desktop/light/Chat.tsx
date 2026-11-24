@@ -8,6 +8,7 @@ import { FONT_SF, FONT_SF_MONO, FS, LC, LL } from './tokens';
 import { CheckIcon, Chev, MicIcon, PieIcon, Tri } from './icons';
 import { MiniSwitch } from './Chrome';
 import { PixelCrab } from '../Rail';
+import { AttachmentChip, ConnectorsPopover, DropGhost, ToolCall } from './Tools';
 
 // Light chat column: messages (his /context, /usage, notice and bubble styles), composer with the
 // slash popover and the model menu, and the model line under it.
@@ -199,15 +200,7 @@ const MessageView: React.FC<{ m: Message; n: number; data: DesktopData; state: D
         {m.attachments?.length ? (
           <div data-target={`${t}-attachments`} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: '86%' }}>
             {m.attachments.map((a, i) => (
-              <div key={i} data-target={`${t}-attachment-${i + 1}`} style={{ height: 64, padding: '0 22px 0 16px', borderRadius: 14, border: `1px solid ${LC.cardLine}`, background: LC.white, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                <div style={{ width: 38, height: 38, borderRadius: 9, background: '#f1efe9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Ico name={a.icon ?? (a.name.endsWith('/') ? 'folder' : 'file-text')} size={22} color="#5a5a5a" stroke={1.8} />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ ...txt(20.5), lineHeight: '25px', whiteSpace: 'nowrap' }}>{a.name}</span>
-                  {a.meta ? <span style={{ ...txt(16.5, LC.dim), lineHeight: '21px', whiteSpace: 'nowrap' }}>{a.meta}</span> : null}
-                </div>
-              </div>
+              <AttachmentChip key={i} a={a} t={`${t}-attachment-${i + 1}`} />
             ))}
           </div>
         ) : null}
@@ -216,6 +209,7 @@ const MessageView: React.FC<{ m: Message; n: number; data: DesktopData; state: D
         </div>
       </div>
     );
+  if ('role' in m && m.role === 'tool') return <ToolCall m={m} n={n} data={data} state={state} ui={ui} colW={colW} arrive={arrive} />;
   if ('role' in m)
     return (
       <div data-target={t} style={{ ...txt(FS.chat), lineHeight: 1.42, paddingLeft: 8.2, paddingRight: 8 }}>
@@ -417,8 +411,8 @@ const gapBefore = (prev: Message | undefined, m: Message) => {
 
 // ---------- composer, slash popover, model menu ----------
 
-export const composerGeometry = (colLeft: number, colW: number, H: number, promptLines = 1) => {
-  const h = Math.max(LL.composerH, 37 + promptLines * 36);
+export const composerGeometry = (colLeft: number, colW: number, H: number, promptLines = 1, extra = 0) => {
+  const h = Math.max(LL.composerH, 37 + promptLines * 36) + extra;
   return { left: colLeft - LL.composerOut, width: colW + LL.composerOut * 2, top: H - LL.composerBottom - h, h };
 };
 
@@ -589,8 +583,15 @@ export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: U
   const caret = caretOn(ui, 'prompt');
   const empty = messages.length === 0;
   const placeholder = empty ? 'Describe a task or ask a question' : state.tab === 'chat' ? 'How can I help you today?' : data.placeholder;
-  const lines = Math.max(1, Math.ceil((prompt.length * 12.3) / (colW - 100)));
-  const g = composerGeometry(colLeft, colW, H, lines);
+  // Lines the prompt wraps to (estimate per paragraph; the box grows to MAX_LINES, then shows the tail like a scrolled field).
+  const MAX_LINES = 9;
+  const wrapW = colW - 100;
+  const rawLines = prompt.split('\n').reduce((n, para) => n + Math.max(1, Math.ceil((para.length * 11.9) / wrapW)), 0);
+  const lines = Math.max(1, Math.min(MAX_LINES, rawLines));
+  const atts = state.attachments ?? [];
+  const chipsH = atts.length ? 78 : 0;
+  const g = composerGeometry(colLeft, colW, H, lines, chipsH);
+  const dropping = state.dropping && ui.cursor && !ui.measuring ? state.dropping : null;
   // slash command chip in the composer: "/autocompact" blue, then the args (or the grey hint)
   const cm = /^\/(\S+)(\s.*)?$/s.exec(prompt);
   const cmd = cm ? data.commands.find((c) => c.name === cm[1]) : undefined;
@@ -627,17 +628,27 @@ export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: U
           height: g.h,
           borderRadius: 23,
           background: LC.white,
-          border: `1px solid ${isHover(ui, 'composer') || ui.caret === 'prompt' ? '#c4c4c4' : '#d4d4d4'}`,
-          boxShadow: '0 6px 18px rgba(0,0,0,0.055), 0 1px 3px rgba(0,0,0,0.03)',
+          border: dropping ? `2px dashed ${LC.blue}` : `1px solid ${isHover(ui, 'composer') || ui.caret === 'prompt' ? '#c4c4c4' : '#d4d4d4'}`,
+          boxShadow: dropping ? `0 0 0 5px rgba(42,120,214,0.14), 0 6px 18px rgba(0,0,0,0.055)` : '0 6px 18px rgba(0,0,0,0.055), 0 1px 3px rgba(0,0,0,0.03)',
           boxSizing: 'border-box',
           zIndex: 10,
         }}
       >
-        <div data-target="attach" style={{ position: 'absolute', left: 37.1 - 20, top: 37 - 20, width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: fill(ui, 'attach', { hover: LC.hover }) }}>
+        {atts.length ? (
+          <div data-target="attachments" style={{ position: 'absolute', left: 17, right: 17, top: 14, height: 64, display: 'flex', gap: 12, overflow: 'hidden' }}>
+            {atts.map((a, i) => (
+              <AttachmentChip key={i} a={a} t={`attachment-${i + 1}`} />
+            ))}
+          </div>
+        ) : null}
+        <div data-target="attach" style={{ position: 'absolute', left: 37.1 - 20, top: chipsH + 37 - 20, width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: fill(ui, 'attach', { hover: LC.hover }) }}>
           <Ico name="plus" size={35} color={LC.text} stroke={1.25} />
         </div>
-        <div style={{ position: 'absolute', left: 74.2, right: prompt ? 130 : 80, top: 18.5, ...txt(prompt ? FS.chat : 24.8, prompt ? LC.text : LC.faint), lineHeight: '36px', wordBreak: 'break-word' }}>
-          {chip ? (
+        <div style={{ position: 'absolute', left: 74.2, right: prompt ? 130 : 80, top: chipsH + 18.5, ...(rawLines > MAX_LINES ? { height: MAX_LINES * 36, overflow: 'hidden', display: 'flex', flexDirection: 'column' as const, justifyContent: 'flex-end' } : {}) }}>
+        <div style={{ ...txt(prompt ? FS.chat : 24.8, prompt ? LC.text : LC.faint), lineHeight: '36px', wordBreak: 'break-word', whiteSpace: 'pre-wrap', flexShrink: 0 }}>
+          {dropping && !prompt ? (
+            <span style={{ color: LC.blue }}>Drop to add to this chat</span>
+          ) : chip ? (
             <>
               <span style={{ color: LC.cmdSlash, marginRight: 4 }}>/</span>
               <span style={{ color: LC.cmd }}>{cm![1]}</span>
@@ -653,15 +664,18 @@ export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: U
             </>
           )}
         </div>
+        </div>
         {prompt ? (
-          <div data-target="send" style={{ position: 'absolute', right: 94.9 - 20, top: 37 - 20, width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: fill(ui, 'send', { hover: LC.hover, pressed: LC.press }) }}>
+          <div data-target="send" style={{ position: 'absolute', right: 94.9 - 20, top: chipsH + 37 - 20, width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: fill(ui, 'send', { hover: LC.hover, pressed: LC.press }) }}>
             <Ico name="corner-down-left" size={28} color={LC.text} stroke={1.9} />
           </div>
         ) : null}
-        <div data-target={prompt ? 'mic' : 'send'} style={{ position: 'absolute', right: 37.6 - 20, top: 37 - 20, width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: fill(ui, prompt ? 'mic' : 'send', { hover: LC.hover }) }}>
+        <div data-target={prompt ? 'mic' : 'send'} style={{ position: 'absolute', right: 37.6 - 20, top: chipsH + 37 - 20, width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: fill(ui, prompt ? 'mic' : 'send', { hover: LC.hover }) }}>
           <MicIcon size={25} stroke={1.9} />
         </div>
       </div>
+      {state.connectors?.open ? <ConnectorsPopover data={data} state={state} ui={ui} x={g.left} bottom={g.top - 10} maxRight={mainLeft + mainW - 16} maxH={g.top - 10 - LL.titleH - 14} /> : null}
+      {dropping ? <DropGhost a={dropping} ui={ui} /> : null}
       {state.slash && state.slash.length ? <SlashPopover data={data} state={state} ui={ui} x={g.left + 46.4} bottom={g.top + 6} /> : null}
 
       {/* model line */}

@@ -53,7 +53,7 @@ const kindLabel = (it: FinderItem) => {
 };
 
 // The blue macOS folder.
-const FolderIcon: React.FC<{ w: number; open?: boolean }> = ({ w, open }) => (
+export const FolderIcon: React.FC<{ w: number; open?: boolean }> = ({ w, open }) => (
   <svg width={w} height={w * 0.8} viewBox="0 0 100 80" style={{ display: 'block', flexShrink: 0 }}>
     <defs>
       <linearGradient id="ff" x1="0" y1="0" x2="0" y2="1">
@@ -91,7 +91,7 @@ const DocIcon: React.FC<{ h: number; kind: FinderKind; name: string }> = ({ h, k
 };
 
 // The icon of one item, fitted into a w x h box: folder, real thumbnail, or a document page.
-const ItemIcon: React.FC<{ it: FinderItem; w: number; h: number; ui: UiState; open?: boolean }> = ({ it, w, h, ui, open }) => {
+export const ItemIcon: React.FC<{ it: FinderItem; w: number; h: number; ui: UiState; open?: boolean }> = ({ it, w, h, ui, open }) => {
   const kind = kindOf(it);
   if (kind === 'folder') return <FolderIcon w={Math.min(w, h * 1.25) * 0.94} open={open} />;
   if (it.thumb) {

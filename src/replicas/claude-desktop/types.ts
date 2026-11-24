@@ -19,6 +19,9 @@ export type Step = { text: string; status?: 'done' | 'active' | 'pending' | 'fai
 export type Message =
   | { role: 'user'; text: string; attachments?: Attachment[] } // attachments: chips above the bubble (light theme)
   | { role: 'assistant'; text: string }
+  // light theme: a connector (MCP) tool call, drawn as Claude's collapsed tool row: connector, tool, spinner -> check.
+  // status may be overridden by state.toolStatus[id ?? message number]; the result shows once it is done.
+  | { role: 'tool'; connector: string; tool: string; args?: string; open?: boolean; status?: ToolStatus; id?: string; icon?: string; result?: ToolResult }
   | { kind: 'activity'; text: string; open?: boolean; items?: string[] }
   | { kind: 'steps'; items: Step[] }
   | { kind: 'sessions'; text: string; open?: boolean; items: { title: string; status?: string }[] }
@@ -36,7 +39,13 @@ export type Message =
   | { kind: 'video'; src: string; title?: string; meta?: string; start?: number; w?: number; h?: number; maxH?: number } // a video Claude made, playing from when it appears (muted)
   | { kind: 'progress'; text: string; pct?: number; meta?: string }; // a progress card ("Rendering 4K · 480 frames"); without pct it follows state.progress (tween it)
 
-export type Attachment = { name: string; icon?: string; meta?: string }; // a file or folder chip ("trmnl/", "SKILL.md")
+// A file or folder chip ("trmnl/", "SKILL.md"). kind: folder = blue folder + "<count> items"; pasted = pasted text
+// ("SKILL.md" + "Pasted · 212 lines"); thumb = a work-dir image shown in the chip.
+export type Attachment = { name: string; icon?: string; meta?: string; kind?: 'file' | 'folder' | 'pasted' | 'image'; count?: number; lines?: number; thumb?: string };
+
+export type ToolStatus = 'running' | 'done' | 'error';
+export type ToolResult = { image?: string; video?: string; title?: string; meta?: string; start?: number; w?: number; h?: number; maxH?: number; text?: string };
+export type ConnectorTool = string | { name: string; desc?: string };
 
 export type UsageLimit = { label: string; reset: string; pct: number };
 
@@ -81,7 +90,7 @@ export type DesktopData = {
   efforts?: string[]; // light model menu: Effort submenu
   startedOn?: string; // light: "Started on this computer · <folder>" meta line under the title
   context: { pct: number; used: string; total: string; rows: ContextRow[] };
-  connectors: { name: string; letter?: string; status: string }[];
+  connectors: { name: string; letter?: string; status: string; icon?: string; color?: string; tools?: ConnectorTool[] }[]; // icon: lucide name or a work-dir image (the connector's logo); tools: its MCP tool list (connectors popover)
   outputs: { name: string; meta: string; icon?: string }[];
   commands: { name: string; desc: string; tag?: string; hint?: string }[]; // tag: grey label in the light slash menu ("Custom command"); hint: argument hint shown after the command in the composer
   menu: MenuItem[];
@@ -121,4 +130,8 @@ export type DesktopState = {
   slashTip?: boolean; // tooltip next to the highlighted slash row
   connectorsOpen?: boolean; // light rail: Connectors section expanded
   progress?: number; // 0..100: progress cards without their own pct (tween it)
+  connectors?: null | { open?: boolean | string; upto?: number | null; hover?: string | null }; // connectors popover above the composer; open: '<connector name>' also shows its tool list (upto = first N tools)
+  attachments?: Attachment[] | null; // chips inside the composer (a dropped folder, a pasted file) before sending
+  dropping?: null | Attachment; // a file or folder being dragged onto the composer: follows the cursor, the composer lights up
+  toolStatus?: Record<string, ToolStatus> | null; // {<tool message id or number>: 'done'}: flips a tool call from running to done and reveals its result
 };

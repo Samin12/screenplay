@@ -40,6 +40,12 @@ const MessageView: React.FC<{ m: Message; n: number; ui: UiState }> = ({ m, n, u
         </div>
       </div>
     );
+  if ('role' in m && m.role === 'tool')
+    return (
+      <div data-target={t} style={{ ...body, color: C.dim }}>
+        {m.connector} · {m.tool}
+      </div>
+    );
   if ('role' in m)
     return (
       <div data-target={t} style={{ ...body }}>
