@@ -28,3 +28,9 @@ Format: `- YYYY-MM-DD: <rule> (why: <the feedback>)`
 - Joins: word boundaries in measured quiet, matched room tone, every join verified with whisper on the real audio; a splice that jumps his head lands where the panel is busy. List the joins worth a listen.
 - To reorder with the engine: build a re-ordered camera + mic with ffmpeg first, then `init` on those; `paper.md` keeps the map back to raw time.
 - Reviewers do a listen-only pass for flow before looking at pictures.
+
+## Proof first for every claim (Samin, Nov 24 2026)
+- Every claim about the world gets real proof on the exact words: the real page, post or video, logged out, with url + source line and a highlight on the spoken word. "Claude can make motion graphics" → real examples people built and posted, not our own renders.
+- Build one proof pack per video (`proof/README.md`, `proof-index.json`, `do_not_show`), captured by one worker per topic group and checked by an independent verifier (method: the `proof-first-video-editor` skill, Step 3).
+- Proof beats recreation for claims about the world; recreation is for "here's what you type and what you get back".
+- A claim that can't be proven is not illustrated as fact; it goes in the report.

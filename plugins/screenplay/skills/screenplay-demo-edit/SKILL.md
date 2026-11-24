@@ -77,6 +77,12 @@ change his meaning; a moved line takes its visual with it; every join is on a wo
 with whisper; reviewers do a listen-only flow pass. Save `paper.md` with source timestamps. Details:
 `../screenplay-edit/references/taste.md` → "Story cut before visuals".
 
+**Proof first**: every claim about the world gets real proof on the exact words, from one proof pack per video
+(`proof/README.md`, `proof-index.json`, `do_not_show`), including real examples from the internet for capability claims
+("Claude can make motion graphics" → things people really built and posted). Proof beats recreation for claims;
+recreation is for "what you type and what you get back". Unprovable claims are not illustrated and go in the report.
+Method: the `proof-first-video-editor` skill, Step 3.
+
 **Chapter switches**: a 1 s breather where the chapter card builds silently with his click sound
 (`create-chapter-transitions` repo, `chapter-transition-quiet.wav`), then the card holds while he starts talking.
 
