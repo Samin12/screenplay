@@ -197,6 +197,11 @@ total?, pct?, when?}` (the /context card), `{kind: usage, limits?, session?, bre
 (the /usage card; defaults are his numbers), `{kind: limit, text, sub?, on?}` (usage-limit card with
 the "Auto-continue when limits reset" switch), `{kind: code, title, text}` (e.g. `~/.claude/settings.json`).
 A user message starting with a known command (`/context`, `/autocompact 200k`) draws the command blue.
+Media and progress (light): `{kind: image, src, title?, meta?, w?, h?, maxH?}` (a picture Claude made: file
+header + the image), `{kind: video, src, title?, meta?, start?, ...}` (plays muted from the moment it is revealed),
+`{kind: progress, text, pct?, meta?}` (a bar that follows `state.progress` when `pct` is unset: `tween: progress`),
+and `attachments: [{name, icon?, meta?}]` on a user message (file/folder chips above the bubble). Messages revealed
+by `upto` / `append` blur in. `data.stamp: Recreated` puts an amber pill in the title bar for rebuilt windows.
 
 Extra **state** (light): `modelMenu` (`true` | `effort` | `more`), `modelHover`, `dialog`
 (`{kind: switch-model, from, to, dontAsk}`), `userMenu`, `view: settings` + `settingsPage`,

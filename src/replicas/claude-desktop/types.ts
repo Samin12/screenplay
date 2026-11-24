@@ -17,7 +17,7 @@ export type Section = { name: string; sessions: Session[] };
 export type Step = { text: string; status?: 'done' | 'active' | 'pending' | 'failed'; sub?: { name: string; status?: string } };
 
 export type Message =
-  | { role: 'user'; text: string }
+  | { role: 'user'; text: string; attachments?: Attachment[] } // attachments: chips above the bubble (light theme)
   | { role: 'assistant'; text: string }
   | { kind: 'activity'; text: string; open?: boolean; items?: string[] }
   | { kind: 'steps'; items: Step[] }
@@ -31,7 +31,12 @@ export type Message =
   | { kind: 'context'; used: string; total: string; pct: number; when?: string } // /context output card
   | { kind: 'usage'; title?: string; limits: UsageLimit[]; session?: { cells: string[]; extra?: string }; breakdown?: { model: string; rows: [string, string][] }; whats?: { range: string; scope: string; note: string; always?: [string, string]; rows: { label: string; pct: number }[] } } // /usage output card
   | { kind: 'limit'; text: string; sub?: string; on?: boolean } // usage-limit card with the "Auto-continue when limits reset" switch
-  | { kind: 'code'; title?: string; text: string }; // code block card (settings.json, a command)
+  | { kind: 'code'; title?: string; text: string } // code block card (settings.json, a command)
+  | { kind: 'image'; src: string; title?: string; meta?: string; w?: number; h?: number; maxH?: number } // an image Claude made (storyboard, contact sheet): file header + the picture
+  | { kind: 'video'; src: string; title?: string; meta?: string; start?: number; w?: number; h?: number; maxH?: number } // a video Claude made, playing from when it appears (muted)
+  | { kind: 'progress'; text: string; pct?: number; meta?: string }; // a progress card ("Rendering 4K · 480 frames"); without pct it follows state.progress (tween it)
+
+export type Attachment = { name: string; icon?: string; meta?: string }; // a file or folder chip ("trmnl/", "SKILL.md")
 
 export type UsageLimit = { label: string; reset: string; pct: number };
 
@@ -57,6 +62,7 @@ export type DesktopData = {
   menubar?: boolean; // light: draw a macOS menu bar strip above the window
   chrome: 'mac' | 'windows';
   windowTitle?: string; // title bar text when state.active is not a known session
+  stamp?: string | null; // light: amber pill in the title bar, e.g. "Recreated" (the window is rebuilt for the video)
   user: { name: string; plan: string; initial?: string };
   nav: { label: string; icon: string }[];
   pinned: Session[];
@@ -114,4 +120,5 @@ export type DesktopState = {
   settingsHover?: string | null; // settings row highlighted (label)
   slashTip?: boolean; // tooltip next to the highlighted slash row
   connectorsOpen?: boolean; // light rail: Connectors section expanded
+  progress?: number; // 0..100: progress cards without their own pct (tween it)
 };

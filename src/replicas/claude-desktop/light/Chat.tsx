@@ -1,4 +1,5 @@
 import React from 'react';
+import { Img, OffthreadVideo, Sequence, staticFile } from 'remotion';
 import type { UiState } from '../../../app/replica';
 import { caretOn, isHover, isPressed } from '../../../app/replica';
 import { Caret, ClaudeStar, Ico, Inline, fill, slug } from '../../_shared/kit';
@@ -190,12 +191,27 @@ const LimitCard: React.FC<{ m: Extract<Message, { kind: 'limit' }>; state: Deskt
   );
 };
 
-const MessageView: React.FC<{ m: Message; n: number; data: DesktopData; state: DesktopState; ui: UiState; colW: number }> = ({ m, n, data, state, ui, colW }) => {
+const MessageView: React.FC<{ m: Message; n: number; data: DesktopData; state: DesktopState; ui: UiState; colW: number; arrive?: number }> = ({ m, n, data, state, ui, colW, arrive }) => {
   const t = `msg-${n}`;
   if ('role' in m && m.role === 'user')
     return (
-      <div style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: 1.5 }}>
-        <div data-target={t} style={{ maxWidth: '78%', background: LC.bubble, borderRadius: 16, padding: '18.5px 25.5px 18.5px 28px', ...txt(FS.chat), lineHeight: 1.42, wordBreak: 'break-word' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12, paddingRight: 1.5 }}>
+        {m.attachments?.length ? (
+          <div data-target={`${t}-attachments`} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end', maxWidth: '86%' }}>
+            {m.attachments.map((a, i) => (
+              <div key={i} data-target={`${t}-attachment-${i + 1}`} style={{ height: 64, padding: '0 22px 0 16px', borderRadius: 14, border: `1px solid ${LC.cardLine}`, background: LC.white, display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ width: 38, height: 38, borderRadius: 9, background: '#f1efe9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Ico name={a.icon ?? (a.name.endsWith('/') ? 'folder' : 'file-text')} size={22} color="#5a5a5a" stroke={1.8} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ ...txt(20.5), lineHeight: '25px', whiteSpace: 'nowrap' }}>{a.name}</span>
+                  {a.meta ? <span style={{ ...txt(16.5, LC.dim), lineHeight: '21px', whiteSpace: 'nowrap' }}>{a.meta}</span> : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        <div data-target={t} style={{ maxWidth: '78%', background: LC.bubble, borderRadius: 16, padding: '18.5px 25.5px 18.5px 28px', ...txt(FS.chat), lineHeight: 1.42, wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
           <SlashText text={m.text} commands={data.commands} size={FS.chat} />
         </div>
       </div>
@@ -241,6 +257,50 @@ const MessageView: React.FC<{ m: Message; n: number; data: DesktopData; state: D
           <pre style={{ margin: 0, padding: '16px 22px 18px', font: `400 19.5px/1.5 ${FONT_SF_MONO}`, color: LC.text, whiteSpace: 'pre-wrap' }}>{m.text}</pre>
         </div>
       );
+    case 'image':
+    case 'video': {
+      const W0 = m.w ?? 1920;
+      const H0 = m.h ?? 1080;
+      const maxH = m.maxH ?? 560;
+      const w = Math.min(colW - 16, (maxH * W0) / H0);
+      const h = (w * H0) / W0;
+      const startFrames = Math.round((m.kind === 'video' ? m.start ?? 0 : 0) * ui.fps);
+      return (
+        <div data-target={t} style={{ width: w + 2, border: `1px solid ${LC.cardLine}`, borderRadius: 14, background: LC.white, overflow: 'hidden', marginLeft: 8 }}>
+          {m.title ? (
+            <div style={{ height: 54, display: 'flex', alignItems: 'center', gap: 12, padding: '0 18px', borderBottom: `1px solid ${LC.cardLine}` }}>
+              <Ico name={m.kind === 'video' ? 'clapperboard' : 'image'} size={21} color="#5a5a5a" stroke={1.8} />
+              <span style={{ font: `400 19px ${FONT_SF_MONO}`, color: LC.text, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.title}</span>
+              {m.meta ? <span style={txt(17, LC.dim)}>{m.meta}</span> : null}
+            </div>
+          ) : null}
+          <div data-target={`${t}-media`} style={{ width: w, height: h, position: 'relative', background: '#111' }}>
+            {m.kind === 'image' ? (
+              <Img src={staticFile(m.src)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            ) : ui.measuring ? null : (
+              <Sequence from={arrive ?? 0} layout="none">
+                <OffthreadVideo src={staticFile(m.src)} startFrom={startFrames} muted style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              </Sequence>
+            )}
+          </div>
+        </div>
+      );
+    }
+    case 'progress': {
+      const pct = Math.max(0, Math.min(100, m.pct ?? Number(state.progress ?? 0)));
+      return (
+        <div data-target={t} style={{ border: `1px solid ${LC.cardLine}`, borderRadius: 12.5, padding: '18px 24px 20px', marginLeft: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+            {pct < 100 ? <ClaudeStar size={24} spin={(ui.frame * 6) % 360} /> : <Ico name="circle-check" size={24} color={LC.green} stroke={1.9} />}
+            <span style={{ ...txt(FS.row), flex: 1 }}>{m.text}</span>
+            <span style={{ font: `400 20px ${FONT_SF_MONO}`, color: LC.dim }}>{m.meta ? `${m.meta} · ` : ''}{Math.round(pct)}%</span>
+          </div>
+          <div data-target={`${t}-bar`} style={{ height: 12, borderRadius: 6, background: LC.barTrackBlue, overflow: 'hidden' }}>
+            <div style={{ width: `${pct}%`, height: '100%', borderRadius: 6, background: LC.barBlue }} />
+          </div>
+        </div>
+      );
+    }
     case 'thinking':
       return (
         <div data-target={t} style={{ display: 'flex', alignItems: 'center', gap: 14, paddingLeft: 8.2, ...txt(22.9, LC.dim) }}>
@@ -506,7 +566,20 @@ export const ModelMenu: React.FC<{ data: DesktopData; state: DesktopState; ui: U
 
 // ---------- chat pane ----------
 
-export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: UiState; messages: Message[]; mainLeft: number; mainW: number; H: number }> = ({ data, state, ui, messages, mainLeft, mainW, H }) => {
+// A new message makes room and blurs in (frame-pure: from the frame its `upto` / `append` change landed).
+const Arrive: React.FC<{ start: number | undefined; ui: UiState; gap: number; children: React.ReactNode }> = ({ start, ui, gap, children }) => {
+  const dur = Math.round(ui.fps * 0.32);
+  const p = start === undefined || ui.measuring ? 1 : Math.max(0, Math.min(1, (ui.frame - start) / dur));
+  const e = 1 - Math.pow(1 - p, 3);
+  if (e >= 1) return <div style={{ marginTop: gap }}>{children}</div>;
+  return (
+    <div style={{ marginTop: gap * e, display: 'grid', gridTemplateRows: `${e}fr` }}>
+      <div style={{ minHeight: 0, opacity: e, filter: `blur(${((1 - e) * 12).toFixed(2)}px)` }}>{children}</div>
+    </div>
+  );
+};
+
+export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: UiState; messages: Message[]; arrive?: (number | undefined)[]; mainLeft: number; mainW: number; H: number }> = ({ data, state, ui, messages, arrive, mainLeft, mainW, H }) => {
   const colW = Math.min(LL.colMax, mainW - LL.colPad * 2);
   const colLeft = mainLeft + (mainW - colW) / 2;
   const prompt = String(state.prompt ?? '');
@@ -531,9 +604,9 @@ export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: U
             <EmptyState data={data} ui={ui} />
           ) : (
             messages.map((m, i) => (
-              <div key={i} style={{ marginTop: gapBefore(messages[i - 1], m) }}>
-                <MessageView m={m} n={i + 1} data={data} state={state} ui={ui} colW={colW} />
-              </div>
+              <Arrive key={i} start={arrive?.[i]} ui={ui} gap={gapBefore(messages[i - 1], m)}>
+                <MessageView m={m} n={i + 1} data={data} state={state} ui={ui} colW={colW} arrive={arrive?.[i]} />
+              </Arrive>
             ))
           )}
         </div>

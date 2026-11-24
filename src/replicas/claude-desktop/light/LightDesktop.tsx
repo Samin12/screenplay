@@ -97,6 +97,19 @@ export const LightDesktop: React.FC<{ data: DesktopData; state: DesktopState; ui
   let messages: Message[] = state.active && data.chats?.[state.active] ? data.chats[state.active] : state.active ? data.messages : [];
   if (state.upto !== null && state.upto !== undefined) messages = messages.slice(0, Number(state.upto));
   if (state.append?.length) messages = [...messages, ...state.append];
+  // When each message arrived (the last `upto` / `append` change), so new ones can blur in and videos start there.
+  const arrive: (number | undefined)[] = messages.map(() => undefined);
+  const up = ui.changes?.upto;
+  if (up && state.upto !== null && state.upto !== undefined) {
+    const from = typeof up.prev === 'number' ? up.prev : messages.length;
+    for (let i = from; i < Math.min(Number(state.upto), messages.length); i++) arrive[i] = up.frame;
+  }
+  const ap = ui.changes?.append;
+  if (ap && state.append?.length) {
+    const base = messages.length - state.append.length;
+    const from = Array.isArray(ap.prev) ? ap.prev.length : 0;
+    for (let i = base + from; i < messages.length; i++) arrive[i] = ap.frame;
+  }
 
   const keys = (items: MenuItem[]): MenuItem[] =>
     data.chrome === 'windows' ? items.map((it) => (typeof it === 'object' && it.key ? { ...it, key: it.key.replace(/⇧/g, 'Shift+').replace(/⌘/g, 'Ctrl+').replace(/⌥/g, 'Alt+') } : it)) : items;
@@ -123,12 +136,18 @@ export const LightDesktop: React.FC<{ data: DesktopData; state: DesktopState; ui
         <LightTitleBar data={data} state={state} ui={ui} title={title} W={W} sideW={sideW} />
         {sideW ? <LightSidebar data={data} state={state} ui={ui} H={H} /> : null}
         <div data-target="main" style={{ position: 'absolute', left: sideW, top: LL.titleH, width: mainW, height: H - LL.titleH }} />
-        <LightChat data={data} state={state} ui={ui} messages={messages} mainLeft={sideW} mainW={mainW} H={H} />
+        <LightChat data={data} state={state} ui={ui} messages={messages} arrive={arrive} mainLeft={sideW} mainW={mainW} H={H} />
         {state.rail ? <LightRail data={data} state={state} ui={ui} W={W} H={H} /> : null}
         {menu}
         {state.userMenu ? <UserMenu data={data} state={state} ui={ui} H={H} /> : null}
         {state.dialog?.kind === 'switch-model' ? <SwitchModelDialog data={data} state={state} ui={ui} W={W} H={H} /> : null}
         {state.view === 'settings' ? <LightSettings data={data} state={state} ui={ui} W={W} H={H} /> : null}
+        {data.stamp ? (
+          <div data-target="stamp" style={{ position: 'absolute', right: 360, top: (LL.titleH - 34) / 2, height: 34, padding: '0 15px', borderRadius: 17, background: '#fff1d6', border: '1px solid #f0d49a', display: 'flex', alignItems: 'center', gap: 8, font: `600 18px ${FONT_SF}`, color: '#8a5a00', zIndex: 90 }}>
+            <Ico name="history" size={18} color="#8a5a00" stroke={2} />
+            {data.stamp}
+          </div>
+        ) : null}
       </div>
     </div>
   );
