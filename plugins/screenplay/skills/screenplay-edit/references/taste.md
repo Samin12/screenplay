@@ -20,3 +20,11 @@ Format: `- YYYY-MM-DD: <rule> (why: <the feedback>)`
 - 2026-11-06: When a take is filmed out of order (a scene meant to replace a point in another scene), move it into place in the edit and cut the old point; never just leave it where Borumi put it. (why: his concert-tickets take sat as scene 2 instead of replacing the weather-radar point in scene 3)
 - 2026-11-07: When he says his bot or AI "told me" something, show it: a replica of the real app (Telegram, Claude) with that message on screen on his words, carrying the engine's "Recreated" stamp when the message is rebuilt, and no numbers or results he doesn't say. (why: "when I said my bot told me this, I want you to create something on Claude or Telegram with screenplay to show what it said")
 - 2026-11-07: The bar is his "Paste This Into Claude v2" edit: nothing may read sloppy. No grey blur slabs or half-faded cards, no near-empty panels, no label sitting on the text it points at, no words cut at a crop edge, private areas framed out rather than smeared. (why: "right now I'm seeing a video that looks really sloppy and very amateurishly edited... like this was good, Paste This Into Claude v2")
+
+## Story cut before visuals (Samin, Nov 24 2026, Claude Ads L1 v2: "some parts are not flowing logically")
+- Paper edit first: write the transcript as a script and order it for the viewer (what it is → why it matters → how, steps in order → tip → result). Save `paper.md` with source timestamps for every piece.
+- Move sentences when he said them out of order; splice the clean half of one take onto the clean half of another; drop asides, hedges, "Alright?", "right?", "Okay, so", "honestly", "really", superlatives and repeated points (keep the best one).
+- Never change what he means or splice words into a claim he didn't make. A line that moves takes its visual with it.
+- Joins: word boundaries in measured quiet, matched room tone, every join verified with whisper on the real audio; a splice that jumps his head lands where the panel is busy. List the joins worth a listen.
+- To reorder with the engine: build a re-ordered camera + mic with ffmpeg first, then `init` on those; `paper.md` keeps the map back to raw time.
+- Reviewers do a listen-only pass for flow before looking at pictures.

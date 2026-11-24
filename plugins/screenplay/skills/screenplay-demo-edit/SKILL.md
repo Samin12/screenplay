@@ -70,6 +70,13 @@ flow instead of blurring it.
 **Cuts**: remove retakes, false starts and filler sentence-openers ("But,", "Okay, so", "Well,", "But anyways,")
 across the whole video. Verify each one on the real audio; Borumi's transcript invents repeats.
 
+**Story cut (before any visual is locked)**: paper-edit every part first. Write its transcript as a script, order it for
+the viewer (what it is → why it matters → how, steps in order → tip → result), move sentences he said out of order,
+splice clean halves of takes, and drop hedges, "right?", "honestly", "really", superlatives and repeated points. Never
+change his meaning; a moved line takes its visual with it; every join is on a word boundary in measured quiet and verified
+with whisper; reviewers do a listen-only flow pass. Save `paper.md` with source timestamps. Details:
+`../screenplay-edit/references/taste.md` → "Story cut before visuals".
+
 **Chapter switches**: a 1 s breather where the chapter card builds silently with his click sound
 (`create-chapter-transitions` repo, `chapter-transition-quiet.wav`), then the card holds while he starts talking.
 
