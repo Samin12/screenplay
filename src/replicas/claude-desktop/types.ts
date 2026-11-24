@@ -69,8 +69,8 @@ export type DesktopData = {
   sections: Section[];
   messages: Message[];
   chats: Record<string, Message[]>;
-  model: string;
-  effort: string;
+  model: string; // chip under the composer ("Fable 5.2", "Opus 5.5"); `false` in edit.yaml hides the chip
+  effort: string; // grey word after the model ("High"); "" hides it
   mode: string;
   placeholder: string;
   greeting: string;

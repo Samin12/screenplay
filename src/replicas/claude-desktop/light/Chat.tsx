@@ -579,7 +579,10 @@ const Arrive: React.FC<{ start: number | undefined; ui: UiState; gap: number; ch
   );
 };
 
-export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: UiState; messages: Message[]; arrive?: (number | undefined)[]; mainLeft: number; mainW: number; H: number }> = ({ data, state, ui, messages, arrive, mainLeft, mainW, H }) => {
+export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: UiState; messages: Message[]; arrive?: (number | undefined)[]; mainLeft: number; mainW: number; H: number }> = ({ data: data0, state, ui, messages, arrive, mainLeft, mainW, H }) => {
+  // data.model: false hides the model chip (the window does not claim a model); '' text keeps every size estimate valid.
+  const showModel = (data0.model as unknown) !== false;
+  const data: DesktopData = showModel ? data0 : { ...data0, model: '', effort: '' };
   const colW = Math.min(LL.colMax, mainW - LL.colPad * 2);
   const colLeft = mainLeft + (mainW - colW) / 2;
   const prompt = String(state.prompt ?? '');
@@ -693,10 +696,12 @@ export const LightChat: React.FC<{ data: DesktopData; state: DesktopState; ui: U
           </div>
           );
         })() : null}
+        {showModel ? (
         <div data-target="model-picker" style={{ height: 38.8, display: 'flex', alignItems: 'center', gap: 14.5, padding: '0 11.3px', borderRadius: 10, background: fill(ui, 'model-picker', { hover: LC.hover, pressed: '#d8d8d8', active: pickerOn, activeBg: LC.pickerOn }) }}>
           <span style={txt(FS.small)}>{data.model}</span>
           <span style={txt(FS.small, LC.dim)}>{data.effort}</span>
         </div>
+        ) : null}
         <div data-target="mode-picker" style={{ height: 38.8, display: 'flex', alignItems: 'center', padding: '0 11.3px', marginLeft: 5.7, borderRadius: 10, background: fill(ui, 'mode-picker', { hover: LC.hover }) }}>
           <span style={txt(20.8)}>{data.mode}</span>
         </div>

@@ -290,10 +290,12 @@ export const ChatPane: React.FC<{ data: DesktopData; state: DesktopState; ui: Ui
             {data.mode}
           </div>
           <div style={{ flex: 1 }} />
+          {(data.model as unknown) === false ? null : (
           <div data-target="model-picker" style={{ height: 42, display: 'flex', alignItems: 'center', gap: 10, padding: '0 10px', borderRadius: 9, background: fill(ui, 'model-picker', { hover: C.hover, pressed: C.press }) }}>
             <span style={{ font: `400 ${L.body}px ${FONT_UI}`, color: '#ececec' }}>{data.model}</span>
             <span style={{ font: `400 ${L.body}px ${FONT_UI}`, color: '#9a9a9a' }}>{data.effort}</span>
           </div>
+          )}
           <div data-target="context-ring" style={{ width: 42, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Ring size={28} pct={ctxPct} color="#a8a8a8" track="#3a3a3a" stroke={3} />
           </div>

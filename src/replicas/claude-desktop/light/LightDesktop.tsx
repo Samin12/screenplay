@@ -144,7 +144,7 @@ export const LightDesktop: React.FC<{ data: DesktopData; state: DesktopState; ui
         {state.view === 'settings' ? <LightSettings data={data} state={state} ui={ui} W={W} H={H} /> : null}
         {data.stamp ? (
           <div data-target="stamp" style={{ position: 'absolute', right: 360, top: (LL.titleH - 34) / 2, height: 34, padding: '0 15px', borderRadius: 17, background: '#fff1d6', border: '1px solid #f0d49a', display: 'flex', alignItems: 'center', gap: 8, font: `600 18px ${FONT_SF}`, color: '#8a5a00', zIndex: 90 }}>
-            <Ico name="history" size={18} color="#8a5a00" stroke={2} />
+            <Ico name="rotate-ccw" size={18} color="#8a5a00" stroke={2} />
             {data.stamp}
           </div>
         ) : null}

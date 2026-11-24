@@ -235,6 +235,7 @@ export function changesAt(scene: AppScene, frame: number): NonNullable<UiState['
 
 export function uiAt(scene: AppScene, cursor: CursorState, frame: number, fps: number): UiState {
   const ui: UiState = { frame, fps, hover: cursor.hover, pressed: cursor.pressed, changes: changesAt(scene, frame) };
+  if (cursor.visible) ui.cursor = cursor.p;
   for (const a of typeActions(scene)) if (frame >= a.frame && frame <= a.end + fps) ui.caret = a.key;
   return ui;
 }

@@ -1,0 +1,58 @@
+import type { ReplicaDef } from '../../app/replica';
+import { Finder } from './Finder';
+import { defaultData, defaultState } from './defaults';
+
+// macOS Finder (light). <id> is an item id from data.items; <slug> is a sidebar name lower-cased
+// with non-alphanumerics turned into "-" ("iCloud Drive" -> "icloud-drive").
+export const finder: ReplicaDef = {
+  id: 'finder',
+  title: 'macOS Finder window (light): sidebar, toolbar, icon view and list view, real image/video thumbnails, new folder + rename, drag and drop with a ghost stack',
+  size: [1920, 1080],
+  tone: 'light',
+  component: Finder,
+  defaults: { data: defaultData as unknown as Record<string, unknown>, state: defaultState as unknown as Record<string, unknown> },
+  targets: {
+    window: 'the whole Finder window',
+    sidebar: 'left sidebar (Favorites, Locations)',
+    'side-<slug>': 'a sidebar row, e.g. side-documents, side-downloads (a drop target while dragging)',
+    toolbar: 'the toolbar strip',
+    back: 'back arrow (set {path: null} to go up)',
+    forward: 'forward arrow',
+    title: 'folder name in the toolbar',
+    stamp: 'the data.stamp pill ("Recreated") next to the title',
+    'view-switch': 'the view buttons capsule',
+    'view-icon': 'icon view button (set {view: icon})',
+    'view-list': 'list view button (set {view: list})',
+    'view-columns': 'column view button (1920 plate only, decorative)',
+    'view-gallery': 'gallery view button (1920 plate only, decorative)',
+    'new-folder': 'New Folder button in the toolbar (set {newFolder: true})',
+    share: 'share button',
+    tags: 'tags button (1920 plate only)',
+    more: 'more (...) button',
+    search: 'search field',
+    content: 'the file area',
+    items: 'all the items (the grid or the list rows)',
+    'list-header': 'list view column header (Name, Date Modified, Size, Kind)',
+    'item-<id>': 'one file or folder (icon + name, or its list row); the new folder is item-new',
+    'item-<id>-icon': 'just its icon / thumbnail',
+    'item-<id>-name': 'its open name field (only while it is being renamed): type into it with key: rename',
+    path: 'path bar at the bottom (data.path)',
+    'drag-ghost': 'the stack of dragged files under the cursor (only while state.drag is set and the cursor is on screen)',
+  },
+  stateDoc: {
+    view: "'icon' | 'list' | null: overrides data.view",
+    path: 'null | key of data.folders | id of a folder item that has `items`: the folder on screen (title, path bar and items change); null = the top folder',
+    items: 'null | [{id, name, kind?, thumb?, meta?}]: replaces the item list of the folder on screen; new ids pop in',
+    shown: 'null | [ids]: only these items are visible (null = all). Add ids with `set` to drop files in one by one: each new one pops in',
+    upto: 'null | number: or only the first N items (raise it to reveal the next)',
+    selected: 'null | id | [ids]: selected items (grey plate + blue name; blue row in list view)',
+    moved: 'null | [ids]: items moved out of this folder (after a drop). Icon view keeps their slots empty so nothing reflows under the cursor; list view drops the rows',
+    newFolder: 'null | true | {id?, name?}: a new folder at the end of the top folder (id "new" -> target item-new), named "untitled folder" with its name field open',
+    rename: 'null | string: text typed into the open name field: {type: item-new-name, key: rename, text: "footage"}',
+    renaming: "unset = the new folder's name field is open; null = name committed (Return); '<id>' = that item's name field is open",
+    names: '{<id>: "new name"}: permanent renames of existing items',
+    drag: 'null | {ids: [..], count?}: a drag in progress. A ghost stack of those items follows the cursor (it needs a move/click beat to follow) and the originals dim',
+    dropTarget: "null | '<folder id>' | 'side-<slug>': folder highlighted as the drop target. Automatic for the folder under the cursor while state.drag is set",
+    scroll: 'number: px the file area has scrolled (tween it)',
+  },
+};

@@ -6,6 +6,7 @@ import { browser } from './browser';
 import { t3Code } from './t3-code';
 import { openUsage } from './openusage';
 import { telegram } from './telegram';
+import { finder } from './finder';
 
 // Replica library. Each entry is a reusable, data-driven copy of an app's UI.
 // See docs/REPLICAS.md for the contract and how to add one.
@@ -17,4 +18,5 @@ export const replicas: Record<string, ReplicaDef> = {
   [t3Code.id]: t3Code,
   [openUsage.id]: openUsage,
   [telegram.id]: telegram,
+  [finder.id]: finder,
 };

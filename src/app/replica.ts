@@ -15,6 +15,7 @@ export type UiState = {
   frame: number; // scene-relative frame, for blinking carets or spinners
   fps: number;
   measuring?: boolean; // the invisible copy used to measure targets: skip video and anything heavy
+  cursor?: { x: number; y: number }; // scripted cursor position in plate px while it is on screen (drag ghosts follow it)
   changes?: Record<string, { frame: number; prev: unknown }>; // state key -> when `set` last changed it and from what, so a replica can animate what just appeared
 };
 
