@@ -159,11 +159,12 @@ screenplay render work -o work/out/final.mp4
 
 ## Use it with Claude Code
 
-The repo ships two skills. Link them:
+The repo ships three skills. Link them:
 
 ```bash
 ln -s "$PWD/plugins/screenplay/skills/screenplay-edit" ~/.claude/skills/screenplay-edit
 ln -s "$PWD/plugins/screenplay/skills/screenplay-demo-edit" ~/.claude/skills/screenplay-demo-edit
+ln -s "$PWD/plugins/screenplay/skills/screenplay-ads-tutorial" ~/.claude/skills/screenplay-ads-tutorial
 ```
 
 - `screenplay-edit`: the full workflow, the style rules and a log of learned preferences.
@@ -172,6 +173,9 @@ ln -s "$PWD/plugins/screenplay/skills/screenplay-demo-edit" ~/.claude/skills/scr
   Higgsfield B-roll for analogies, recreated chat replicas, real proof for every claim, key-only privacy blurs,
   parallel part writers, then assembly in a Borumi project with chapter breaks, sound effects and
   whisper-verified retake cuts. Scripts included.
+- `screenplay-ads-tutorial`: how a filmed tutorial about a build is edited into a screen-style video (the "Claude Ads" edit):
+  recreated Claude and Finder windows, proof on every claim, three layouts, path chapter cards, full showcase clips,
+  a story cut, with scripts, templates and a tiny example in `examples/ads-tutorial-mini`.
 
 Or install it as a plugin:
 
@@ -192,7 +196,7 @@ Then ask: *"screenplay-edit my recording cam.mov with mic mic.wav"*. The agent r
 | `src/stage/elements/` | The stage elements |
 | `src/scenes/` | Scene kinds: `app`, `stage`, `talking`, `chapter`, `board`, `plug` |
 | `src/layers/` | Panel and canvas, step badge, webcam tile, transitions |
-| `plugins/screenplay/` | The Claude Code plugin and its `screenplay-edit` and `screenplay-demo-edit` skills |
+| `plugins/screenplay/` | The Claude Code plugin and its `screenplay-edit`, `screenplay-demo-edit` and `screenplay-ads-tutorial` skills |
 | `docs/` | [EDIT-YAML.md](docs/EDIT-YAML.md) (the format) and [REPLICAS.md](docs/REPLICAS.md) (build a replica) |
 | `examples/` | `demo-tips/edit.yaml`, a worked example, and `tests/`, standalone timelines |
 
