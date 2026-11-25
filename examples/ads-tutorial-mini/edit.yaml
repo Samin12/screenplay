@@ -21,7 +21,7 @@ overlays:
   # The four steps stay up from "four steps" through both recreated windows and over him.
   - type: steps
     at: "is the basics"
-    until: "add sound"
+    until: "Level two"           # ends under the Level 2 card, so it never ends in the middle of a scene
     band: true
     items:
       - { text: Assets, icon: folder-open, at: "Keep every file" }

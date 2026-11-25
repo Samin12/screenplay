@@ -490,7 +490,9 @@ class Compiler {
     segs.forEach((seg, k) => {
       const prev = segs[k - 1]?.scene;
       const s = seg.scene;
-      if (!prev || s.transitionIn !== 'cut' || !(('lay' in s && s.lay) || ('lay' in prev && prev.lay))) return;
+      // The path card cuts hard too, so with `chapters.style: path` the scenes around a card do the same.
+      const pathCard = grid.style === 'path' && (s.kind === 'chapter' || prev?.kind === 'chapter');
+      if (!prev || s.transitionIn !== 'cut' || !(('lay' in s && s.lay) || ('lay' in prev && prev.lay) || pathCard)) return;
       if (s.kind !== 'chapter') s.snapIn = true;
       if (prev.kind !== 'chapter') prev.snapOut = true;
     });

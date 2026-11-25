@@ -106,7 +106,8 @@ their titles, dimmed, with a check. Chapters still ahead are locked: a lock, no 
 is revealed by an orange line that travels one step from the previous chapter's tile to the new one
 (under the tiles in the same row, down and across to the next row) in the first second; the tile
 lights as the line lands and the chapter's title builds large above the rows. The card cuts in and out
-hard. The default stays the grid.
+hard, and so do the scenes on either side of it: whatever is on screen at the card's edges is drawn
+complete, with no fade into or out of the card. The default stays the grid.
 
 ```yaml
 chapters:
@@ -250,8 +251,9 @@ chapters:
   first frame, which is the pause. No caption cue crosses a breather.
 - `aroll.mp4` and `words.out.json` in the work dir are **not** rewritten: they stay in cut time. The
   output-time words are written to `.screenplay/words.out.json`; `still`, `sheet` and `render` use them.
-- `o:` and `f:` anchors mean output time, so they move when you turn a breather on. Word ids and
-  phrases do not: prefer them.
+- Word ids and phrases keep working unchanged: prefer them. `o:` and `f:` anchors on scenes, beats and
+  overlays mean output time, so they move when you turn a breather on; on a chapter item's `at` they
+  mean cut time (that anchor is what the pause is searched from).
 - If the recording has no clean room tone the compile fails and says so, rather than use silence.
 - The room tone and the pause times are cached in `.screenplay/breather/`.
 

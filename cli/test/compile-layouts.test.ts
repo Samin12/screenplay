@@ -65,6 +65,16 @@ test('the card title and the chapters file are one string, timed at the card sta
   assert.deepEqual([badge.eyebrow, badge.title, badge.plain], ['Tip 7', 'One folder, sorted', true]);
 });
 
+test('a path card cuts hard on both sides: the scenes around it draw their edge frames complete', () => {
+  const t = panel(pathYaml).timeline!;
+  const k = t.scenes.findIndex((s) => s.kind === 'chapter');
+  assert.equal(t.scenes[k - 1].snapOut, true);
+  assert.equal(t.scenes[k + 1].snapIn, true);
+  // the grid card keeps its old edges
+  const grid = panel(pathYaml.replace('  style: path\n', '')).timeline!;
+  assert.ok(grid.scenes.every((s) => !('snapIn' in s) && !('snapOut' in s)));
+});
+
 test('tile-only items still insert no card on a path card', () => {
   const t = panel(pathYaml).timeline!;
   assert.equal(t.chapters[0].frame, -1);
