@@ -1,0 +1,26 @@
+# checked against the engine at dcc262d
+# The path card: done chapters dimmed with titles, the line travels one step to the current one,
+# upcoming ones locked. Every lane lists ALL chapters in the same order; only the ones in this lane get `at`
+# (no `at` = a tile, no card: done if it is before this lane's first card, locked if after).
+# A lane with `breather:` here needs "breathers": false on its segment in the assembly config, or the
+# assembler adds a second breather at the same card.
+title: "Level 2 · the build"
+look: panel
+chapters:
+  style: path
+  heading: "Kettle ads: 3 levels, 6 tips"
+  breather: { seconds: 1, click: media/chapter-click.wav }     # room tone + his click, then the card holds
+  badge: { eyebrow: Tip, intro: "Level 2 · Claude + video tools", introEyebrow: "Level 2" }
+  items:
+    - { group: "Intro", title: "Intro" }                       # no label: the tile reads CHAPTER
+    - { label: "Level 1", group: "Level 1", title: "Claude only" }
+    - { label: "Tip 1", group: "Level 1", title: "Real assets" }
+    - { label: "Tip 2", group: "Level 1", title: "Storyboard first" }
+    - { label: "Level 2", group: "Level 2", title: "Claude + video tools", at: "o:0" }
+    - { label: "Tip 3", group: "Level 2", title: "One folder, sorted", at: "we make another folder" }
+    - { group: "Level 2", title: "The finished promo" }
+    - { label: "Tip 4", group: "Level 2", title: "Slide-up text", at: "tip number four" }
+    - { label: "Level 3", group: "Level 3", title: "Photoreal product ads" }
+    - { label: "Tip 5", group: "Level 3", title: "Let Claude write the prompt" }
+scenes:
+  - { kind: talking, at: w0, layout: him }      # your scenes

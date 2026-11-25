@@ -1,0 +1,22 @@
+# checked against the engine at dcc262d
+# He says: "once it's connected you'll see it pop up, with all these tools".
+# Tool names come from the connector's real tool list (FACTS.md). No tool COUNT on screen unless a source backs it.
+- kind: app
+  at: "once it's connected"
+  app: claude-desktop
+  data:
+    preset: samin
+    stamp: Recreated
+    model: "<real model>"
+    effort: ""
+    connectors:
+      - { name: "Video Tools", letter: V, color: "#111111", status: Connected, tools: [generate_image, generate_video, generate_audio, create_voice, upscale_image, upscale_video, remove_background, reframe] }
+    messages:
+      - { kind: meta, text: "Started on this computer · kettle-ad" }
+  state: { active: kettle-ad, sidebar: false, upto: 1 }
+  beats:
+    - { at: "you'll see it", click: attach, set: { connectors: { open: true } } }
+    - { at: "pop up", click: mcp-video-tools, set: { connectors: { open: "Video Tools" } } }   # the tools cascade in
+    - { at: "all these tools", lift: mcp-tools, until: "good to go" }
+    - { at: "video", mark: mcp-tool-generate-video, style: ring }
+    - { at: "good to go", set: { connectors: null } }

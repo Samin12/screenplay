@@ -1,0 +1,34 @@
+# checked against the engine at dcc262d
+# He says: "make a folder, drop in all your assets, and open it".
+# Real file names and thumbnails from the build. Neutral path. Poster jpgs for video thumbnails.
+- kind: app
+  at: "make a folder"
+  app: finder
+  data:
+    title: Downloads
+    path: ["Macintosh HD", "Users", "you", "Downloads"]   # a neutral path, never a real one
+    stamp: Recreated
+    sidebar: false
+    items: &files
+      - { id: logo, name: "logo.svg", thumb: media/logo.png, meta: "vector" }
+      - { id: front, name: "product-front.jpg", thumb: media/product-front.jpg, meta: "3840 × 2160" }
+      - { id: side, name: "product-side.jpg", thumb: media/product-side.jpg }
+      - { id: screen, name: "app-screen.png", thumb: media/app-screen.png, meta: "1170 × 2532" }
+      - { id: clip, name: "unboxing.mp4", thumb: media/unboxing-poster.jpg, meta: "00:12" }
+    folders:
+      new: { items: *files }
+  beats:
+    - { at: "make a folder", click: new-folder, set: { newFolder: true } }
+    - { at: "make a folder +0.8s", type: item-new-name, key: rename, text: "ad assets" }
+    - { at: "drop in", set: { renaming: null } }                                  # Return: name committed
+    # pick up, travel, drop: keep these three under 5 s apart
+    - { at: "drop in +0.4s", click: item-logo, set: { selected: [logo, front, side, screen, clip], drag: { ids: [logo, front, side, screen, clip] } } }
+    - { at: "all your assets", move: item-new }
+    - { at: "all your assets +0.6s", click: item-new, set: { drag: null, selected: null, moved: [logo, front, side, screen, clip] } }
+    # open it; the files land one by one
+    - { at: "open it", click: item-new, set: { path: new, shown: [], moved: null } }
+    - { at: "open it +0.4s", set: { shown: [logo] } }
+    - { at: "open it +0.7s", set: { shown: [logo, front] } }
+    - { at: "open it +1.0s", set: { shown: [logo, front, side] } }
+    - { at: "open it +1.3s", set: { shown: [logo, front, side, screen] } }
+    - { at: "open it +1.6s", set: { shown: [logo, front, side, screen, clip] } }

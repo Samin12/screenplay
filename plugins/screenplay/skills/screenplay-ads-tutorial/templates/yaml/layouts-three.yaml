@@ -1,0 +1,30 @@
+# checked against the engine at dcc262d
+# Three layouts, switched on sentence boundaries, not more often than about every 3 s.
+# A layout switch (any pair) is a hard cut by default; `transition: morph` brings the blur-morph back.
+# Fallback for engines without `layout:` is the two-render compose (references/layouts.md).
+
+# 1. Panel + tile (the default): he explains while visuals build; the badge is read here.
+- kind: stage
+  at: "So the next step"
+  layout: panel
+  title: "Voice and music"
+
+# 2. Full-screen visual, no tile, no badge: the thing on screen is the point.
+- kind: app
+  at: "this is what it sent back"
+  layout: full
+  screen: media/final-ad.mp4
+  size: [1920, 1080]
+  start: 0
+  beats: []
+
+# 3. Full-screen him: a personal point, 3 to 8 s, then back.
+- kind: talking
+  at: "this is the reason I like this way more"
+  layout: him
+
+# Back to the panel: the badge returns with the current chapter's heading.
+- kind: stage
+  at: "And the next tip"
+  layout: panel
+  title: "Next tip"

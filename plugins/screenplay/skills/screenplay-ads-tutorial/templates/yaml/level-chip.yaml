@@ -1,0 +1,25 @@
+# checked against the engine at dcc262d
+# A level chip stays up for the whole of that level's sentence in the hook, across the window and the
+# full-bleed piece that follows. Same titles as the chapter cards. The chip is a top-level overlay
+# (not a `show:` element): merge these into your edit.yaml's `overlays:` and `scenes:` lists.
+overlays:
+  - { type: chip, at: "First, we're going to prompt Claude", until: "a finished ad", eyebrow: "Level 1", text: "Level *1* · Claude only" }
+  - { type: chip, at: "Then we connect", until: "real footage", eyebrow: "Level 2", text: "Level *2* · Claude + video tools", corner: top-left }
+
+scenes:
+  - kind: app
+    at: "First, we're going to prompt Claude"
+    layout: full
+    screen: media/plates/level-1-window.mp4
+    size: [1920, 1080]
+    start: 0
+    beats: []
+
+  - kind: app
+    at: "Then we connect"
+    layout: full
+    transition: cut            # full -> full is the same layout, so ask for the cut
+    screen: media/plates/level-2-window.mp4
+    size: [1920, 1080]
+    start: 0
+    beats: []

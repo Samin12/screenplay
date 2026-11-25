@@ -1,0 +1,45 @@
+# checked against the engine at dcc262d
+# The hook skeleton (about 60 s), written LAST from the finished lanes. Every beat is a real later moment,
+# 1.5 to 2 s each, hard cuts, no whoosh. Replace the anchors with his words.
+# A layout switch cuts hard on its own; `transition: cut` is there for full -> full (same layout).
+title: "Intro hook"
+look: panel
+scenes:
+  # every single one of these / was made by prompting: the finished pieces, whole, on their best moments
+  - { kind: app, at: w0, layout: full, transition: cut, screen: media/plates/three-pieces.mp4, size: [1920, 1080], start: 0, beats: [] }
+
+  # the promise, to camera
+  - { kind: talking, at: "in this video", layout: him, transition: cut }
+
+  # job-title beats: see job-title-beat.yaml (one window per title, then "Example placements")
+
+  # the levels, one sentence each, each with a level chip (a top-level overlay): see level-chip.yaml
+
+  # the effort line: a recreated window doing exactly "type, look, approve"
+  - kind: app
+    at: "all I had to do"
+    layout: full
+    transition: cut
+    screen: media/plates/type-look-approve.mp4
+    size: [1920, 1080]
+    start: 0
+    beats: []
+
+  # the credential, in order: handover -> headline -> finalists. Clips full bleed; the article >= 85% width.
+  - { kind: app, at: "helped me win", layout: full, transition: cut, screen: media/award-handover.mp4, size: [1920, 1080], start: 1.2, beats: [] }
+  - kind: stage
+    at: "the prize"
+    layout: full
+    transition: cut
+    elements:
+      - type: image
+        at: "the prize"
+        src: media/proof/press-headline-crop.png
+        size: [2880, 1500]
+        source: "example-news.com · captured Jan 5, 2030"
+        highlight:
+          - { x: 300, y: 980, w: 1900, h: 160, at: "the prize", style: box }
+  - { kind: app, at: "the title", layout: full, transition: cut, screen: media/award-finalists.mp4, size: [1920, 1080], start: 0, beats: [] }
+
+  # him, to camera, to the last frame
+  - { kind: talking, at: "Let's get into it", layout: him, transition: cut }

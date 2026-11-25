@@ -1,0 +1,33 @@
+# checked against the engine at dcc262d
+# He says: "Claude calls the video tool, and I get back a clip like this".
+# Only draw a tool call if the real build made one. If the build ran a command line tool instead, show that
+# command in a {kind: code} message. Tool name, args and file come from the build's log.
+- kind: app
+  at: "Claude calls the video tool"
+  app: claude-desktop
+  data:
+    preset: samin
+    stamp: Recreated
+    model: "<real model>"
+    effort: ""
+    windowTitle: "Kettle ad · Level 2"
+    connectors:
+      - { name: "Video Tools", letter: V, color: "#111111", status: Connected, tools: [generate_image, generate_video, generate_audio, upscale_video] }
+    messages:
+      - { kind: meta, text: "Started on this computer · kettle-ad" }
+      - { role: user, text: "Animate shot 3 from the storyboard: slow push-in on the kettle as the steam rises, 5 seconds." }
+      - role: tool
+        id: gen
+        connector: "Video Tools"
+        tool: generate_video
+        status: running
+        open: true
+        args: "model: <real video model> · duration: 5 s · aspect: 16:9\nprompt: slow push-in on the kettle as the steam rises"
+        result: { video: media/shot-03.mp4, title: "shot-03.mp4", meta: "5 s · 1080p", maxH: 380 }
+      - { role: assistant, text: "Shot 3 is done. Want me to stitch it into the cut?" }
+  state: { active: kettle-ad, sidebar: false, upto: 2 }
+  beats:
+    - { at: "Claude calls the video tool", set: { upto: 3 } }              # the tool row arrives, spinner
+    - { at: "I get back", set: { toolStatus: { gen: done } } }             # check, the clip blurs in and plays
+    - { at: "a clip like this", lift: msg-3-result-media, until: "like this" }
+    - { at: "stitch", set: { upto: 4 } }

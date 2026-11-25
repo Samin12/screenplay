@@ -1,0 +1,30 @@
+# checked against the engine at dcc262d
+# He says: "Claude gives you a storyboard... you approve it... and you get the finished ad back".
+# The image and the video are the REAL files from the build, copied into media/ (video: h264, 30 fps, 1 s GOP).
+- kind: app
+  at: "Claude gives you a storyboard"
+  app: claude-desktop
+  data:
+    preset: samin
+    stamp: Recreated
+    model: "<real model>"
+    effort: ""
+    windowTitle: "Kettle ad · Level 1"
+    messages:
+      - { kind: meta, text: "Started on this computer · kettle-ad" }
+      - { role: user, text: "Give me a numbered storyboard first, then stop so I can approve it." }
+      - { role: assistant, text: "Here's the storyboard: **6 shots, 15 seconds**. Approve it or give me notes." }
+      - { kind: image, src: media/storyboard.png, title: "storyboard.png", meta: "6 shots · 15 s", w: 1920, h: 1230, maxH: 520 }
+      - { role: user, text: "Approved." }
+      - { kind: progress, text: "Building the ad", meta: "shot 4 of 6" }
+      - { kind: video, src: media/final-ad.mp4, title: "kettle-ad.mp4", meta: "15 s · 4K", start: 2.0, maxH: 520 }
+  state: { active: kettle-ad, sidebar: false, upto: 2 }
+  beats:
+    - { at: "gives you a storyboard", set: { upto: 4 } }                  # reply + the real storyboard blur in
+    - { at: "look at it", lift: msg-4-media, until: "approve it" }        # big enough to read the shot titles
+    - { at: "approve it -0.6s", type: composer, key: prompt, text: "Approved." }
+    - { at: "approve it +0.3s", click: send, set: { prompt: "", upto: 5 } }
+    - { at: "it starts building", set: { upto: 6 } }
+    - { at: "it starts building +0.2s", tween: progress, to: 100, until: "finished ad" }
+    - { at: "finished ad", set: { upto: 7 } }                             # the real ad plays from `start`
+    - { at: "finished ad +0.4s", lift: msg-7-media, until: "back" }

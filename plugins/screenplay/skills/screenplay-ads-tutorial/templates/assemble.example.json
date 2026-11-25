@@ -1,0 +1,31 @@
+{
+  "_comment": "Example config for scripts/assemble.py (run it with --help for every key). Save as <work dir>/tools/assemble.json. Relative paths are relative to this file. Segments play in this order. No whoosh sound is configured: clicks, pops and the chapter click only.",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "out_dir": "../out",
+  "chapters": "../cards/chapters.json",
+  "cards": "../cards/ch-{index:02d}.mov",
+  "inserted_card_s": 2.0,
+  "sounds": {
+    "pop": { "file": "<path to your pop sound>.wav", "db": -3 },
+    "click": { "file": "<path to your click sound>.wav", "db": -6 },
+    "chapter": { "file": "<path to his chapter click>.wav", "db": 0 }
+  },
+  "shared_tone": { "file": "../cards/room-tone.wav" },
+  "segments": [
+    { "id": "00-front", "file": "../front/front-full.mov", "vdur": 23.87, "chapter": "Intro" },
+    { "id": "01-intro", "file": "../lanes/S1/out/S1-v1.mp4", "lane": "../lanes/S1", "srt": "../lanes/S1/out/S1-v1.srt" },
+    { "id": "02-L1show", "file": "../showcase/L1-showcase.mov", "gain": 0, "card": 1 },
+    { "id": "03-L1", "file": "../lanes/L1/out/L1-v1.mp4", "lane": "../lanes/L1", "srt": "../lanes/L1/out/L1-v1.srt", "card_index": { "1": 2, "2": 3 } },
+    { "id": "04-L2show", "file": "../showcase/L2-source-full.mov", "gain": 0, "card": 4 },
+    { "id": "05-L2screen", "file": "../lanes/L2a/out/L2a-v1.mp4", "lane": "../lanes/L2a", "srt": "../lanes/L2a/out/L2a-v1.srt", "sfx": false, "card": 5 },
+    { "id": "06-L2build-a", "file": "../lanes/L2b/out/L2b-v1.mp4", "lane": "../lanes/L2b", "srt": "../lanes/L2b/out/L2b-v1.srt", "end": 70.25, "card_index": { "1": 6, "2": 8 } },
+    { "id": "06x-L2result", "file": "../showcase/L2-result.mov", "card": 7 },
+    { "id": "06-L2build-b", "file": "../lanes/L2b/out/L2b-v1.mp4", "lane": "../lanes/L2b", "srt": "../lanes/L2b/out/L2b-v1.srt", "start": 70.5, "card_index": { "1": 6, "2": 8 } },
+    { "id": "07-L3", "file": "../lanes/L3/out/L3-v1.mp4", "lane": "../lanes/L3", "srt": "../lanes/L3/out/L3-v1.srt", "no_sfx_in": [[43.0, 45.2]], "card": 9, "card_index": { "1": 10 } }
+  ],
+  "extra_audio": [
+    { "after": "00-front", "file": "../front/front-full.mov", "ss": 23.87, "db": 0 }
+  ]
+}

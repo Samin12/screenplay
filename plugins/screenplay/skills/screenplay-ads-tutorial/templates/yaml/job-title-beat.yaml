@@ -1,0 +1,34 @@
+# checked against the engine at dcc262d
+# Hook: "Claude is now a motion designer, a product animator, and an ad maker".
+# One recreated window per title: the real prompt already in the chat -> the finished piece plays ->
+# the job title lands on its word as a chip. About 1.5 s each, hard cuts.
+# The chip is a top-level overlay: merge these into your edit.yaml's `overlays:` and `scenes:` lists.
+overlays:
+  - { type: chip, at: "a motion designer", hold: 1.4s, text: "Motion designer" }
+
+scenes:
+  - kind: app
+    at: "a motion designer"
+    transition: cut
+    layout: full
+    app: claude-desktop
+    data:
+      preset: samin
+      stamp: Recreated
+      model: "<real model>"
+      effort: ""
+      messages:
+        - { role: user, text: "Make a 15 second product ad for the Kettle One. Code only." }
+        - { kind: video, src: media/final-ad.mp4, title: "kettle-ad.mp4", start: 6.0, maxH: 620 }   # start = the piece's best moment
+    state: { sidebar: false }
+    camera: { scale: 1.3, target: msg-2 }        # pushed in: the engine pins the "Recreated" stamp top right
+
+  # repeat for "a product animator" (the real tool call + the shot it returned) and "an ad maker" (the real
+  # brief + the finished promo). For "for your business" with no proof: an illustrated beat, labelled.
+  - kind: stage
+    at: "for your business"
+    transition: cut
+    layout: full
+    title: "Example placements"                    # big, bright, up for the whole beat
+    elements:
+      - { type: image, at: "for your business", src: media/placement-product-page.mp4, size: [1920, 1080], caption: "Illustration · product page" }

@@ -1,0 +1,19 @@
+# checked against the engine at dcc262d
+# "...made in four simple steps": a strip of numbered steps that stays up across scenes and layouts.
+# It is a top-level overlay, not a stage element: merge it into your edit.yaml's `overlays:` list.
+# Each step lights on its word. Labels are the same four words everywhere in the video.
+overlays:
+  - type: steps
+    at: "four simple steps"
+    until: "that is the whole build"   # start and end on scene boundaries: a banded scene is inset for its whole length
+    band: true                         # its own band on top, so it never covers a title bar or the "Recreated" stamp
+    items:                             # numbers are added: "1 · Assets"
+      - { text: Assets, icon: folder-open, at: "first the assets" }
+      - { text: Storyboard, icon: layout-grid, at: "then a storyboard" }
+      - { text: Build, icon: clapperboard, at: "then the build" }
+      - { text: Sound, icon: audio-lines, at: "then sound" }
+
+scenes:
+  - kind: stage
+    at: "four simple steps"
+    title: "Four steps"

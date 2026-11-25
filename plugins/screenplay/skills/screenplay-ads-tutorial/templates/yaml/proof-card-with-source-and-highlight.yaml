@@ -1,0 +1,15 @@
+# checked against the engine at dcc262d
+# He makes a claim about the world. Show the real page from the proof pack: the -crop.png, the address,
+# the source line, a highlight on the exact words, landing on the word he says.
+- kind: stage
+  at: "they just released"
+  elements:
+    - type: image
+      at: "they just released"
+      src: media/proof/example-announcement-crop.png      # copied from <work dir>/proof/
+      size: [2880, 1800]
+      url: example.com/blog/new-model
+      source: "example.com · captured Jan 5, 2030"
+      highlight:
+        - { x: 420, y: 610, w: 1480, h: 150, at: "a new video model", style: box }
+        - { x: 420, y: 790, w: 900, h: 90, at: "available today" }      # marker (the panel default)

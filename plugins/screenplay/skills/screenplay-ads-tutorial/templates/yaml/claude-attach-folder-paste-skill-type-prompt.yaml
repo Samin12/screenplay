@@ -1,0 +1,33 @@
+# checked against the engine at dcc262d
+# He says: "drop the folder into Claude, paste the skill, and type this prompt".
+# Recreated Claude window (light theme). Fictional data: replace every name, the prompt (from the build's
+# README, exactly) and the model (the real model that did the build, or model: false).
+- kind: app
+  at: "drop the folder into Claude"
+  app: claude-desktop
+  data: &claude
+    preset: samin
+    stamp: Recreated
+    model: "<real model>"
+    effort: ""
+    windowTitle: "Kettle ad · Level 1"
+    environment: { location: "This computer", folder: "kettle-ad" }
+    messages:
+      - { kind: meta, text: "Started on this computer · kettle-ad" }
+  state: { active: kettle-ad, sidebar: false, upto: 1 }
+  camera: { scale: 1.4, target: composer }          # typed text must read on a phone; the engine pins the stamp top right
+  beats:
+    - { at: "drop the folder", set: { dropping: { name: "ad assets", kind: folder, count: 6 } } }
+    - { at: "drop the folder +0.7s", move: composer }             # the folder rides in under the cursor
+    - { at: "drop the folder +1.4s", click: composer, set: { dropping: null, attachments: [ { name: "ad assets", kind: folder, count: 6 } ] } }
+    - { at: "paste the skill", set: { attachments: [ { name: "ad assets", kind: folder, count: 6 }, { name: "SKILL.md", kind: pasted, lines: 180 } ] } }
+    - { at: "type this prompt -1s", type: composer, key: prompt, cps: 110, text: "Make a 15 second product ad for the Kettle One from the files in this folder. Use the skill I pasted.\nGive me a numbered storyboard first, then stop so I can approve it." }
+    - at: "hit enter"
+      click: send
+      set:
+        prompt: ""
+        attachments: null
+        append:
+          - role: user
+            text: "Make a 15 second product ad for the Kettle One from the files in this folder. Use the skill I pasted.\nGive me a numbered storyboard first, then stop so I can approve it."
+            attachments: [ { name: "ad assets", kind: folder, count: 6 }, { name: "SKILL.md", kind: pasted, lines: 180 } ]
