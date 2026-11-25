@@ -37,7 +37,8 @@ export function wrap(text: string, max: number): string[] {
   return lines;
 }
 
-export type SrtOptions = { from?: number; to?: number; maxChars?: number; maxLines?: number; maxDur?: number; gap?: number };
+// `breaks`: [start, end] spans in seconds no cue may cross or run into (chapter breathers).
+export type SrtOptions = { from?: number; to?: number; maxChars?: number; maxLines?: number; maxDur?: number; gap?: number; breaks?: [number, number][] };
 
 export function buildSrt(words: Word[], opts: SrtOptions = {}): string {
   const from = opts.from ?? 0;
@@ -46,6 +47,8 @@ export function buildSrt(words: Word[], opts: SrtOptions = {}): string {
   const maxLines = opts.maxLines ?? 2;
   const maxDur = opts.maxDur ?? 6;
   const gapS = opts.gap ?? 0.7;
+  const breaks = opts.breaks ?? [];
+  const crosses = (a: number, b: number) => breaks.some(([s]) => a <= s + 1e-6 && b >= s - 1e-6 && a < b);
   const ws = words.filter((w) => w.start >= from - 1e-6 && w.start < to).map((w) => ({ ...w, text: w.text.trim() })).filter((w) => w.text);
   const cues: Word[][] = [];
   let cue: Word[] = [];
@@ -53,7 +56,7 @@ export function buildSrt(words: Word[], opts: SrtOptions = {}): string {
   for (const w of ws) {
     const prev = cue[cue.length - 1];
     const breakBefore =
-      cue.length > 0 && (!fits([...cue, w]) || w.start - prev.end > gapS || w.end - cue[0].start > maxDur || (/[.?!]["')\]]?$/.test(prev.text) && cue.map((x) => x.text).join(' ').length >= 18));
+      cue.length > 0 && (crosses(prev.end, w.start) || !fits([...cue, w]) || w.start - prev.end > gapS || w.end - cue[0].start > maxDur || (/[.?!]["')\]]?$/.test(prev.text) && cue.map((x) => x.text).join(' ').length >= 18));
     if (breakBefore) {
       cues.push(cue);
       cue = [];
@@ -68,6 +71,8 @@ export function buildSrt(words: Word[], opts: SrtOptions = {}): string {
     let end = Math.max(c[c.length - 1].end, c[0].start + 0.8) - from;
     if (next) end = Math.min(end, next[0].start - from - 0.04);
     end = Math.min(end, to - from);
+    // never run into a breather: the cue ends where the voice stops
+    for (const [s] of breaks) if (c[0].start <= s + 1e-6 && end + from > s) end = Math.max(c[c.length - 1].end, Math.min(end + from, s)) - from;
     out.push(`${i + 1}\n${fmtSrt(start)} --> ${fmtSrt(Math.max(start + 0.2, end))}\n${wrap(c.map((w) => w.text).join(' '), maxChars).join('\n')}\n`);
   });
   return out.join('\n');

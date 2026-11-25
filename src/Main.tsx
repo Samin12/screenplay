@@ -1,5 +1,6 @@
 import React from 'react';
-import { AbsoluteFill, Audio, Freeze, Sequence, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AbsoluteFill, Freeze, Sequence, useCurrentFrame, useVideoConfig } from 'remotion';
+import { ArollAudio } from './layers/ArollAudio';
 import type { Scene, Timeline } from './types';
 import { ThemeProvider } from './theme/ThemeContext';
 import { SceneTransition, FlashOverlay, transitionOverlap } from './layers/SceneTransition';
@@ -131,7 +132,7 @@ export const Main: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
           .map((s) => (
             <FlashOverlay key={`f-${s.id}`} at={s.from} />
           ))}
-        {timeline.aroll ? <Audio src={staticFile(timeline.aroll.src)} /> : null}
+        {timeline.aroll ? <ArollAudio aroll={timeline.aroll} /> : null}
       </AbsoluteFill>
     </ThemeProvider>
   );

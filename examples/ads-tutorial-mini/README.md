@@ -1,8 +1,9 @@
 # ads-tutorial-mini
 
-A 35-second tutorial edit that uses every "tutorial" feature of the engine in one small file:
+A 39-second tutorial edit that uses every "tutorial" feature of the engine in one small file:
 
 - `chapters.style: path` with two levels, three tips, labels, groups and a locked tip ahead
+- `chapters.breather`: a one second breath of room tone and a soft click at each card
 - all three layouts (`panel`, `full`, `him`) with hard-cut switches between them
 - a `chip` and a `steps` strip that stay up over the scenes, both recreated windows and the presenter
 - a recreated Finder window and a recreated Claude window (light, stamped "Recreated", fictional data)

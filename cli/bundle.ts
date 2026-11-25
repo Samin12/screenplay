@@ -126,6 +126,9 @@ export function syncPublic(outDir: string, work: string | null) {
     const sheet = path.join(work, '.screenplay', 'sheet');
     fs.mkdirSync(sheet, { recursive: true });
     want.set('_sheet', { dir: true, src: sheet });
+    // Room tone for chapter breathers (cli/breather.ts), only when the edit made one.
+    const breather = path.join(work, '.screenplay', 'breather');
+    if (fs.existsSync(breather)) want.set('_breather', { dir: true, src: breather });
   }
   for (const e of fs.readdirSync(pub)) {
     const dest = path.join(pub, e);

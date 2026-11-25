@@ -1,4 +1,4 @@
-# A 35-second tutorial edit that uses every "tutorial" feature of the engine:
+# A 39-second tutorial edit that uses every "tutorial" feature of the engine:
 # path chapter cards, the three layouts, a level chip, a steps strip, and two recreated windows.
 # Media is placeholder: run `node examples/ads-tutorial-mini/make-media.mjs` first.
 title: "Ads tutorial mini"
@@ -6,6 +6,7 @@ look: panel
 
 chapters:
   style: path
+  breather: { seconds: 1, click: media/click.wav }   # a 1 s breath at each card: room tone + a soft click
   heading: "Product ads: 2 levels · 3 tips"
   badge: { intro: "Make a product ad", introEyebrow: "Mini course" }
   items:

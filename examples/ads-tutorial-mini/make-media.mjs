@@ -2,6 +2,7 @@
 // Builds this example's placeholder media. Nothing here is real footage:
 //   aroll.mp4      a neutral gradient with a simple moving shape standing in for the presenter, and
 //                  "speech" that is a short tone burst for every word in words.out.json over low room noise
+//   media/click.wav  a soft synthesized tick for the chapter breather
 //   media/*.png    four flat colour cards used as the photos in the Finder window, and a three-panel
 //                  "storyboard" card
 // Needs ffmpeg on PATH and Node 22+. Run:  node examples/ads-tutorial-mini/make-media.mjs
@@ -99,22 +100,34 @@ words.forEach((w, k) => {
     pcm[i] += 0.16 * env * (Math.sin(2 * Math.PI * f0 * t) + 0.45 * Math.sin(2 * Math.PI * 2 * f0 * t) + 0.2 * Math.sin(2 * Math.PI * 3.01 * f0 * t));
   }
 });
-const wav = Buffer.alloc(44 + n * 2);
-wav.write('RIFF', 0);
-wav.writeUInt32LE(36 + n * 2, 4);
-wav.write('WAVEfmt ', 8);
-wav.writeUInt32LE(16, 16);
-wav.writeUInt16LE(1, 20);
-wav.writeUInt16LE(1, 22);
-wav.writeUInt32LE(SR, 24);
-wav.writeUInt32LE(SR * 2, 28);
-wav.writeUInt16LE(2, 32);
-wav.writeUInt16LE(16, 34);
-wav.write('data', 36);
-wav.writeUInt32LE(n * 2, 40);
-for (let i = 0; i < n; i++) wav.writeInt16LE(Math.round(Math.max(-1, Math.min(1, pcm[i])) * 32767), 44 + i * 2);
+function writeWav(file, samples) {
+  const len = samples.length;
+  const wav = Buffer.alloc(44 + len * 2);
+  wav.write('RIFF', 0);
+  wav.writeUInt32LE(36 + len * 2, 4);
+  wav.write('WAVEfmt ', 8);
+  wav.writeUInt32LE(16, 16);
+  wav.writeUInt16LE(1, 20);
+  wav.writeUInt16LE(1, 22);
+  wav.writeUInt32LE(SR, 24);
+  wav.writeUInt32LE(SR * 2, 28);
+  wav.writeUInt16LE(2, 32);
+  wav.writeUInt16LE(16, 34);
+  wav.write('data', 36);
+  wav.writeUInt32LE(len * 2, 40);
+  for (let i = 0; i < len; i++) wav.writeInt16LE(Math.round(Math.max(-1, Math.min(1, samples[i])) * 32767), 44 + i * 2);
+  fs.writeFileSync(file, wav);
+}
 const voice = path.join(DIR, 'media', '_voice.wav');
-fs.writeFileSync(voice, wav);
+writeWav(voice, pcm);
+
+// ---- the chapter click: a soft two-note tick, 0.35 s ----
+const click = new Float32Array(Math.round(0.35 * SR));
+for (let i = 0; i < click.length; i++) {
+  const t = i / SR;
+  click[i] = 0.22 * Math.exp(-t * 16) * (Math.sin(2 * Math.PI * 880 * t) + 0.5 * Math.sin(2 * Math.PI * 1320 * t)) * Math.min(1, t / 0.004);
+}
+writeWav(path.join(DIR, 'media', 'click.wav'), click);
 
 // ---- aroll.mp4 ----
 const out = path.join(DIR, 'aroll.mp4');

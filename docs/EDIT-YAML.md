@@ -227,11 +227,33 @@ beats:
   - { at: "the plan", show: { type: image, src: media/storyboard.png, size: [1280, 720] }, fit: wide, until: "come back" }
 ```
 
-### What the engine does not do
+### Chapter breather: `chapters.breather`
 
-- **Chapter breather** (a 1 s pause with room tone while the card builds): not in the engine. It
-  inserts time, so it belongs where the whole video is assembled; `chapters.breather` is reported as an
-  unknown field.
+Off by default. With it, every chapter card gets a breath: the voice stops at a real pause at or just
+before the card, the card builds for that second over **room tone taken from the recording itself**
+(its quietest steady half second with no breath or click in it, never digital silence), an optional
+click plays inside that second and fades before the first word, then the card holds for its usual 2 s
+while the voice carries on.
+
+```yaml
+chapters:
+  style: path
+  breather: { seconds: 1, click: media/click.wav }   # click: a sound file in the work dir, or none (default)
+  items: [ ... ]
+```
+
+- It inserts `seconds` of time per card (0.3 to 3, default 1), so the video gets longer.
+- **One time map.** The pause for each card is found in the A-roll's audio (the latest real pause of
+  150 ms or more in the 0.8 s before the card's anchor). The words, the A-roll's length and cuts and the
+  face track are moved to output time through one map (`cli/breather.ts`) before anything is resolved,
+  so anchors, scene frames, the `.srt` and the `.chapters.txt` all agree. The chapter time is the card's
+  first frame, which is the pause. No caption cue crosses a breather.
+- `aroll.mp4` and `words.out.json` in the work dir are **not** rewritten: they stay in cut time. The
+  output-time words are written to `.screenplay/words.out.json`; `still`, `sheet` and `render` use them.
+- `o:` and `f:` anchors mean output time, so they move when you turn a breather on. Word ids and
+  phrases do not: prefer them.
+- If the recording has no clean room tone the compile fails and says so, rather than use silence.
+- The room tone and the pause times are cached in `.screenplay/breather/`.
 
 ## Scenes
 

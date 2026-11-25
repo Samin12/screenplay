@@ -219,8 +219,3 @@ test('fit: wide rides on a show beat; anything else is an error', () => {
   const bad = panel('scenes:\n  - { kind: app, at: w0, app: _fixture, beats: [ { at: w20, show: { type: title, text: Big }, fit: huge } ] }');
   assert.ok(errors(bad).some((e) => /fit must be wide/.test(e.message)));
 });
-
-test('chapters.breather is not an engine feature: it is reported, not silently accepted', () => {
-  const r = panel(pathYaml.replace('  style: path\n', '  style: path\n  breather: { seconds: 1 }\n'));
-  assert.ok(warnings(r).some((d) => d.path === 'chapters.breather' && /unknown field/.test(d.message)));
-});

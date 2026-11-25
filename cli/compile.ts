@@ -10,6 +10,7 @@ import { spawnSync } from 'node:child_process';
 import YAML, { LineCounter, isNode } from 'yaml';
 import { AnchorError, WordIndex, parseDuration, resolveAnchor, type Window, type Word } from './anchors.ts';
 import { compileElement, isObj, type FrameCtx, type P } from './elements.ts';
+import { breatherMap, shiftTrack, shiftWords, workBreather } from './breather.ts';
 import { CliError, buildDir, c, fmtClock, parseArgs, readJson, workDir, writeFileAtomic } from './util.ts';
 import type {
   Action,
@@ -110,9 +111,16 @@ export type CompileInput = {
   arollVideo?: boolean; // aroll.mp4 exists in the work dir
   face?: { fps: number; x: number[] } | null; // face.json: the head's path through aroll.mp4
   probeSize?: (src: string) => [number, number] | null;
+  // chapters.breather (cli/breather.ts), called only when the edit asks for it:
+  quiet?: (t: number) => number; // the real pause at or just before cut-time t (default: t itself)
+  tone?: (seconds: number) => string | null; // a room-tone file of that length for the renderer, or null
 };
 
-export type CompileResult = { timeline: Timeline | null; diags: Diag[]; meta: CompileMeta; errors: number; warnings: number };
+// `words`: the words in output time, set only when a breather moved them.
+export type CompileResult = { timeline: Timeline | null; diags: Diag[]; meta: CompileMeta; errors: number; warnings: number; words?: Word[] };
+
+// Pass 2 of a breather compile: where each card starts (output frames) and how long it breathes.
+type Forced = { cards: number[]; frames: number; tone?: string; click?: string };
 
 export const fmtPath = (p: P) => p.reduce<string>((s, k) => (typeof k === 'number' ? `${s}[${k}]` : s ? `${s}.${k}` : k), '');
 
@@ -145,8 +153,12 @@ class Compiler {
   private input: CompileInput;
   // Per scene index: the layout it asked for (panel look: 'full' | 'him').
   private lays = new Map<number, Lay>();
+  breath: { seconds: number; click?: string } | null = null; // chapters.breather, as asked for
+  private forced: Forced | null;
+  private autoPlates = new Set<string>(); // scene ids whose video plate runs in output time (`start: auto`)
 
-  constructor(input: CompileInput) {
+  constructor(input: CompileInput, forced: Forced | null = null) {
+    this.forced = forced;
     this.input = input;
     this.idx = new WordIndex(input.words ?? []);
     this.meta = { fps: 30, durationInFrames: 0, scenes: [], events: [], texts: [], icons: [], media: [], targets: [], stateKeys: [] };
@@ -536,6 +548,27 @@ class Compiler {
     else {
       const cuts = (aroll.cuts ?? []).map((s) => this.f(s)).filter((fr) => fr > 0 && fr < this.totalF);
       arollOut = { src: 'aroll.mp4', durationInFrames: this.totalF, cuts: [...new Set(cuts)].sort((a, b) => a - b) };
+      if (this.forced && this.forced.cards.length) {
+        arollOut.breathers = cards.slice(0, this.forced.cards.length).map((k) => ({ at: k.from, frames: this.forced!.frames }));
+        if (this.forced.tone) arollOut.tone = this.forced.tone;
+        if (this.forced.click) arollOut.click = this.forced.click;
+      }
+    }
+    // A recording that runs in output time (`start: auto`) pauses with the voice.
+    if (arollOut?.breathers) {
+      const br = arollOut.breathers;
+      const back = (F: number) => {
+        let f = F;
+        br.forEach((x, j) => {
+          if (F >= x.at + x.frames) f = F - (j + 1) * x.frames;
+          else if (F >= x.at) f = x.at - j * x.frames;
+        });
+        return f;
+      };
+      for (const seg of segs) {
+        const s = seg.scene;
+        if (s.kind === 'app' && s.plate.type === 'video' && this.autoPlates.has(s.id.split('.')[0])) s.plate.startFrom = back(s.from);
+      }
     }
 
     const timeline: Timeline = {
@@ -680,13 +713,28 @@ class Compiler {
     const stepTitles: string[] = [];
     const items = isObj(raw) ? raw.items : undefined;
     if (raw !== undefined && !isObj(raw)) this.err(['chapters'], 'chapters must be {heading, logo, items: [...]}');
-    if (isObj(raw)) for (const k of Object.keys(raw)) if (!['heading', 'logo', 'items', 'badge', 'style'].includes(k)) this.warn(['chapters', k], `unknown field "${k}" (ignored)`);
+    if (isObj(raw)) for (const k of Object.keys(raw)) if (!['heading', 'logo', 'items', 'badge', 'style', 'breather'].includes(k)) this.warn(['chapters', k], `unknown field "${k}" (ignored)`);
     if (items !== undefined && !Array.isArray(items)) this.err(['chapters', 'items'], 'chapters.items must be a list');
     const list = Array.isArray(items) ? items : [];
     const cardF = Math.round((this.look === 'panel' ? PANEL_CHAPTER_CARD_S : CHAPTER_CARD_S) * this.fps);
     let prevT = 0;
     const textCtx = this.ctx({ i: -1, path: ['chapters'], kind: 'talking', raw: {}, anchorT: 0, baseF: 0, endF: this.totalF, durF: this.totalF, window: { from: 0, to: this.total } });
     const path_ = isObj(raw) && raw.style === 'path';
+    // chapters.breather: {seconds, click}. Off unless set.
+    if (isObj(raw) && raw.breather !== undefined && raw.breather !== false && raw.breather !== null) {
+      const b = raw.breather === true ? {} : raw.breather;
+      if (!isObj(b)) this.err(['chapters', 'breather'], 'breather must be {seconds: 1, click: <media path> | none}');
+      else {
+        for (const k of Object.keys(b)) if (!['seconds', 'click'].includes(k)) this.warn(['chapters', 'breather', k], `unknown field "${k}" (ignored); fields: seconds, click`);
+        const sec = b.seconds === undefined ? 1 : b.seconds;
+        if (typeof sec !== 'number' || !(sec >= 0.3 && sec <= 3)) this.err(['chapters', 'breather', 'seconds'], 'seconds must be a number from 0.3 to 3');
+        else {
+          this.breath = { seconds: Math.max(1, Math.round(sec * this.fps)) / this.fps };
+          if (b.click !== undefined && b.click !== 'none' && b.click !== null && b.click !== false) this.breath.click = this.mediaPath(['chapters', 'breather', 'click'], b.click);
+        }
+      }
+    }
+    let anchored = 0;
     if (isObj(raw) && raw.style !== undefined && raw.style !== 'path' && raw.style !== 'grid') this.err(['chapters', 'style'], `unknown chapter style ${JSON.stringify(raw.style)}; use grid (default) or path`);
     // `label` (eyebrow: "Tip 7") and `group` (the path card's row). Only set when given.
     const extra = (it: Record<string, unknown>, p: P): { label?: string; group?: string } => {
@@ -710,14 +758,16 @@ class Compiler {
       }
       const t = this.resolve(it.at, [...p, 'at'], 'at', [{ from: prevT - 0.05, to: this.total, label: 'the transcript after the previous chapter' }]);
       if (t === null) return;
-      let from = this.f(t);
+      // With a breather the card starts on the pause, not on the anchor word (pass 2 knows where).
+      let from = this.forced ? (this.forced.cards[anchored] ?? this.f(t)) : this.f(t);
+      anchored++;
       const last = cards[cards.length - 1];
       if (last && from < last.to) {
         this.warn([...p, 'at'], `starts ${((last.to - from) / this.fps).toFixed(1)} s inside the previous chapter card; pushed to its end`);
         from = last.to;
       }
       if (from >= this.totalF) return this.err([...p, 'at'], `lands at ${t.toFixed(1)} s, after the video ends`);
-      const to = Math.min(this.totalF, from + cardF);
+      const to = Math.min(this.totalF, from + cardF + (this.forced?.frames ?? 0));
       cards.push({ from, to, index: chapterInfos.length });
       const title = typeof it.title === 'string' ? textCtx.text([...p, 'title'], it.title, true) : (this.err([...p, 'title'], 'chapter needs `title`'), '');
       const icon = textCtx.icon([...p, 'icon'], it.icon) ?? 'sparkles';
@@ -883,7 +933,10 @@ class Compiler {
         if (raw.start !== undefined) {
           // `auto`: the recording runs in OUTPUT time (re-timed to the cut, one frame per output frame),
           // so the plate seeks to this scene's own start and stays in sync with the voice.
-          if (raw.start === 'auto') startFrom = sc.baseF;
+          if (raw.start === 'auto') {
+            startFrom = sc.baseF;
+            this.autoPlates.add(`s${sc.i}`);
+          }
           else if (typeof raw.start === 'number' && raw.start >= 0) startFrom = this.f(raw.start);
           else this.err([...p, 'start'], 'start must be seconds into the recording, e.g. 12.5, or `auto` for a recording that runs in output time (it seeks to the scene start)');
         }
@@ -1314,7 +1367,42 @@ export function sceneStateAt(scene: AppScene, frame: number): Record<string, unk
 // ---------- work-dir entry points ----------
 
 export function compileEdit(input: CompileInput): CompileResult {
-  return new Compiler(input).run();
+  const first = new Compiler(input);
+  const res = first.run();
+  const b = first.breath;
+  if (!b || !res.timeline) return res;
+  // chapters.breather. Pass 1 (above) found where each card would start in cut time. Find the real
+  // pause at or before each, move the words, the A-roll's length and cuts and the face track to output
+  // time through ONE map, and compile again against those: every anchor, scene frame, caption and
+  // chapter time then comes out consistent, with nothing shifted by hand anywhere else.
+  const fps = res.timeline.fps;
+  const starts = res.timeline.chapters.filter((c) => c.frame >= 0).map((c) => c.frame / fps);
+  if (!starts.length || !input.aroll) return res;
+  let prev = 0;
+  const pauses = starts.map((C) => {
+    const q = Math.max(prev, Math.min(C, input.quiet ? input.quiet(C) : C));
+    prev = Math.round(q * fps) / fps; // on the frame grid, so cards and audio pieces line up exactly
+    return prev;
+  });
+  const map = breatherMap(pauses, b.seconds);
+  const frames = Math.round(b.seconds * fps);
+  const words = input.words ? shiftWords(input.words, map) : null;
+  const tone = input.tone ? input.tone(b.seconds) : undefined;
+  const second = new Compiler(
+    {
+      ...input,
+      words,
+      aroll: { ...input.aroll, duration: input.aroll.duration + pauses.length * b.seconds, cuts: (input.aroll.cuts ?? []).map(map.out) },
+      face: input.face ? shiftTrack(input.face, map) : input.face,
+    },
+    { cards: pauses.map((q, j) => Math.round(q * fps) + j * frames), frames, tone: tone ?? undefined, click: b.click },
+  );
+  const out = second.run();
+  if (input.tone && tone === null && input.arollVideo) {
+    out.diags.push({ level: 'error', path: 'chapters.breather', message: 'no clean room tone in the recording (no quiet, steady half second without a breath or click), and a breather is never digital silence; remove `breather`' });
+    return { ...out, timeline: null, errors: out.errors + 1 };
+  }
+  return words ? { ...out, words } : out;
 }
 
 export function probeMediaSize(file: string): [number, number] | null {
@@ -1323,6 +1411,7 @@ export function probeMediaSize(file: string): [number, number] | null {
   return m ? [parseInt(m[1], 10), parseInt(m[2], 10)] : null;
 }
 
+// `words`: what every later step must use (still, sheet, render, captions): output-time words.
 export type WorkCompile = CompileResult & { work: string; timelineFile: string; words: Word[] };
 
 export function compileWork(work: string, opts: { write?: boolean } = {}): WorkCompile {
@@ -1330,6 +1419,7 @@ export function compileWork(work: string, opts: { write?: boolean } = {}): WorkC
   if (!fs.existsSync(editFile)) throw new CliError(`no edit.yaml in ${work} (write one; see docs/EDIT-YAML.md)`);
   const opt = <T>(f: string): T | null => (fs.existsSync(path.join(work, f)) ? readJson<T>(path.join(work, f)) : null);
   const words = opt<Word[]>('words.out.json');
+  const breather = workBreather(work); // does nothing until the edit asks for a breather
   const res = compileEdit({
     yaml: fs.readFileSync(editFile, 'utf8'),
     words,
@@ -1338,14 +1428,19 @@ export function compileWork(work: string, opts: { write?: boolean } = {}): WorkC
     arollVideo: fs.existsSync(path.join(work, 'aroll.mp4')),
     face: opt<{ fps: number; x: number[] }>('face.json'),
     probeSize: (src) => (fs.existsSync(path.join(work, src)) ? probeMediaSize(path.join(work, src)) : null),
+    quiet: breather.quiet,
+    tone: breather.tone,
   });
   const dir = buildDir(work);
   const timelineFile = path.join(dir, 'timeline.json');
   if (opts.write !== false) {
     writeFileAtomic(path.join(dir, 'compile.json'), JSON.stringify({ diags: res.diags, meta: res.meta }, null, 1));
     if (res.timeline) writeFileAtomic(timelineFile, JSON.stringify({ timeline: res.timeline }));
+    // A breather moves every word after it: the output-time words are written next to the timeline
+    // (words.out.json in the work dir stays in cut time, the time base of aroll.mp4).
+    if (res.timeline && res.words) writeFileAtomic(path.join(dir, 'words.out.json'), JSON.stringify(res.words));
   }
-  return { ...res, work, timelineFile, words: words ?? [] };
+  return { ...res, work, timelineFile, words: res.words ?? words ?? [] };
 }
 
 // ---------- reporting ----------

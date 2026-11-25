@@ -406,7 +406,8 @@ export async function renderCommand(argv: string[]) {
   const base = out.replace(/\.[^.]+$/, '');
   const ch = youtubeChapters(t, { fromF: f0, toF: f1 + 1 });
   if (ch.text) writeFileAtomic(`${base}.chapters.txt`, ch.text);
-  writeFileAtomic(`${base}.srt`, buildSrt(res.words, { from: f0 / t.fps, to: (f1 + 1) / t.fps }));
+  const breaks = (t.aroll?.breathers ?? []).map((b): [number, number] => [b.at / t.fps, (b.at + b.frames) / t.fps]);
+  writeFileAtomic(`${base}.srt`, buildSrt(res.words, { from: f0 / t.fps, to: (f1 + 1) / t.fps, breaks }));
   console.log(out);
   if (ch.text) console.log(`${base}.chapters.txt`);
   console.log(`${base}.srt`);

@@ -1,5 +1,6 @@
 import React from 'react';
-import { AbsoluteFill, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
+import { AbsoluteFill, Freeze, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig, interpolate } from 'remotion';
+import { arollFrame } from './ArollAudio';
 import type { Rect, Timeline, WebcamMode } from '../types';
 import { easeInOut, msToFrames } from '../lib/anim';
 import { motion } from '../theme/tokens';
@@ -120,11 +121,18 @@ export const WebcamLayer: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
           background: '#000',
         }}
       >
-        <OffthreadVideo
-          src={staticFile(aroll.src)}
-          muted
-          style={{ position: 'absolute', left, top, width: vw, height: vh, transform: camera.mirror ? 'scaleX(-1)' : undefined }}
-        />
+        {aroll.breathers?.length ? (
+          // Chapter breathers: the picture follows the voice, so it holds during a breather.
+          <Freeze frame={arollFrame(aroll, frame)}>
+            <OffthreadVideo src={staticFile(aroll.src)} muted style={{ position: 'absolute', left, top, width: vw, height: vh, transform: camera.mirror ? 'scaleX(-1)' : undefined }} />
+          </Freeze>
+        ) : (
+          <OffthreadVideo
+            src={staticFile(aroll.src)}
+            muted
+            style={{ position: 'absolute', left, top, width: vw, height: vh, transform: camera.mirror ? 'scaleX(-1)' : undefined }}
+          />
+        )}
       </div>
     </AbsoluteFill>
   );

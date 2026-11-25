@@ -26,7 +26,10 @@ export type Timeline = {
   look: Look;
   theme: ThemeName;
   // Cut talking-head video (audio included), path relative to the public dir (the work dir).
-  aroll: { src: string; durationInFrames: number; cuts: number[] } | null;
+  // `breathers` (chapters.breather): at each `at` (an output frame) the A-roll pauses for `frames`
+  // while `tone` (room tone from the recording) and the optional `click` play; frames, cuts and the
+  // face track are already in output time.
+  aroll: { src: string; durationInFrames: number; cuts: number[]; breathers?: { at: number; frames: number }[]; tone?: string; click?: string } | null;
   camera: { focus: [number, number]; zoom: number; mirror: boolean; track?: { fps: number; x: number[] } };
   webcam: WebcamKey[];
   badges: StepBadge[]; // panel look: what the badge above the tile says, from each frame on
