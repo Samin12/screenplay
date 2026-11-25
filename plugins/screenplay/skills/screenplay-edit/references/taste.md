@@ -34,3 +34,5 @@ Format: `- YYYY-MM-DD: <rule> (why: <the feedback>)`
 - Build one proof pack per video (`proof/README.md`, `proof-index.json`, `do_not_show`), captured by one worker per topic group and checked by an independent verifier (method: the `proof-first-video-editor` skill, Step 3).
 - Proof beats recreation for claims about the world; recreation is for "here's what you type and what you get back".
 - A claim that can't be proven is not illustrated as fact; it goes in the report.
+
+- **No whooshes.** Samin (Nov 24 2026, Claude Ads video): "there are a lot of whoosh sounds, remove all of them." Cut on the beat without a whoosh; keep only his chapter click, a pop on titles and clicks on prompt sends. If a scene change needs sound, let the next clip's own audio carry it.

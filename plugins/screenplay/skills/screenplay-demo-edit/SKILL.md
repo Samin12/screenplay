@@ -1,6 +1,6 @@
 ---
 name: screenplay-demo-edit
-description: Edit a long (20-40 min) Borumi screen-demo tutorial end to end the way "Hermes Trader" (Nov 2026) was made - his real screen shown live and whole whenever he uses the computer, motion graphics only on concepts and the hook, Higgsfield pixel-art B-roll for analogies, recreated chat replicas for "my bot told me", real proof pages for every claim, key-only privacy blurs, parallel part writers on the screenplay engine, then a final assembly in a Borumi project (chapter scenes, 1 s chapter breaks with his click, whoosh/pop sound effects, filler "but"/retake cuts verified with whisper). Use when asked to "edit it like the Hermes Trader video", to edit a long screen-recording tutorial with the screenplay engine, to assemble a render in Borumi with chapter breaks and cuts, or to resume such an edit.
+description: Edit a long (20-40 min) Borumi screen-demo tutorial end to end the way "Hermes Trader" (Nov 2026) was made - his real screen shown live and whole whenever he uses the computer, motion graphics only on concepts and the hook, Higgsfield pixel-art B-roll for analogies, recreated chat replicas for "my bot told me", real proof pages for every claim, key-only privacy blurs, parallel part writers on the screenplay engine, then a final assembly in a Borumi project (chapter scenes, 1 s chapter breaks with his click, a few pop/click sound effects (no whooshes), filler "but"/retake cuts verified with whisper). Use when asked to "edit it like the Hermes Trader video", to edit a long screen-recording tutorial with the screenplay engine, to assemble a render in Borumi with chapter breaks and cuts, or to resume such an edit.
 ---
 
 # screenplay-demo-edit
@@ -57,7 +57,7 @@ Each round of his notes usually touches steps 6-10 only. Don't redo plates, B-ro
 **The hook (first ~75 s)**
 - Frame 1 must be readable and enticing (it was the Discord page with labels scanning over it), not a blur of cuts.
 - Visualize **every phrase** of the first 12 s with a real moment from later in the video, about 1.5-2 s each,
-  whoosh on each cut.
+  hard cuts with no whoosh (he removed all 132 whooshes from the Claude Ads video, Nov 24 2026).
 - "Level 1/2/3" teasers show framed previews of those later moments, with a pop on each level title.
 - A story with stakes ("before the vote my bot told me...") gets real dated proof, then the bot's message, then
   the outcome, then the bot's follow-up.
