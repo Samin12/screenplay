@@ -17,3 +17,6 @@ docs/research/
 examples/demo-usecases/
 examples/demo-tips/*
 !examples/demo-tips/edit.yaml
+
+# Python caches
+__pycache__/
