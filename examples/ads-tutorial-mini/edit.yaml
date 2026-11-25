@@ -1,0 +1,134 @@
+# A 35-second tutorial edit that uses every "tutorial" feature of the engine:
+# path chapter cards, the three layouts, a level chip, a steps strip, and two recreated windows.
+# Media is placeholder: run `node examples/ads-tutorial-mini/make-media.mjs` first.
+title: "Ads tutorial mini"
+look: panel
+
+chapters:
+  style: path
+  heading: "Product ads: 2 levels · 3 tips"
+  badge: { intro: "Make a product ad", introEyebrow: "Mini course" }
+  items:
+    - { title: "Intro", group: intro }
+    - { at: "Level one", label: "Level 1", title: "The basics", group: l1 }
+    - { at: "Tip one", label: "Tip 1", title: "One folder, sorted" }
+    - { at: "Tip two", label: "Tip 2", title: "Storyboard first" }
+    - { at: "Level two", label: "Level 2", title: "Add motion", group: l2 }
+    - { label: "Tip 3", title: "Always moving" }          # no `at`: stays locked on every card
+
+overlays:
+  # The four steps stay up from "four steps" through both recreated windows and over him.
+  - type: steps
+    at: "is the basics"
+    until: "add sound"
+    band: true
+    items:
+      - { text: Assets, icon: folder-open, at: "Keep every file" }
+      - { text: Storyboard, icon: layout-grid, at: "Ask for a storyboard" }
+      - { text: Build, icon: clapperboard, at: "build it" }
+      - { text: Sound, icon: audio-lines, at: "add sound" }
+  # A level chip over the last part.
+  - { type: chip, at: "adds motion", eyebrow: "What we're building", text: "Level *2* · Add motion" }
+
+scenes:
+  # 1. him, full frame
+  - kind: talking
+    at: w0
+    layout: him
+
+  # 2. full: one picture on the whole frame (him -> full is a hard cut)
+  - kind: stage
+    at: "on making"
+    layout: full
+    elements:
+      - { type: image, src: media/photo-desk.png, size: [640, 400], caption: "The ad we are making" }
+
+  # 3. panel: what the course covers (full -> panel)
+  - kind: stage
+    at: "We do it"
+    title: "Two levels, three tips"
+    elements:
+      - type: iconlist
+        items:
+          - { text: "Level 1 · The basics", icon: layers, at: "two levels" }
+          - { text: "Level 2 · Add motion", icon: move, at: "three tips" }
+
+  # panel: the four steps (the strip comes up here)
+  - kind: stage
+    at: "is the basics"          # inside the Level 1 card: starts as the card ends
+    title: "Four steps"
+    elements:
+      - type: flow
+        nodes:
+          - { text: Assets, icon: folder-open }
+          - { text: Storyboard, icon: layout-grid }
+          - { text: Build, icon: clapperboard }
+          - { text: Sound, icon: audio-lines }
+
+  # full: a recreated Finder window. Make a folder, drag the photos in, sort them.
+  - kind: app
+    at: "Keep every file"
+    layout: full
+    app: finder
+    data:
+      title: Downloads
+      path: "Macintosh HD/Users/you/Downloads"
+      stamp: Recreated
+      columns: 4
+      sidebar: false
+      items: &photos
+        - { id: desk, name: "photo-desk.png", thumb: media/photo-desk.png, meta: "640 × 400" }
+        - { id: shelf, name: "photo-shelf.png", thumb: media/photo-shelf.png, meta: "640 × 400" }
+        - { id: box, name: "photo-box.png", thumb: media/photo-box.png, meta: "640 × 400" }
+        - { id: label, name: "photo-label.png", thumb: media/photo-label.png, meta: "640 × 400" }
+      folders:
+        new: { items: *photos }
+    beats:
+      - { at: "Make a folder", click: new-folder, set: { newFolder: true } }
+      - { at: "Make a folder +0.5s", type: item-new-name, key: rename, text: "ad assets", cps: 30 }
+      - { at: "drop", set: { renaming: null } }
+      - { at: "drop +0.2s", click: item-desk, set: { selected: [desk, shelf, box, label], drag: { ids: [desk, shelf, box, label] } } }
+      - { at: "photos", move: item-new }
+      - { at: "photos +0.5s", click: item-new, set: { drag: null, selected: null, moved: [desk, shelf, box, label] } }
+      - { at: "sort them", click: item-new, set: { path: new, moved: null } }
+      - { at: "by name", click: view-list, set: { view: list } }
+
+  # full: a recreated Claude window. Type a prompt, send it, get a plan back.
+  - kind: app
+    at: "Ask for a storyboard"
+    layout: full
+    app: claude-desktop
+    data:
+      theme: light
+      stamp: Recreated
+      windowTitle: "Product ad"
+      user: { name: "Alex", plan: "Pro", initial: "a" }
+      model: "Opus 5.5"
+      effort: "High"
+      environment: { location: "This computer", folder: "ad-assets" }
+      connectors: []
+      messages:
+        - { kind: meta, text: "Started on this computer · ad-assets" }
+        - { role: user, text: "Plan a 15 second ad from the photos in this folder. Give me a numbered storyboard first." }
+        - { role: assistant, text: "Here is the plan. 1: wide shot of the desk, slow push in. 2: the box opens, the label turns to camera. 3: the product on the shelf, logo and price." }
+    state: { active: product-ad, sidebar: false, upto: 1 }
+    beats:
+      - { at: "Type the prompt -0.6s", type: composer, key: prompt, cps: 60, text: "Plan a 15 second ad from the photos in this folder. Give me a numbered storyboard first." }
+      - { at: "send it", click: send, set: { prompt: "", upto: 2 } }
+      - { at: "the plan", set: { upto: 3 } }
+
+  # him again, full frame (full -> him)
+  - kind: talking
+    at: "Then you build"
+    layout: him
+
+  # back to the panel (him -> panel)
+  - kind: stage
+    at: "and you add"
+    title: "Then build, then sound"
+
+  # level two, in the panel, under the level chip
+  - kind: stage
+    at: "adds motion"
+    elements:
+      - { type: counter, at: "Every shot", value: 100, suffix: "%", label: "of shots move" }
