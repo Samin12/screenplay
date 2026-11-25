@@ -1,0 +1,47 @@
+{
+ "fps": 30,
+ "width": 1920,
+ "height": 1080,
+ "out_dir": "out",
+ "chapters": "cards/chapters.json",
+ "cards": "cards/ch-{index:02d}.mov",
+ "lane_card_index": {"1": 2, "2": 3, "3": 6},
+ "inserted_card_s": 2.0,
+ "sounds": {
+  "whoosh": {"file": "~/sounds/whoosh.wav", "db": -6},
+  "pop": {"file": "~/sounds/pop.wav", "db": -3},
+  "click": {"file": "~/sounds/click.wav", "db": -6},
+  "chapter": {"file": "~/sounds/chapter-click.wav", "db": 0}
+ },
+ "shared_tone": {"file": "tone.wav"},
+ "keep_near_click": ["card"],
+ "segments": [
+  {"id": "00-front", "file": "front/front-full.mov", "vdur": 23.87, "chapter": "Intro"},
+  {"id": "01-intro", "file": "lanes/intro/out/intro-v3.mp4", "lane": "lanes/intro", "srt": "lanes/intro/out/intro-v3.srt", "whoosh_gap": 1.3},
+  {"id": "02-level1", "file": "lanes/level1/out/level1-v5.mp4", "lane": "lanes/level1", "offset": 16.0,
+   "sfx_json": "lanes/level1/out/sfx-v5.json", "srt": "lanes/level1/out/level1-v5.srt", "card": 1},
+  {"id": "03-level2-ad", "file": "showcase/level2.mov", "gain": 0, "card": 4},
+  {"id": "04-level2-a", "file": "lanes/level2/out/level2-v4.mp4", "lane": "lanes/level2", "srt": "lanes/level2/out/level2-v4.srt",
+   "end": 70.25, "card": 5},
+  {"id": "05-result", "file": "showcase/level2-result.mov", "gain": 2, "card": 7},
+  {"id": "06-level2-b", "file": "lanes/level2/out/level2-v4.mp4", "lane": "lanes/level2", "srt": "lanes/level2/out/level2-v4.srt",
+   "start": 70.5, "no_sfx_in": [[112.0, 114.2]], "sfx_at": [["pop", 3.2]]}
+ ],
+ "extra_audio": [
+  {"after": "00-front", "file": "front/front-full.mov", "ss": 23.87, "db": 0}
+ ],
+ "scenes": {
+  "opening": "Opening · the finished ad",
+  "card_prefix": "Card · ",
+  "after_card": {
+   "Level 1: Code only": "Product ad (full)",
+   "Level 2: Code + AI tools": "Event recap (full)",
+   "The finished promo": "The finished promo (full)"
+  },
+  "at_segment": [
+   {"segment": "01-intro", "name": "Intro"},
+   {"segment": "02-level1", "offset": 16.0, "name": "Level 1 · Code only"},
+   {"segment": "06-level2-b", "name": "Tip 3 · continued"}
+  ]
+ }
+}
