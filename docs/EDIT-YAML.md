@@ -178,6 +178,44 @@ scenes:
 - Reference look: `layout: full` means `webcam: hidden`, `layout: him` means `webcam: full`.
 - Switch on a sentence boundary or the anchor word, not more than about once every 3 s.
 
+### Overlays that stay up: `chip` and `steps`
+
+Top-level `overlays:` are not part of a scene. They stay on screen across scenes, over all three
+layouts and over replicas, and hide only under a chapter card. In the panel layout they sit inside the
+panel; in `full` and `him` they use the whole frame, and they jump with the cut on a layout switch.
+Their `at` / `until` are searched in the whole transcript (use `"phrase#2"` for a second occurrence).
+
+```yaml
+overlays:
+  # the level chip: dark rounded chip, small orange eyebrow, big title; *..* is orange
+  - { type: chip, at: "level two", until: "a little", eyebrow: "What we're building", text: "Level *2* · Add motion", corner: top-left }
+
+  # a strip of steps: "1 · Assets → 2 · Storyboard → 3 · Build → 4 · Sound"
+  - type: steps
+    at: "four steps"
+    until: "add sound"
+    band: true                 # reserve the top of the frame for the strip (see below)
+    items:
+      - { text: Assets, icon: folder-open, at: "keep every file" }     # each step lights on its `at`
+      - { text: Storyboard, icon: layout-grid, at: "ask for a storyboard" }
+      - { text: Build, icon: clapperboard, at: "build it" }
+      - { text: Sound, icon: audio-lines, at: "add sound" }
+```
+
+| `chip` | |
+|---|---|
+| `text` | the big line. Wrap the number in `*..*` to make it orange |
+| `eyebrow` | the small caps line above it (optional) |
+| `corner` | `top-left` (default), `top-right`, `bottom-left`, `bottom-right` |
+
+| `steps` | |
+|---|---|
+| `items` | `[{text, at, icon?}]`. Numbers are added ("1 · Assets"). A step lights on its `at` and stays lit until the next one lights; steps before it stay bright, steps after it are dim. The first step may leave `at` out (lit from the start); give it an `at` to start with no step lit |
+| `place` | `top` (default) or `bottom`: the strip floats over the picture |
+| `band` | `true`: the strip gets its own band at the top. Every scene it overlaps (panel or `full`) is drawn slightly smaller under the band, so the strip never covers a window's title bar or its "Recreated" stamp. Start and end the strip on scene boundaries, because a scene is inset for its whole length. Over `him` the strip floats |
+
+Both take `at`, `until` or `hold`; without an end they stay to the end of the video.
+
 ## Scenes
 
 Every scene has `kind` and `at`. Optional on every scene: `layout:` (`panel | full | him`, above),

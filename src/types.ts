@@ -35,7 +35,17 @@ export type Timeline = {
   chapterGrid: { heading: string; logo: boolean; style?: 'path' };
   chapters: ChapterInfo[];
   scenes: Scene[];
+  // Things that stay up across scenes and layouts (absolute frames). Absent when the edit has none.
+  overlays?: Overlay[];
 };
+
+// chip: a dark rounded chip in a corner (small accent eyebrow, big title; `*2*` in the title is accent).
+// steps: a strip of numbered steps; each lights on its own frame. `band` reserves a strip of the frame
+// for it: every scene it overlaps is drawn slightly smaller underneath, so it never covers a window's
+// title bar.
+export type Overlay =
+  | { type: 'chip'; frame: number; end: number; text: string; eyebrow?: string; corner?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' }
+  | { type: 'steps'; frame: number; end: number; items: { text: string; frame: number; icon?: string }[]; place?: 'top' | 'bottom'; band?: true };
 
 // `plain` / `hidden` come from a scene's `badge:` override: `plain` shows the eyebrow without the
 // "· 3 / 10" count (step still lights the dashes), `hidden` draws no badge.

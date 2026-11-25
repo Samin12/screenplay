@@ -151,3 +151,51 @@ test('ui scales a full-layout replica and is rejected elsewhere', () => {
   assert.equal((t.scenes[0] as { ui?: number }).ui, 1.4);
   assert.ok(warnings(panel('scenes:\n  - { kind: app, at: w0, app: _fixture, ui: 1.4 }')).some((d) => /only applies to a replica in `layout: full`/.test(d.message)));
 });
+
+// ---------- overlays: chip, steps ----------
+
+const ovYaml = y`
+  overlays:
+    - { type: chip, at: w20, until: w60, eyebrow: "What we're building", text: "Level *2* · Motion" }
+    - type: steps
+      at: w41
+      until: w160
+      band: true
+      items:
+        - { text: Assets, icon: folder, at: w60 }
+        - { text: Storyboard, at: w80 }
+        - { text: Build, at: w120 }
+  scenes:
+    - { kind: stage, at: w0, title: Hello }
+    - { kind: app, at: w41, app: _fixture, layout: full }
+`;
+
+test('overlays compile to absolute frames and stay out of the timeline when unused', () => {
+  const r = panel(ovYaml);
+  assert.deepEqual(errors(r), []);
+  const [chip, steps] = r.timeline!.overlays!;
+  assert.deepEqual(chip, { type: 'chip', frame: F(w('w20').start), end: F(w('w60').end), text: 'Level *2* · Motion', eyebrow: "What we're building" });
+  assert.equal(steps.type, 'steps');
+  if (steps.type !== 'steps') return;
+  assert.equal(steps.band, true);
+  assert.deepEqual(steps.items.map((i) => i.frame), [F(w('w60').start), F(w('w80').start), F(w('w120').start)]);
+  assert.equal(steps.items[0].icon, 'folder');
+  assert.ok(!('overlays' in panel('scenes:\n  - { kind: stage, at: w0, title: Hello }').timeline!));
+  // they show up in the event list, so sheets and the pacing lint see them
+  assert.ok(r.meta.events.some((e) => e.label.startsWith('overlay chip')) && r.meta.events.some((e) => e.label === 'overlay steps 3'));
+});
+
+test('overlay mistakes are errors with a path', () => {
+  const bad = panel(y`
+    overlays:
+      - { type: banner, at: w0 }
+      - { type: chip, at: w0 }
+      - { type: steps, at: w0, items: [ { text: A }, { text: B } ] }
+    scenes:
+      - { kind: stage, at: w0, title: Hello }
+  `);
+  const msgs = errors(bad).map((e) => `${e.path}: ${e.message}`).join('\n');
+  assert.match(msgs, /overlays\[0\]\.type/);
+  assert.match(msgs, /overlays\[1\]\.text: chip needs `text`/);
+  assert.match(msgs, /overlays\[2\]\.items\[1\]\.at: every step after the first needs `at:`/);
+});

@@ -20,6 +20,7 @@ import type {
   ChapterScene,
   Element,
   Look,
+  Overlay,
   Plate,
   PlateBlur,
   PlugScene,
@@ -308,7 +309,7 @@ class Compiler {
       this.err([], 'edit.yaml must be a mapping with `scenes:`');
       return this.result(null);
     }
-    for (const k of Object.keys(root)) if (!['title', 'look', 'theme', 'camera', 'chapters', 'scenes', 'notes', 'note'].includes(k)) this.warn([k], `unknown top-level field "${k}" (ignored)`);
+    for (const k of Object.keys(root)) if (!['title', 'look', 'theme', 'camera', 'chapters', 'scenes', 'notes', 'note', 'overlays'].includes(k)) this.warn([k], `unknown top-level field "${k}" (ignored)`);
 
     const { aroll, source } = this.input;
     if (!this.input.words) this.warn([], 'words.out.json missing: only w-id-free anchors (o:12.5) can resolve');
@@ -553,12 +554,75 @@ class Compiler {
       chapters: chapterInfos,
       scenes: segs.map((s) => s.scene),
     };
+    const overlays = this.overlays(root.overlays);
+    if (overlays.length) timeline.overlays = overlays;
     return this.result(timeline);
   }
 
   result(timeline: Timeline | null): CompileResult {
     const errors = this.diags.filter((d) => d.level === 'error').length;
     return { timeline: errors ? null : timeline, diags: this.diags, meta: this.meta, errors, warnings: this.diags.length - errors };
+  }
+
+  // Top-level `overlays:`: a chip or a steps strip that stays up across scenes and layouts.
+  overlays(raw: unknown): Overlay[] {
+    if (raw === undefined || raw === null) return [];
+    if (!Array.isArray(raw)) {
+      this.err(['overlays'], 'overlays must be a list of {type: chip | steps, at, until, ...}');
+      return [];
+    }
+    const ctx = this.ctx({ i: -1, path: ['overlays'], kind: 'talking', raw: {}, anchorT: 0, baseF: 0, endF: this.totalF, durF: this.totalF, window: { from: 0, to: this.total } });
+    const out: Overlay[] = [];
+    raw.forEach((o, k) => {
+      const p: P = ['overlays', k];
+      if (!isObj(o) || (o.type !== 'chip' && o.type !== 'steps')) return this.err(isObj(o) ? [...p, 'type'] : p, 'an overlay is {type: chip, text, eyebrow, corner} or {type: steps, items: [{text, at}]}, each with at / until');
+      const fields = o.type === 'chip' ? ['text', 'eyebrow', 'corner'] : ['items', 'place', 'band'];
+      for (const key of Object.keys(o)) if (!['type', 'at', 'until', 'hold', 'note', ...fields].includes(key)) this.warn([...p, key], `unknown field "${key}" for a ${o.type} overlay (ignored); fields: at, until, hold, ${fields.join(', ')}`);
+      const frame = ctx.at(o.at, [...p, 'at'], 0);
+      const end = o.until === undefined && o.hold === undefined ? this.totalF : ctx.holdEnd(o, p, frame, this.totalF);
+      let label: string;
+      if (o.type === 'chip') {
+        if (typeof o.text !== 'string' || !o.text.trim()) return this.err([...p, 'text'], 'chip needs `text`, e.g. "Level *2* · Add motion"');
+        const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const;
+        const corner = o.corner === undefined ? undefined : corners.find((c) => c === o.corner) ?? (this.err([...p, 'corner'], `corner must be one of: ${corners.join(', ')}`), undefined);
+        const chip: Overlay = { type: 'chip', frame, end, text: ctx.text([...p, 'text'], o.text, true) };
+        if (o.eyebrow !== undefined) chip.eyebrow = ctx.text([...p, 'eyebrow'], o.eyebrow);
+        if (corner) chip.corner = corner;
+        out.push(chip);
+        label = `chip "${short(chip.text)}"`;
+      } else {
+        if (!Array.isArray(o.items) || o.items.length === 0) return this.err([...p, 'items'], 'steps needs `items: [{text, at}]`');
+        let last = frame;
+        const items = o.items.map((it, j) => {
+          const ip: P = [...p, 'items', j];
+          const obj: Record<string, unknown> = isObj(it) ? it : { text: it };
+          if (obj.at === undefined && j > 0) this.err([...ip, 'at'], 'every step after the first needs `at:` (the word it lights on)');
+          const f = Math.max(last, Math.min(end - 1, obj.at === undefined ? frame : ctx.at(obj.at, [...ip, 'at'], last, last)));
+          last = f;
+          const item: { text: string; frame: number; icon?: string } = { text: ctx.text([...ip, 'text'], obj.text ?? '', true), frame: f };
+          if (obj.text === undefined) this.err([...ip, 'text'], 'step needs `text`');
+          const icon = ctx.icon([...ip, 'icon'], obj.icon);
+          if (icon) item.icon = icon;
+          this.meta.events.push({ frame: f, kind: 'item', label: `steps item "${short(item.text)}"`, path: fmtPath(ip), scene: 'overlay' });
+          return item;
+        });
+        const strip: Overlay = { type: 'steps', frame, end, items };
+        if (o.place !== undefined) {
+          if (o.place === 'top' || o.place === 'bottom') strip.place = o.place;
+          else this.err([...p, 'place'], 'place must be top or bottom');
+        }
+        if (o.band === true) {
+          if (strip.place === 'bottom') this.warn([...p, 'band'], 'band reserves the top of the frame; `place: bottom` is ignored');
+          strip.band = true;
+          delete strip.place;
+        } else if (o.band !== undefined && o.band !== false) this.err([...p, 'band'], 'band must be true or false');
+        out.push(strip);
+        label = `steps ${items.length}`;
+      }
+      this.meta.events.push({ frame, end, kind: 'element', label: `overlay ${label}`, path: fmtPath(p), line: this.line(p), scene: 'overlay' });
+    });
+    this.meta.events.sort((a, b) => a.frame - b.frame);
+    return out;
   }
 
   // `layout: panel | full | him` (+ `cut: hard` on a `webcam: full` scene, + `transition: morph`).

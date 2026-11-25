@@ -8,6 +8,8 @@ import { CanvasBackdrop, PanelFrame, PanelView } from './layers/Panel';
 import { StepBadgeLayer } from './layers/StepBadge';
 import { PANEL_VIEW, fullPlate } from './theme/panel';
 import { SnapProvider } from './lib/snap';
+import { BAND_FULL, BAND_PANEL, BandInset, OverlayLayer, bandFor } from './layers/Overlays';
+import { PANEL } from './theme/panel';
 import { AppSceneView } from './app/AppScene';
 import { StageSceneView, TalkingOverlay } from './scenes/StageScene';
 import { ChapterSceneView } from './scenes/ChapterScene';
@@ -78,13 +80,20 @@ export const Main: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
   const sceneLayer = (s: Scene) => {
     const lead = transitionOverlap(s.transitionIn, fps);
     const body = <SceneBody scene={s} timeline={timeline} />;
+    // Under a `band: true` steps strip the scene is drawn slightly smaller, below the strip.
+    const band = bandFor(timeline, s);
+    const cover = isCover(timeline, s);
     const framed = !panel ? (
-      body
-    ) : s.kind === 'chapter' || isCover(timeline, s) ? (
+      band ? <BandInset band={BAND_FULL} height={timeline.height}>{body}</BandInset> : body
+    ) : s.kind === 'chapter' || cover ? (
       <>
         <CanvasBackdrop from={s.from - lead} />
-        {body}
+        {band ? <BandInset band={BAND_FULL} height={timeline.height}>{body}</BandInset> : body}
       </>
+    ) : band ? (
+      <BandInset band={BAND_PANEL} height={PANEL.h}>
+        <PanelView fill={s.kind === 'app' || s.kind === 'stage' || s.kind === 'talking'}>{body}</PanelView>
+      </BandInset>
     ) : (
       <PanelView fill={s.kind === 'app' || s.kind === 'stage' || s.kind === 'talking'}>{body}</PanelView>
     );
@@ -105,6 +114,7 @@ export const Main: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
         <WebcamLayer timeline={timeline} />
         {panel ? <StepBadgeLayer timeline={timeline} /> : null}
         {timeline.scenes.filter((s) => isCover(timeline, s)).map(sceneLayer)}
+        {panel ? <OverlayLayer timeline={timeline} /> : null}
         {panel ? timeline.scenes.filter((s) => s.kind === 'chapter').map(sceneLayer) : null}
         {timeline.scenes
           .filter((s): s is Extract<Scene, { kind: 'talking' }> => s.kind === 'talking' && s.elements.length > 0 && !isCover(timeline, s) && (!panel || webcamAt(timeline, s.from + 12) === 'full'))
@@ -115,6 +125,7 @@ export const Main: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
               </SnapProvider>
             </Sequence>
           ))}
+        {panel ? null : <OverlayLayer timeline={timeline} />}
         {timeline.scenes
           .filter((s) => s.transitionIn === 'flash')
           .map((s) => (
