@@ -53,6 +53,40 @@ Rules (Remotion renders frames out of order, in several tabs):
 4. **Interactive styling** comes from `ui`: `isHover(ui, t)`, `isPressed(ui, t)` (or the `fill()`
    helper in `_shared/kit.tsx`). The cursor sets hover on arrival and pressed for ~5 frames on click.
 
+### The "Recreated" stamp stays readable when the camera pushes in
+
+Replicas with a `stamp` target (`claude-desktop` light, `finder`) draw `data.stamp` as an amber pill
+in their title bar. When `camera: {scale, target}` or a `zoom` beat pushes in far enough that the pill
+leaves the view, the engine pins the same pill to the top right of the view, fading it in exactly as
+much as the window's own pill is cut off, so a recreated window is never shown without its stamp.
+Nothing to set: it follows `data.stamp`. A new replica gets this by giving its pill `data-target="stamp"`.
+
+```yaml
+- kind: app
+  app: claude-desktop
+  layout: full
+  data: { theme: light, stamp: Recreated }
+  camera: { scale: 1.6, target: composer }       # pushed in: the stamp is pinned top right
+  beats:
+    - { at: "type the prompt", zoom: composer, scale: 1.35, until: "send it" }   # or only for a beat
+```
+
+### Cards over a window: `show:` with `fit: wide`
+
+`show:` puts a stage element over the dimmed window. Add `fit: wide` to the beat when the card should
+fill the frame (an image at 16:9 or wider covers about 95% of the scene's width; without it image cards
+stop at 1.4 times their own pixels inside an inset box):
+
+```yaml
+    - { at: "the plan", show: { type: image, src: media/storyboard.png, size: [1280, 720] }, fit: wide }
+```
+
+### Replicas on the whole frame
+
+`layout: full` on the scene draws the window on the whole frame with no tile, 1.25 times bigger than
+its design size (`ui:` changes that). See "Three layouts" in `docs/EDIT-YAML.md`. A `steps` strip with
+`band: true` sits above the window instead of over its title bar.
+
 ### How the engine uses targets
 
 - `src/app/Measure.tsx` renders the replica invisibly **once per state boundary** (frame 0 and every

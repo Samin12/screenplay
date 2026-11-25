@@ -74,7 +74,7 @@ const BEAT_FIELDS: Record<Verb, string[]> = {
   zoom: ['scale'],
   mark: ['style'],
   title: ['sub'],
-  show: [],
+  show: ['fit'],
 };
 const BEAT_COMMON = ['at', 'until', 'hold', 'note'];
 const IMAGE_EXT = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif'];
@@ -680,7 +680,7 @@ class Compiler {
     const stepTitles: string[] = [];
     const items = isObj(raw) ? raw.items : undefined;
     if (raw !== undefined && !isObj(raw)) this.err(['chapters'], 'chapters must be {heading, logo, items: [...]}');
-    if (isObj(raw)) for (const k of Object.keys(raw)) if (!['heading', 'logo', 'items', 'badge', 'style', 'breather'].includes(k)) this.warn(['chapters', k], `unknown field "${k}" (ignored)`);
+    if (isObj(raw)) for (const k of Object.keys(raw)) if (!['heading', 'logo', 'items', 'badge', 'style'].includes(k)) this.warn(['chapters', k], `unknown field "${k}" (ignored)`);
     if (items !== undefined && !Array.isArray(items)) this.err(['chapters', 'items'], 'chapters.items must be a list');
     const list = Array.isArray(items) ? items : [];
     const cardF = Math.round((this.look === 'panel' ? PANEL_CHAPTER_CARD_S : CHAPTER_CARD_S) * this.fps);
@@ -1072,6 +1072,8 @@ class Compiler {
         this.elementEvents(sc, el, [...p, 'show'], 'show ');
         Object.assign(this.meta.events[at], { kind: 'beat', verb: 'show' });
         a = { do: 'show', frame, end: Math.max(e, el.end), element: el };
+        if (b.fit === 'wide') a.fit = 'wide';
+        else if (b.fit !== undefined && b.fit !== 'box') this.err([...p, 'fit'], 'fit must be wide or box (default)');
         break;
       }
     }

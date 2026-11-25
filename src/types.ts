@@ -135,7 +135,8 @@ export type Action =
   | { do: 'zoom'; frame: number; end: number; target?: string; rect?: Rect; scale: number }
   | { do: 'mark'; frame: number; end: number; target: string; style: 'ring' | 'marker' | 'underline' }
   | { do: 'title'; frame: number; end: number; text: string; sub?: string }
-  | { do: 'show'; frame: number; end: number; element: Element };
+  // fit 'wide': the card may fill nearly the whole view (an image at 16:9 or wider reaches 85%+ of its width).
+  | { do: 'show'; frame: number; end: number; element: Element; fit?: 'wide' };
 
 // ---------- Stage elements (frames relative to scene start) ----------
 // Every element enters at `frame` and leaves at `end`. Items inside an element carry their own

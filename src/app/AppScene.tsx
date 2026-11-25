@@ -12,6 +12,8 @@ import { useLook, useTheme } from '../theme/ThemeContext';
 import { ElementView } from '../stage/ElementView';
 import { Vignette } from '../layers/Backgrounds';
 import { tileBox } from '../layers/Webcam';
+import { Ico } from '../replicas/_shared/kit';
+import { WideFit } from '../stage/ElementView';
 
 // The "screen recording" that is not a recording: a replica (or a real screenshot/recording plate)
 // framed by a virtual camera, with a scripted cursor and the reference's emphasis vocabulary.
@@ -55,7 +57,7 @@ const ReplicaPlate: React.FC<{ scene: AppScene; def: ReplicaDef; webcam?: Webcam
   return (
     <AbsoluteFill>
       {measurer}
-      {rects ? <Stage scene={scene} adapter={adapter} rects={rects} bounds={bounds} base={base} webcam={webcam} view={view} /> : null}
+      {rects ? <Stage scene={scene} adapter={adapter} rects={rects} bounds={bounds} base={base} webcam={webcam} view={view} stamp={typeof data.stamp === 'string' && data.stamp ? data.stamp : undefined} /> : null}
     </AbsoluteFill>
   );
 };
@@ -100,7 +102,7 @@ const MediaPlate: React.FC<{ scene: AppScene; webcam?: WebcamMode; view?: [numbe
 
 type LiftBox = { key: string; src: Rect; cur: Rect; p: number; plateRect: Rect; label?: string; labelStart?: number };
 
-const Stage: React.FC<{ scene: AppScene; adapter: PlateAdapter; rects: Rects[]; bounds: number[]; base: Record<string, unknown>; webcam?: WebcamMode; view?: [number, number] }> = ({
+const Stage: React.FC<{ scene: AppScene; adapter: PlateAdapter; rects: Rects[]; bounds: number[]; base: Record<string, unknown>; webcam?: WebcamMode; view?: [number, number]; stamp?: string }> = ({
   scene,
   adapter,
   rects,
@@ -108,6 +110,7 @@ const Stage: React.FC<{ scene: AppScene; adapter: PlateAdapter; rects: Rects[]; 
   base,
   webcam,
   view,
+  stamp,
 }) => {
   const frame = useCurrentFrame();
   const config = useVideoConfig();
@@ -237,9 +240,14 @@ const Stage: React.FC<{ scene: AppScene; adapter: PlateAdapter; rects: Rects[]; 
       scrim = Math.max(scrim, 0.72 * f);
       if (f > 0) {
         const el = a.do === 'title' ? ({ type: 'title', frame: a.frame, end: a.end, text: a.text, sub: a.sub, size: 'l' } as const) : a.element;
+        // `fit: wide`: the card may use nearly the whole view instead of the usual inset box.
+        const wide = a.do === 'show' && a.fit === 'wide';
+        const box = wide ? { x: 20, y: 16, w: width - 40, h: height - 32 } : view ? { x: 60, y: 60, w: width - 120, h: height - 120 } : { x: 160, y: 120, w: width - 320, h: height - 240 };
         overlays.push(
           <AbsoluteFill key={k} style={{ zIndex: 5 }}>
-            <ElementView el={el} box={view ? { x: 60, y: 60, w: width - 120, h: height - 120 } : { x: 160, y: 120, w: width - 320, h: height - 240 }} />
+            <WideFit.Provider value={wide}>
+              <ElementView el={el} box={box} />
+            </WideFit.Provider>
           </AbsoluteFill>,
         );
       }
@@ -259,6 +267,20 @@ const Stage: React.FC<{ scene: AppScene; adapter: PlateAdapter; rects: Rects[]; 
       cursorScale = k;
     }
   }
+
+  // The "Recreated" stamp must stay readable. When the camera pushes in and the window's own stamp
+  // leaves the view, the same pill is pinned to the view's top right, as visible as the real one is cut off.
+  let pinned = 0;
+  if (stamp) {
+    const r = lookup(frame, 'stamp');
+    if (r) {
+      const sr = tf.rectToScreen(r);
+      const iw = Math.max(0, Math.min(width, sr.x + sr.w) - Math.max(0, sr.x));
+      const ih = Math.max(0, Math.min(height, sr.y + sr.h) - Math.max(0, sr.y));
+      pinned = 1 - Math.min(1, (iw * ih) / Math.max(1, sr.w * sr.h));
+    }
+  }
+  const stampK = Math.min(width / adapter.size[0], height / adapter.size[1]) * 1.15;
 
   const tooltipRect = cursor.tooltip ? lookup(frame, cursor.tooltip.target) : undefined;
   const ringRect = cursor.clickRing ? lookup(frame, cursor.clickRing.target) : undefined;
@@ -333,6 +355,32 @@ const Stage: React.FC<{ scene: AppScene; adapter: PlateAdapter; rects: Rects[]; 
         );
       })}
       {overlays}
+      {stamp && pinned > 0.01 ? (
+        <div
+          style={{
+            position: 'absolute',
+            right: 22,
+            top: 20,
+            height: 34 * stampK,
+            padding: `0 ${15 * stampK}px`,
+            borderRadius: 17 * stampK,
+            background: '#fff1d6',
+            border: '1px solid #f0d49a',
+            boxShadow: '0 6px 18px rgba(0,0,0,0.28)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8 * stampK,
+            font: `600 ${18 * stampK}px Inter, system-ui, sans-serif`,
+            color: '#8a5a00',
+            whiteSpace: 'nowrap',
+            opacity: pinned,
+            zIndex: 6,
+          }}
+        >
+          <Ico name="rotate-ccw" size={17 * stampK} color="#8a5a00" stroke={2.2} />
+          {stamp}
+        </div>
+      ) : null}
       {tooltipRect && cursor.tooltip ? <Tooltip rect={tf.rectToScreen(tooltipRect)} text={cursor.tooltip.text} frame={frame} since={cursor.tooltip.since} fps={fps} /> : null}
       {ringRect && cursor.clickRing ? <ClickRing rect={tf.rectToScreen(ringRect)} age={cursor.clickRing.age} fps={fps} /> : null}
       {cursor.visible ? <Cursor x={cursorScreen.x} y={cursorScreen.y} scale={cursorScale} pressed={!!cursor.pressed} /> : null}

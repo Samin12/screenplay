@@ -1,7 +1,7 @@
 import React from 'react';
 import { Img, OffthreadVideo, Sequence } from 'remotion';
 import type { ImageMark } from '../../../types';
-import type { ElementProps } from '../../ElementView';
+import { WideFit, type ElementProps } from '../../ElementView';
 import { useLook, useTheme } from '../../../theme/ThemeContext';
 import { easeOut, msToFrames, progress } from '../../../lib/anim';
 import { Icon } from '../../../ui/Icon';
@@ -27,6 +27,7 @@ export const ImageCard: React.FC<ElementProps<'image'>> = ({ el, box, frame, fps
   const t = useTheme();
   const dark = isDark(t);
   const panelLook = useLook() === 'panel';
+  const wide = React.useContext(WideFit);
   const hasFooter = Boolean(el.caption || el.source);
   const footerH = hasFooter ? 92 : 0;
   const barH = el.url ? BAR_H : 0;
@@ -34,7 +35,7 @@ export const ImageCard: React.FC<ElementProps<'image'>> = ({ el, box, frame, fps
   const aspect = view && view.w > 0 && view.h > 0 ? view.w / view.h : 16 / 10;
   const availW = box.w - 24;
   const availH = box.h - footerH - barH - 24;
-  const w = Math.max(100, Math.min(availW, availH * aspect, panelLook && view ? view.w * MAX_UPSCALE : Infinity));
+  const w = Math.max(100, Math.min(availW, availH * aspect, panelLook && view && !wide ? view.w * MAX_UPSCALE : Infinity));
   const h = w / aspect;
   const k = view ? w / view.w : 1;
 

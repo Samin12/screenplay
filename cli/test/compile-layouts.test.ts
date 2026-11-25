@@ -199,3 +199,28 @@ test('overlay mistakes are errors with a path', () => {
   assert.match(msgs, /overlays\[1\]\.text: chip needs `text`/);
   assert.match(msgs, /overlays\[2\]\.items\[1\]\.at: every step after the first needs `at:`/);
 });
+
+// ---------- show: fit ----------
+
+test('fit: wide rides on a show beat; anything else is an error', () => {
+  const ok = panel(y`
+    scenes:
+      - kind: app
+        at: w0
+        app: _fixture
+        beats:
+          - { at: w20, show: { type: title, text: "Big" }, fit: wide }
+          - { at: w60, show: { type: title, text: "Normal" } }
+  `);
+  assert.deepEqual(errors(ok), []);
+  const shows = (ok.timeline!.scenes[0] as { actions: { do: string; fit?: string }[] }).actions.filter((a) => a.do === 'show');
+  assert.deepEqual(shows.map((a) => a.fit), ['wide', undefined]);
+  assert.ok(!('fit' in shows[1]));
+  const bad = panel('scenes:\n  - { kind: app, at: w0, app: _fixture, beats: [ { at: w20, show: { type: title, text: Big }, fit: huge } ] }');
+  assert.ok(errors(bad).some((e) => /fit must be wide/.test(e.message)));
+});
+
+test('chapters.breather is not an engine feature: it is reported, not silently accepted', () => {
+  const r = panel(pathYaml.replace('  style: path\n', '  style: path\n  breather: { seconds: 1 }\n'));
+  assert.ok(warnings(r).some((d) => d.path === 'chapters.breather' && /unknown field/.test(d.message)));
+});

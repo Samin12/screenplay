@@ -216,6 +216,23 @@ overlays:
 
 Both take `at`, `until` or `hold`; without an end they stay to the end of the video.
 
+### A `show:` card that fills the frame: `fit: wide`
+
+A `show:` beat draws its element in an inset box over the dimmed window, and image cards stop at 1.4
+times their own pixels. `fit: wide` on the beat lets the card use nearly the whole view: an image at
+16:9 or wider then covers about 95% of the scene's width (it is height-bound if it is taller than that).
+
+```yaml
+beats:
+  - { at: "the plan", show: { type: image, src: media/storyboard.png, size: [1280, 720] }, fit: wide, until: "come back" }
+```
+
+### What the engine does not do
+
+- **Chapter breather** (a 1 s pause with room tone while the card builds): not in the engine. It
+  inserts time, so it belongs where the whole video is assembled; `chapters.breather` is reported as an
+  unknown field.
+
 ## Scenes
 
 Every scene has `kind` and `at`. Optional on every scene: `layout:` (`panel | full | him`, above),

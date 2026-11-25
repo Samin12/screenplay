@@ -15,6 +15,9 @@ export type ElementProps<T extends Element['type'] = Element['type']> = {
   fps: number;
 };
 
+// A `show:` beat with `fit: wide`: cards inside may grow past their usual size limits.
+export const WideFit = React.createContext(false);
+
 export const ElementView: React.FC<{ el: Element; box: Rect }> = ({ el, box }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();

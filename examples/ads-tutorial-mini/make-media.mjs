@@ -2,7 +2,8 @@
 // Builds this example's placeholder media. Nothing here is real footage:
 //   aroll.mp4      a neutral gradient with a simple moving shape standing in for the presenter, and
 //                  "speech" that is a short tone burst for every word in words.out.json over low room noise
-//   media/*.png    four flat colour cards used as the photos in the Finder window
+//   media/*.png    four flat colour cards used as the photos in the Finder window, and a three-panel
+//                  "storyboard" card
 // Needs ffmpeg on PATH and Node 22+. Run:  node examples/ads-tutorial-mini/make-media.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -64,6 +65,18 @@ for (const [name, a, b] of cards) {
     return [c[0], c[1], c[2], 255];
   });
 }
+
+// ---- a three-panel "storyboard" card, 16:9 ----
+png(path.join(DIR, 'media', 'storyboard.png'), 1280, 720, (x, y) => {
+  const col = Math.floor((x - 40) / 410);
+  const inPanel = x >= 40 && col < 3 && (x - 40) % 410 < 380 && y >= 150 && y < 570;
+  if (!inPanel) return [247, 244, 238, 255];
+  const [a, b] = [cards[col][1], cards[col][2]];
+  const t = (((x - 40) % 410) + (y - 150)) / 800;
+  const inner = Math.abs(((x - 40) % 410) - 190) < 70 + col * 25 && Math.abs(y - 360) < 60 + col * 20;
+  const c = inner ? [252, 250, 245] : a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  return [c[0], c[1], c[2], 255];
+});
 
 // ---- the "voice": room noise plus a soft tone burst for every word ----
 const SR = 48000;
