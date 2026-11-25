@@ -88,8 +88,7 @@ A script is still needed for what crosses lanes:
 
 **The one trap:** a lane that turns on `chapters.breather` must have `"breathers": false` on its segment in the
 assembly config, or it gets two breathers at every card (the engine's, then the assembler's).
-With `"breathers": false` the assembler leaves that lane's cards alone, so it also does not list them:
-copy their times from the lane's `<render>.chapters.txt` into the master's chapter list. Details:
+The lane's chapters still go into the master's `.chapters.txt`, the card spans and the Borumi card scenes, named from the lane (`Label: Title`) unless `lane_card_index` maps them to the shared list. Details:
 [chapter-cards.md](references/chapter-cards.md). `compose_layouts.py` and `chapter_cards.py` are the
 fallbacks for an older engine; `chapter_cards.py` also makes the cross-lane cards.
 

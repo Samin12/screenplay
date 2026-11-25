@@ -94,7 +94,7 @@ Pick one per lane:
 
 | | Lane `edit.yaml` | Segment in `assemble.json` | Master chapter list and Borumi card scenes |
 |---|---|---|---|
-| Engine does it | `chapters.style: path` + `chapters.breather` | `"breathers": false` | the assembler leaves that lane's cards alone and does not list them: add their times from the lane's `<render>.chapters.txt` (plus the segment's start in `.segments.json`) |
+| Engine does it | `chapters.style: path` + `chapters.breather` | `"breathers": false` | complete: the assembler does not retime the lane, and reads its chapters from the lane's timeline |
 | Assembler does it (how this edit was made; also the fallback for an engine without the path card) | `chapters:` with **no** `breather` | default, with `lane_card_index` / `card_index` and the card movies from `chapter_cards.py` | complete, written by the assembler |
 
 ## In Borumi

@@ -289,13 +289,17 @@ def rms_profile(path, center, span=0.3, frame=0.02):
 # ---------------------------------------------------------------- headless Chrome
 
 def find_chrome(explicit=None):
-    """A Chrome/Chromium binary for HTML -> PNG screenshots: --chrome, then $CHROME, then PATH."""
+    """A Chrome/Chromium binary for HTML -> PNG screenshots: --chrome, then $CHROME, then PATH, then /Applications (macOS)."""
     cands = [explicit, os.environ.get("CHROME")]
     cands += [shutil.which(n) for n in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome")]
     for c in cands:
         if c and os.path.exists(os.path.expanduser(c)):
             return os.path.expanduser(c)
-    sys.exit("no Chrome/Chromium found on PATH: pass --chrome <path to the binary> or set $CHROME")
+    for std in ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/Applications/Chromium.app/Contents/MacOS/Chromium",
+                "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"):
+        if os.path.exists(std):
+            return std
+    sys.exit("no Chrome/Chromium found on PATH or in /Applications: pass --chrome <path to the binary> or set $CHROME")
 
 
 def screenshot(chrome, html_path, png_path, width=1920, height=1080, transparent=False):

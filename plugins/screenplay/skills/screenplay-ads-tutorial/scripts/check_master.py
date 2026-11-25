@@ -17,6 +17,8 @@ CHECKS
   breathers    floor / quiet / peak / bump of each card's first second FAIL on digital silence or a transient (a looped
                (measured on the no-SFX master, so the chapter click     chuckle or breath in the room tone); WARN-only when
                does not count as a transient)                          only the final mix is there
+               A card a lane rendered itself (engine chapters.breather; "breathers": false in the config) has the
+               engine's click in its audio, so its transient is not judged here: listen to those cards.
   joins        the frame before and after every segment join, as a      WARN on a dark frame that is not a card (cards
                contact sheet <base>.joins.jpg (or in -o). The real cut  fade in from dark, so those are expected), and
                is found in the frames around the planned time, and its  when a cut sits more than 2 frames from the plan
@@ -143,10 +145,11 @@ def main():
             row("silence", mmss(s0), f"{sd:.2f} s", "FAIL")
     # ---- breathers
     src = nosfx if os.path.exists(nosfx) else mp4
-    for s0, s1, title in d["card_spans"]:
+    for s0, s1, title, *kind in d["card_spans"]:
         st = av.window_stats(av.decode(src, s0, s0 + 1.0))
         val = f"floor {st['floor_db']:.0f} quiet {st['quiet_db']:.0f} peak {st['peak_db']:.0f} dB bump {st['bump']:.1f}"
-        bad = st["flags"] if src == nosfx else [f for f in st["flags"] if f != "transient"]
+        baked = "lane" in kind                       # the lane rendered its own card: the engine's click is in its audio
+        bad = st["flags"] if src == nosfx and not baked else [f for f in st["flags"] if f != "transient"]
         verdict = "FAIL" if bad else ("warn" if st["flags"] else "ok")
         row("breather", f"{mmss(s0)} {title}"[:44], val + (" " + "+".join(st["flags"]) if st["flags"] else ""), verdict)
     if src != nosfx:

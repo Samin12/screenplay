@@ -52,7 +52,7 @@ def main():
     after = names.get("after_card", {})
 
     sc = {0.0: names.get("opening", "Opening")}
-    for s0, s1, title in d["card_spans"]:
+    for s0, s1, title, *_ in d["card_spans"]:
         sc[s0] = prefix + title
         sc[s1] = after.get(title, title.replace(": ", " · "))
     for e in names.get("at_segment", []):

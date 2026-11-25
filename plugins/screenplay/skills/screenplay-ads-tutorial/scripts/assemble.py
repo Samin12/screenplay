@@ -64,7 +64,8 @@ CONFIG (JSON; relative paths are relative to the config file, ~ is expanded). Se
      "gain"          dB
      "card"          insert the card of this chapter index before the segment
      "chapter"       a plain chapter title that starts at this segment (no card)
-     "breathers"     false = leave the lane's own chapter cards alone
+     "breathers"     false = leave the lane's own chapter cards alone (use it when the lane has
+                     chapters.breather on); its chapters still go into .chapters.txt and card_spans
      "card_index"    per-segment override of "lane_card_index"
      "srt", "srt_offset"   the segment's captions
      "sfx"           false = no derived SFX for this lane
@@ -178,6 +179,8 @@ def main():
 
     CHN = cfg.get("chapters") or []
     if isinstance(CHN, str):
+        if not os.path.exists(x(CHN)):
+            sys.exit(f'"chapters" points at {x(CHN)}, which does not exist: write the list in the config, or make it with chapter_cards.py')
         CHN = av.load_json(x(CHN))
     CHN = [c["title"] if isinstance(c, dict) else c for c in CHN]
     LANE_IDX = {int(k): int(v) for k, v in (cfg.get("lane_card_index") or {}).items()}
@@ -248,9 +251,10 @@ def main():
                     return got
         sys.exit("no clean room tone found for the inserted cards: make one with room_tone.py and set shared_tone.file")
 
-    card_spans = []                                  # [start, end, title] of every chapter card in the master
+    card_spans = []                                  # [start, end, title(, "lane")] of every chapter card in the master
     plan, T = [], 0.0
     all_sfx, chapters, srt = [], [], []
+    lane_names = set()                               # chapter titles taken from lanes that keep their own cards
     for seg in cfg["segments"]:
         f = use(x(seg["file"]))
         dur_file = av.duration(f, "v")
@@ -293,6 +297,19 @@ def main():
                                      f'lane_card_index; add one, or set "breathers": false on the segment')
                         ctimes.append(t)
                         cidx.append((num, idx_map[num]))
+        # "breathers": false = the lane already has its cards and breathers (chapters.breather in the
+        # engine). Nothing is retimed, but its chapters still go into .chapters.txt and card_spans.
+        own = []
+        if tl and not seg.get("breathers", True):
+            br = {int(z["at"]): z["frames"] / FPS for z in (tl.get("aroll") or {}).get("breathers") or []}
+            for c in tl["chapters"]:
+                if c.get("frame", -1) >= 0:
+                    t = off + c["frame"] / FPS
+                    if s0 - 1e-6 <= t < s1 - 1.0:
+                        num = c["index"] + 1
+                        name = CHN[idx_map[num]] if num in idx_map and idx_map[num] < len(CHN) else \
+                            (f'{c["label"]}: {c["title"]}' if c.get("label") else c.get("title", f"Chapter {num}"))
+                        own.append((t, name, br.get(int(c["frame"]), 0.0)))
         qtimes = [av.quiet_point(f, c) for c in ctimes]          # where the audio pauses (<= card time)
 
         def m(t, ct=qtimes, s0=s0):          # file time (speech/audio) -> time inside this segment's intermediate
@@ -363,6 +380,10 @@ def main():
             chapters.append([t_pause, CHN[k]])
             card_spans.append([t_pause, T + mv(c) + 3.0, CHN[k]])
             all_sfx.append(["chapter", t_pause, f"{seg['id']} tip {num} card"])
+        for t, name, breath in own:
+            chapters.append([T + (t - s0), name])
+            card_spans.append([T + (t - s0), T + (t - s0) + breath + 2.0, name, "lane"])   # "lane": its click is baked into the lane audio
+            lane_names.add(name)
         # ---- sound effects
         if seg.get("sfx_json"):
             p = use(x(seg["sfx_json"]), media=False)
@@ -413,7 +434,7 @@ def main():
     # ---- chapters: first title pinned to 0:00; YouTube wants each at least 10 s long
     chapters.sort()
     first = CHN[0] if CHN else (chapters[0][1] if chapters else None)
-    known = set(CHN) | {s["chapter"] for s in cfg["segments"] if s.get("chapter")}
+    known = set(CHN) | lane_names | {s["chapter"] for s in cfg["segments"] if s.get("chapter")}
     clean = ([[0.0, first]] if first else []) + [[t, n] for t, n in chapters if n != first and n in known]
     short_ones = [(a2, b2) for a2, b2 in zip(clean, clean[1:]) if b2[0] - a2[0] < 10]
     if short_ones:

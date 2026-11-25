@@ -13,9 +13,7 @@ lanes, and the Borumi working edit. `scripts/compose_layouts.py` and `scripts/ch
 fallbacks for an older engine; `chapter_cards.py` also makes the cross-lane cards.
 
 **The one trap:** a lane that turns on `chapters.breather` must have `"breathers": false` on its segment in the
-assembly config, or it gets two breathers at every card (the engine's, then the assembler's). The key's own meaning is "leave the lane's own chapter
-cards alone", so the assembler then also leaves that lane's cards out of `.chapters.txt` and the card
-spans: add them from the lane's `<render>.chapters.txt`. The two ways to set a lane up are in
+assembly config, or it gets two breathers at every card (the engine's, then the assembler's). The lane's chapters still go into the master's `.chapters.txt`, the card spans and the Borumi card scenes, named from the lane (`Label: Title`) unless `lane_card_index` maps them to the shared list. `check_master.py` does not judge the transient on those cards (the engine's click is in the lane's audio): listen to them. The two ways to set a lane up are in
 [chapter-cards.md](chapter-cards.md).
 
 ## The segments config

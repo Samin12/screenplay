@@ -20,8 +20,7 @@ edit (`make_scenes.py`, `borumi_*.py`). `compose_layouts.py` and `chapter_cards.
 for an older engine that has no `layout:` or no path card.
 
 **The one trap:** a lane that turns on `chapters.breather` must have `"breathers": false` on its segment in the
-assembly config, or it gets two breathers at every card (the engine's, then the assembler's). With it the assembler leaves that lane's cards alone
-and does not list them in `.chapters.txt`: add them from the lane's `<render>.chapters.txt`.
+assembly config, or it gets two breathers at every card (the engine's, then the assembler's). The lane's chapters still go into the master's `.chapters.txt`, the card spans and the Borumi card scenes, named from the lane (`Label: Title`) unless `lane_card_index` maps them to the shared list.
 
 ## One line per script
 
