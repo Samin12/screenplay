@@ -3,6 +3,7 @@
 import type { Word } from './anchors.ts';
 import type { Timeline } from '../src/types.ts';
 import { fmtSrt, fmtYouTube } from './util.ts';
+import { chapterHeading } from '../src/lib/chapters.ts';
 
 // Greedy wrap into lines of <= max chars; for two lines, balance them.
 export function wrap(text: string, max: number): string[] {
@@ -77,7 +78,7 @@ export function youtubeChapters(t: Timeline, opts: { fromF?: number; toF?: numbe
   const fromF = opts.fromF ?? 0;
   const toF = opts.toF ?? t.durationInFrames;
   const warnings: string[] = [];
-  const list = t.chapters.filter((ch) => ch.frame >= fromF && ch.frame < toF).map((ch) => ({ s: (ch.frame - fromF) / t.fps, title: ch.title.replace(/\*/g, '') }));
+  const list = t.chapters.filter((ch) => ch.frame >= fromF && ch.frame < toF).map((ch) => ({ s: (ch.frame - fromF) / t.fps, title: chapterHeading(ch) }));
   if (list.length === 0) return { text: '', warnings: [t.chapters.length ? 'no chapters in the rendered range: no chapters file written' : 'no chapters in edit.yaml: no chapters file written'] };
   if (list[0].s >= 1) list.unshift({ s: 0, title: opts.intro ?? 'Intro' });
   else list[0].s = 0;

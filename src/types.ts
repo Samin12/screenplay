@@ -29,7 +29,9 @@ export type Timeline = {
   camera: { focus: [number, number]; zoom: number; mirror: boolean; track?: { fps: number; x: number[] } };
   webcam: WebcamKey[];
   badges: StepBadge[]; // panel look: what the badge above the tile says, from each frame on
-  chapterGrid: { heading: string; logo: boolean };
+  // style 'path': every chapter as a tile in rows, done ones checked, later ones locked, and a line
+  // that travels from the previous chapter to the new one (src/scenes/ChapterPath.tsx).
+  chapterGrid: { heading: string; logo: boolean; style?: 'path' };
   chapters: ChapterInfo[];
   scenes: Scene[];
 };
@@ -38,7 +40,8 @@ export type Timeline = {
 // "· 3 / 10" count (step still lights the dashes), `hidden` draws no badge.
 export type StepBadge = { frame: number; eyebrow: string; title: string; step: number; total: number; plain?: boolean; hidden?: boolean };
 
-export type ChapterInfo = { index: number; title: string; icon: string; frame: number };
+// `label` is the small eyebrow ("Tip 7", "Level 2"); `group` is the path card's row.
+export type ChapterInfo = { index: number; title: string; icon: string; frame: number; label?: string; group?: string };
 
 type SceneBase = {
   id: string;

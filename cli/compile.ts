@@ -565,16 +565,27 @@ class Compiler {
   chapters(raw: unknown) {
     const cards: { from: number; to: number; index: number }[] = [];
     const chapterInfos: ChapterInfo[] = [];
-    const grid = { heading: '', logo: true };
+    const grid: Timeline['chapterGrid'] = { heading: '', logo: true };
     const stepTitles: string[] = [];
     const items = isObj(raw) ? raw.items : undefined;
     if (raw !== undefined && !isObj(raw)) this.err(['chapters'], 'chapters must be {heading, logo, items: [...]}');
-    if (isObj(raw)) for (const k of Object.keys(raw)) if (!['heading', 'logo', 'items', 'badge'].includes(k)) this.warn(['chapters', k], `unknown field "${k}" (ignored)`);
+    if (isObj(raw)) for (const k of Object.keys(raw)) if (!['heading', 'logo', 'items', 'badge', 'style', 'breather'].includes(k)) this.warn(['chapters', k], `unknown field "${k}" (ignored)`);
     if (items !== undefined && !Array.isArray(items)) this.err(['chapters', 'items'], 'chapters.items must be a list');
     const list = Array.isArray(items) ? items : [];
     const cardF = Math.round((this.look === 'panel' ? PANEL_CHAPTER_CARD_S : CHAPTER_CARD_S) * this.fps);
     let prevT = 0;
     const textCtx = this.ctx({ i: -1, path: ['chapters'], kind: 'talking', raw: {}, anchorT: 0, baseF: 0, endF: this.totalF, durF: this.totalF, window: { from: 0, to: this.total } });
+    const path_ = isObj(raw) && raw.style === 'path';
+    if (isObj(raw) && raw.style !== undefined && raw.style !== 'path' && raw.style !== 'grid') this.err(['chapters', 'style'], `unknown chapter style ${JSON.stringify(raw.style)}; use grid (default) or path`);
+    // `label` (eyebrow: "Tip 7") and `group` (the path card's row). Only set when given.
+    const extra = (it: Record<string, unknown>, p: P): { label?: string; group?: string } => {
+      const o: { label?: string; group?: string } = {};
+      if (typeof it.label === 'string' && it.label.trim()) o.label = textCtx.text([...p, 'label'], it.label.trim());
+      else if (it.label !== undefined && it.label !== null) this.err([...p, 'label'], 'label must be text, e.g. "Tip 7"');
+      if (typeof it.group === 'string' || typeof it.group === 'number') o.group = String(it.group);
+      else if (it.group !== undefined && it.group !== null) this.err([...p, 'group'], 'group must be a name or number (items with the same group share a row)');
+      return o;
+    };
     list.forEach((it, k) => {
       const p: P = ['chapters', 'items', k];
       if (!isObj(it)) return this.err(p, 'chapter item must be {at, title, icon}');
@@ -582,7 +593,7 @@ class Compiler {
         // Tile only (a chapter covered elsewhere, e.g. tips 1-8 of a part-two video): it shows on the
         // grid as already done but inserts no card.
         const title = typeof it.title === 'string' ? textCtx.text([...p, 'title'], it.title, true) : (this.err([...p, 'title'], 'chapter needs `title`'), '');
-        chapterInfos.push({ index: k, title, icon: textCtx.icon([...p, 'icon'], it.icon) ?? 'sparkles', frame: -1 });
+        chapterInfos.push({ index: k, title, icon: textCtx.icon([...p, 'icon'], it.icon) ?? 'sparkles', frame: -1, ...extra(it, p) });
         stepTitles.push(title);
         return;
       }
@@ -599,8 +610,8 @@ class Compiler {
       cards.push({ from, to, index: chapterInfos.length });
       const title = typeof it.title === 'string' ? textCtx.text([...p, 'title'], it.title, true) : (this.err([...p, 'title'], 'chapter needs `title`'), '');
       const icon = textCtx.icon([...p, 'icon'], it.icon) ?? 'sparkles';
-      if (it.icon === undefined) this.warn([...p, 'icon'], 'chapter has no `icon`; using sparkles');
-      chapterInfos.push({ index: k, title, icon, frame: from });
+      if (it.icon === undefined && !path_) this.warn([...p, 'icon'], 'chapter has no `icon`; using sparkles');
+      chapterInfos.push({ index: k, title, icon, frame: from, ...extra(it, p) });
       stepTitles.push(typeof it.badge === 'string' ? textCtx.text([...p, 'badge'], it.badge, true) : title);
       prevT = t;
     });
@@ -609,6 +620,7 @@ class Compiler {
     if (isObj(raw)) {
       grid.heading = typeof raw.heading === 'string' ? textCtx.text(['chapters', 'heading'], raw.heading, true) : `${chapterInfos.length} Features`;
       grid.logo = raw.logo === undefined ? true : !!raw.logo;
+      if (path_) grid.style = 'path';
     } else grid.heading = `${chapterInfos.length} Features`;
 
     // Step badge: one per chapter from its card on, plus an intro before the first card.
@@ -617,7 +629,10 @@ class Compiler {
     const eyebrow = typeof badgeRaw.eyebrow === 'string' ? textCtx.text(['chapters', 'badge', 'eyebrow'], badgeRaw.eyebrow) : 'Part';
     const badges: StepBadge[] = [];
     chapterInfos.forEach((ci, k) => {
-      if (ci.frame >= 0) badges.push({ frame: ci.frame, eyebrow, title: stepTitles[k], step: k + 1, total: chapterInfos.length });
+      if (ci.frame < 0) return;
+      // An item with its own label names itself ("TIP 7"), so the badge drops the "· 3 / 10" count.
+      if (ci.label) badges.push({ frame: ci.frame, eyebrow: ci.label, title: stepTitles[k], step: k + 1, total: chapterInfos.length, plain: true });
+      else badges.push({ frame: ci.frame, eyebrow, title: stepTitles[k], step: k + 1, total: chapterInfos.length });
     });
     const introEyebrow = typeof badgeRaw.introEyebrow === 'string' ? textCtx.text(['chapters', 'badge', 'introEyebrow'], badgeRaw.introEyebrow) : 'Intro';
     // No anchored item at all (every item is tile only): with `chapters.badge` set, the intro badge

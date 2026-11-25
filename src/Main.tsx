@@ -10,6 +10,7 @@ import { PANEL_VIEW } from './theme/panel';
 import { AppSceneView } from './app/AppScene';
 import { StageSceneView, TalkingOverlay } from './scenes/StageScene';
 import { ChapterSceneView } from './scenes/ChapterScene';
+import { ChapterPathView } from './scenes/ChapterPath';
 import { PlugSceneView } from './scenes/PlugScene';
 import { BoardSceneView } from './scenes/BoardScene';
 import { themes } from './theme/tokens';
@@ -29,6 +30,7 @@ const SceneBody: React.FC<{ scene: Scene; timeline: Timeline }> = ({ scene, time
     case 'stage':
       return <StageSceneView scene={scene} view={panel ? PANEL_VIEW : undefined} />;
     case 'chapter':
+      if (timeline.chapterGrid.style === 'path') return <ChapterPathView scene={scene} chapters={timeline.chapters} heading={timeline.chapterGrid.heading} />;
       return <ChapterSceneView scene={scene} chapters={timeline.chapters} heading={timeline.chapterGrid.heading} logo={timeline.chapterGrid.logo} />;
     case 'plug':
       return <PlugSceneView scene={scene} />;

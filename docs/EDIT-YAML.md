@@ -53,6 +53,7 @@ camera:                      # how the talking head is cropped in tiles
 chapters:
   heading: "11 Features"     # grid title (default: "<count> Features"); the logo tile sits after the number
   logo: true
+  style: grid                # grid (default) | path: see "Chapter card chapters.style: path" below
   badge:                     # step badge above the tile (panel look)
     eyebrow: Tips            # "TIPS · 3 / 10"
     intro: "10 Opus 5.5 Tips"  # title before the first card (default: the heading)
@@ -92,6 +93,46 @@ break is a chapter switch: the card takes the full screen, then cuts back.
 - Chapter cards take the full screen for 2 s on the bare canvas, over the tile and badge, with hard cuts
   in and out (no white flash). Speech carries on underneath. The badge shows the new chapter when the
   layout comes back.
+
+## Tutorial edits: path chapters, layouts, chip, steps
+
+Everything in this section is opt-in. An edit that uses none of it compiles to the same
+`timeline.json` as before. `examples/ads-tutorial-mini/` uses all of it in 40 seconds.
+
+### Chapter card `chapters.style: path`
+
+For a video built as levels and tips. Every chapter is a tile, in rows. Chapters already done keep
+their titles, dimmed, with a check. Chapters still ahead are locked: a lock, no title. The new chapter
+is revealed by an orange line that travels one step from the previous chapter's tile to the new one
+(under the tiles in the same row, down and across to the next row) in the first second; the tile
+lights as the line lands and the chapter's title builds large above the rows. The card cuts in and out
+hard. The default stays the grid.
+
+```yaml
+chapters:
+  style: path                 # grid (default) | path
+  heading: "Mini course · 2 levels · 3 tips"   # small caps line above the title
+  items:
+    - { title: "Intro", group: intro }                                # no `at`: a tile, no card
+    - { at: "level one", label: "Level 1", title: "The basics", group: l1 }
+    - { at: "tip one",   label: "Tip 1",   title: "One folder, sorted" }   # no group: same row as the item before
+    - { at: "tip two",   label: "Tip 2",   title: "Storyboard first" }
+    - { at: "level two", label: "Level 2", title: "Add motion", group: l2 }
+    - { at: "tip three", label: "Tip 3",   title: "Always moving" }
+```
+
+| item field | what |
+|---|---|
+| `label` | the small eyebrow on the tile ("Level 2", "Tip 7"). Numbering is yours, it is never forced to 1..N. No label shows "CHAPTER" |
+| `group` | the row. Items with the same group share a row; an item without one stays in the row of the item before it. The first tile of a row is wider |
+| `title`, `at`, `badge` | as on the grid. No `icon` needed |
+
+- The card's large title and the line in `<render>.chapters.txt` are the same string, built in one
+  place (`src/lib/chapters.ts`): `label: title`, e.g. `Tip 7: One folder, sorted`. The label part is
+  orange on the card. The chapter time is the card's first frame.
+- A labelled chapter names itself on the step badge ("TIP 7" over the title), without the "· 3 / 10" count.
+- Rows shrink to fit: about 8 tiles per row at full size. Keep titles to three or four words.
+- `label` and `group` are also accepted in the grid style (`label` then only changes the chapters file).
 
 ## Scenes
 
