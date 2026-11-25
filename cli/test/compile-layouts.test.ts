@@ -71,3 +71,83 @@ test('tile-only items still insert no card on a path card', () => {
   assert.equal(t.chapters[4].frame, -1);
   assert.equal(t.scenes.filter((s) => s.kind === 'chapter').length, 3);
 });
+
+// ---------- layout: panel | full | him ----------
+
+const layYaml = y`
+  scenes:
+    - { kind: talking, at: w0, layout: him }
+    - { kind: stage, at: w20, title: "In the panel" }
+    - { kind: app, at: w41, app: _fixture, layout: full }
+    - { kind: stage, at: w80, layout: full, title: "A full card" }
+    - { kind: talking, at: w120, layout: him }
+    - { kind: stage, at: w160, title: "Back" }
+`;
+
+test('layouts are per scene; a switch is a hard cut with complete first and last frames', () => {
+  const r = panel(layYaml);
+  assert.deepEqual(errors(r), []);
+  const t = r.timeline!;
+  assert.deepEqual(t.scenes.map((s) => s.lay), ['him', undefined, 'full', 'full', 'him', undefined]);
+  // every layout switch cuts; full -> full keeps the normal blur
+  assert.deepEqual(t.scenes.map((s) => s.transitionIn), ['cut', 'cut', 'cut', 'blur', 'cut', 'cut']);
+  assert.deepEqual(t.scenes.map((s) => [!!s.snapIn, !!s.snapOut]), [[false, true], [true, true], [true, false], [false, true], [true, true], [true, false]]);
+  // him: the head jumps to full frame and back on the cut frame; a full visual never moves the tile
+  assert.deepEqual(t.webcam, [
+    { frame: 0, mode: 'full', cut: true },
+    { frame: F(w('w20').start), mode: 'tile', cut: true },
+    { frame: F(w('w120').start), mode: 'full', cut: true },
+    { frame: F(w('w160').start), mode: 'tile', cut: true },
+  ]);
+  assert.ok(!warnings(r).some((d) => /leaves the panel empty/.test(d.message)));
+});
+
+test('transition: morph brings the blur dissolve and the webcam morph back', () => {
+  const t = panel(layYaml.replace('at: w120, layout: him', 'at: w120, layout: him, transition: morph')).timeline!;
+  assert.equal(t.scenes[4].transitionIn, 'blur');
+  const key = t.webcam.find((k) => k.mode === 'full' && k.frame > 0)!;
+  assert.ok(!key.cut);
+  assert.ok(key.frame < F(w('w120').start)); // the morph leads the dissolve, as before
+});
+
+test('`cut: hard` on a plain webcam: full scene hard-cuts too; without it nothing changes', () => {
+  const old = y`
+    scenes:
+      - { kind: stage, at: w0, title: Hi }
+      - { kind: talking, at: w41, webcam: full }
+  `;
+  const before = panel(old).timeline!;
+  assert.equal(before.scenes[1].transitionIn, 'blur');
+  assert.ok(!before.webcam[1].cut && !('lay' in before.scenes[1]) && !('snapIn' in before.scenes[1]));
+  const hard = panel(old.replace('webcam: full', 'webcam: full, cut: hard')).timeline!;
+  assert.equal(hard.scenes[1].transitionIn, 'cut');
+  assert.deepEqual(hard.webcam[1], { frame: F(w('w41').start), mode: 'full', cut: true });
+});
+
+test('stage keeps hero-left / center on the same key; bad layouts are reported', () => {
+  const ref = compile('look: reference\nscenes:\n  - { kind: stage, at: w0, title: Hi, layout: center }').timeline!;
+  assert.equal((ref.scenes[0] as { layout: string }).layout, 'center');
+  assert.ok(errors(panel('scenes:\n  - { kind: app, at: w0, app: _fixture, layout: him }')).some((e) => /goes on a talking scene/.test(e.message)));
+  assert.ok(warnings(panel('scenes:\n  - { kind: app, at: w0, app: _fixture, layout: sideways }')).some((d) => /unknown layout/.test(d.message)));
+  // reference look: the layouts map onto the webcam modes it already has
+  const r2 = compile('look: reference\nscenes:\n  - { kind: app, at: w0, app: _fixture, layout: full }\n  - { kind: talking, at: w41, layout: him }').timeline!;
+  assert.deepEqual(r2.webcam.map((k) => k.mode), ['hidden', 'full']);
+  assert.ok(r2.scenes.every((s) => !('lay' in s)));
+});
+
+test('a chapter card inside a him scene cuts out and back without a morph', () => {
+  const t = panel(y`
+    chapters:
+      items:
+        - { at: w41, title: "One", icon: code }
+    scenes:
+      - { kind: talking, at: w0, layout: him }
+  `).timeline!;
+  assert.deepEqual(t.webcam.map((k) => [k.mode, !!k.cut]), [['full', true], ['tile', true], ['full', true]]);
+});
+
+test('ui scales a full-layout replica and is rejected elsewhere', () => {
+  const t = panel('scenes:\n  - { kind: app, at: w0, app: _fixture, layout: full, ui: 1.4 }').timeline!;
+  assert.equal((t.scenes[0] as { ui?: number }).ui, 1.4);
+  assert.ok(warnings(panel('scenes:\n  - { kind: app, at: w0, app: _fixture, ui: 1.4 }')).some((d) => /only applies to a replica in `layout: full`/.test(d.message)));
+});

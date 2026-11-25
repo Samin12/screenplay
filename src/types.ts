@@ -12,7 +12,8 @@ export type Rect = { x: number; y: number; w: number; h: number };
 
 export type WebcamMode = 'tile' | 'full' | 'pip' | 'pip-right' | 'pip-square' | 'hero' | 'plug' | 'hidden';
 
-export type WebcamKey = { frame: number; mode: WebcamMode };
+// `cut`: the head jumps to this mode on that frame instead of blur-morphing (a hard layout switch).
+export type WebcamKey = { frame: number; mode: WebcamMode; cut?: true };
 
 export type Transition = 'blur' | 'cut' | 'flash' | 'fade';
 
@@ -49,6 +50,13 @@ type SceneBase = {
   duration: number;
   transitionIn: Transition;
   transitionOut: Transition;
+  // Panel look, per scene: 'full' = the visual fills the whole frame (no tile, no badge), 'him' = the
+  // creator full frame. Absent = the panel layout.
+  lay?: 'full' | 'him';
+  // A hard layout switch on this edge: whatever is on screen at the scene's first / last frame is
+  // drawn complete, with no entrance or exit envelope, so no frame of the switch is half faded.
+  snapIn?: true;
+  snapOut?: true;
 };
 
 export type TalkingScene = SceneBase & { kind: 'talking'; dim: number; elements: Element[] };
@@ -77,6 +85,8 @@ export type AppScene = SceneBase & {
   // Initial camera: scale 1 shows the whole plate fitted to the frame.
   camera: { scale: number; target?: string; rect?: Rect };
   actions: Action[];
+  // layout full: how much bigger than its design size a replica's UI draws (default 1.25).
+  ui?: number;
 };
 
 export type PlugScene = SceneBase & {

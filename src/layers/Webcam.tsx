@@ -65,7 +65,7 @@ export const WebcamLayer: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
   const target = boxFor(cur.mode, prev?.mode ?? null);
   let box = target;
   let blur = 0;
-  if (prev && frame < cur.frame + morphF) {
+  if (prev && !cur.cut && frame < cur.frame + morphF) {
     const from = boxFor(prev.mode, i > 1 ? webcam[i - 2].mode : null);
     const local = frame - cur.frame;
     // Blur peaks in the first 30%, the box moves fast while blurred, then de-blurs.
@@ -82,7 +82,7 @@ export const WebcamLayer: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
 
   // Jump-cut masking on full-frame: alternate a gentle punch-in on every A-roll cut.
   let punch = 1;
-  if (cur.mode === 'full' || (prev && prev.mode === 'full' && frame < cur.frame + morphF)) {
+  if (cur.mode === 'full' || (prev && prev.mode === 'full' && !cur.cut && frame < cur.frame + morphF)) {
     const cutsBefore = aroll.cuts.filter((c) => c <= frame).length;
     punch = cutsBefore % 2 === 1 ? 1.07 : 1;
   }

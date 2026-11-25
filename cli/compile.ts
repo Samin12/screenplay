@@ -40,19 +40,21 @@ export const PANEL_CHAPTER_CARD_S = 2; // house rule: every chapter element is 2
 export const MIN_VISUAL_S = 1.2;
 const LOOKS: Look[] = ['panel', 'reference'];
 const THEMES: ThemeName[] = ['velour', 'ember-dark', 'clay-light'];
-const TRANSITIONS: Transition[] = ['blur', 'cut', 'flash', 'fade'];
+const TRANSITIONS: Transition[] = ['blur', 'cut', 'flash', 'fade']; // + `morph`, an alias of blur (see layout())
+const LAYOUTS = ['panel', 'full', 'him'] as const;
+type Lay = 'full' | 'him';
 const WEBCAM_MODES: WebcamMode[] = ['tile', 'full', 'pip', 'pip-right', 'pip-square', 'hero', 'plug', 'hidden'];
 const KINDS = ['talking', 'app', 'stage', 'plug', 'board'] as const;
 type Kind = (typeof KINDS)[number];
 
 const SCENE_FIELDS: Record<Kind, string[]> = {
   talking: ['dim', 'elements'],
-  app: ['app', 'data', 'state', 'camera', 'beats', 'screen', 'size', 'targets', 'start', 'tone', 'blur'],
+  app: ['app', 'data', 'state', 'camera', 'beats', 'screen', 'size', 'targets', 'start', 'tone', 'blur', 'ui'],
   stage: ['layout', 'title', 'elements'],
   plug: ['media'],
   board: ['line', 'nodes'],
 };
-const SCENE_COMMON = ['kind', 'at', 'webcam', 'transition', 'note', 'notes', 'badge'];
+const SCENE_COMMON = ['kind', 'at', 'webcam', 'transition', 'note', 'notes', 'badge', 'layout', 'cut'];
 
 export const VERBS = ['click', 'move', 'type', 'set', 'tween', 'callout', 'lift', 'explode', 'focus', 'zoom', 'mark', 'title', 'show'] as const;
 export type Verb = (typeof VERBS)[number];
@@ -140,6 +142,8 @@ class Compiler {
   private lc = new LineCounter();
 
   private input: CompileInput;
+  // Per scene index: the layout it asked for (panel look: 'full' | 'him').
+  private lays = new Map<number, Lay>();
 
   constructor(input: CompileInput) {
     this.input = input;
@@ -347,6 +351,7 @@ class Compiler {
       if (!KINDS.includes(s.kind as Kind)) return this.err([...p, 'kind'], `unknown scene kind ${JSON.stringify(s.kind)}; use one of: ${KINDS.join(', ')}`);
       const kind = s.kind as Kind;
       for (const k of Object.keys(s)) if (!SCENE_COMMON.includes(k) && !SCENE_FIELDS[kind].includes(k)) this.warn([...p, k], `unknown field "${k}" for a ${kind} scene (ignored); fields: ${SCENE_FIELDS[kind].join(', ')}`);
+      this.layout(s, kind, i);
       let t: number | null;
       if (s.at === undefined) {
         if (i === 0) t = 0;
@@ -451,6 +456,8 @@ class Compiler {
     segs.sort((a, b) => a.scene.from - b.scene.from);
 
     // ---- transitions ----
+    // A layout switch (panel <-> full <-> him) is a hard cut unless the scene says otherwise.
+    const layOf = (sc?: Scene) => (!sc || sc.kind === 'chapter' ? undefined : (sc.lay ?? 'panel'));
     segs.forEach((seg, k) => {
       const prev = segs[k - 1]?.scene;
       const s = seg.scene;
@@ -459,22 +466,33 @@ class Compiler {
       else if (s.kind === 'chapter') t = !panel && prev?.kind === 'plug' ? 'flash' : 'cut';
       else if (seg.part > 0) t = 'cut';
       else if (seg.explicitT !== undefined) t = seg.explicitT;
+      else if (prev && prev.kind !== 'chapter' && layOf(s) !== layOf(prev)) t = 'cut';
       else if (!panel && (s.kind === 'plug' || prev?.kind === 'plug')) t = 'flash';
       else if (prev?.kind === 'chapter') t = 'cut';
       else t = 'blur';
       s.transitionIn = t;
     });
     segs.forEach((seg, k) => (seg.scene.transitionOut = segs[k + 1]?.scene.transitionIn ?? 'cut'));
+    // Hard edges next to a full / him scene draw complete on their first and last frame.
+    segs.forEach((seg, k) => {
+      const prev = segs[k - 1]?.scene;
+      const s = seg.scene;
+      if (!prev || s.transitionIn !== 'cut' || !(('lay' in s && s.lay) || ('lay' in prev && prev.lay))) return;
+      if (s.kind !== 'chapter') s.snapIn = true;
+      if (prev.kind !== 'chapter') prev.snapOut = true;
+    });
 
     // ---- webcam track ----
     const webcam: WebcamKey[] = [];
+    let himKey = false; // the current key was entered by a `him` scene
     for (const seg of segs) {
       const s = seg.scene;
+      const him = s.kind !== 'chapter' && s.lay === 'him';
       let mode: WebcamMode;
       if (panel) {
         // The creator stays in the tile (a chapter card just covers it for its 2 s). Only an explicit
-        // full (a closing shot) or hidden moves them.
-        mode = seg.webcam === 'full' || seg.webcam === 'hidden' ? seg.webcam : 'tile';
+        // full (a closing shot), a `him` layout or hidden moves them.
+        mode = seg.webcam === 'full' || seg.webcam === 'hidden' ? seg.webcam : him ? 'full' : 'tile';
       } else if (s.kind === 'chapter') mode = 'hidden';
       else if (seg.webcam !== undefined) mode = seg.webcam;
       else mode = defaultWebcam(s);
@@ -484,7 +502,10 @@ class Compiler {
         // stays sharp over the incoming scene and then blurs on its own.
         const dissolves = s.transitionIn === 'blur' || s.transitionIn === 'fade';
         const lead = prev && prev.mode !== 'hidden' && mode !== 'hidden' && dissolves ? Math.max(1, Math.round(0.33 * this.fps)) : 0;
-        webcam.push({ frame: Math.max(prev ? prev.frame + 1 : 0, s.from - lead), mode });
+        // Into or out of `him` on a cut: the head jumps, it does not blur-morph.
+        const hard = panel && s.transitionIn === 'cut' && (him || himKey);
+        webcam.push({ frame: Math.max(prev ? prev.frame + 1 : 0, s.from - lead), mode, ...(hard ? { cut: true as const } : {}) });
+        himKey = him;
       }
     }
 
@@ -538,6 +559,32 @@ class Compiler {
   result(timeline: Timeline | null): CompileResult {
     const errors = this.diags.filter((d) => d.level === 'error').length;
     return { timeline: errors ? null : timeline, diags: this.diags, meta: this.meta, errors, warnings: this.diags.length - errors };
+  }
+
+  // `layout: panel | full | him` (+ `cut: hard` on a `webcam: full` scene, + `transition: morph`).
+  // Panel look: recorded for the renderer. Reference look: mapped onto the webcam modes it already has.
+  layout(s: Record<string, unknown>, kind: Kind, i: number) {
+    const p: P = ['scenes', i];
+    const v = s.layout;
+    let lay: Lay | undefined;
+    const stageOwn = kind === 'stage' && (v === 'hero-left' || v === 'center');
+    if (v !== undefined && !stageOwn) {
+      if (!(LAYOUTS as readonly unknown[]).includes(v)) {
+        if (kind !== 'stage') this.warn([...p, 'layout'], `unknown layout ${JSON.stringify(v)} (ignored); use one of: ${LAYOUTS.join(', ')}`);
+      } else if (v === 'him' && kind !== 'talking') this.err([...p, 'layout'], `layout: him is the creator full frame, so it goes on a talking scene (this is a ${kind} scene); use layout: full to fill the frame with the visual`);
+      else if (v !== 'panel') lay = v as Lay;
+    }
+    if (s.cut !== undefined) {
+      if (s.cut !== 'hard' && s.cut !== 'morph') this.err([...p, 'cut'], `cut must be hard or morph, got ${JSON.stringify(s.cut)}`);
+      else if (s.cut === 'hard') {
+        if (lay === 'him' || s.webcam === 'full') lay = 'him';
+        else this.warn([...p, 'cut'], '`cut: hard` only applies to the creator going full frame (`webcam: full` or `layout: him`)');
+      } else if (s.transition === undefined) s.transition = 'morph';
+    }
+    if (s.transition === 'morph') s.transition = 'blur'; // the old way in: blur dissolve + webcam blur-morph
+    if (!lay) return;
+    if (this.look === 'panel') this.lays.set(i, lay);
+    else if (s.webcam === undefined) s.webcam = lay === 'him' ? 'full' : 'hidden';
   }
 
   camera(raw: unknown): Timeline['camera'] {
@@ -650,7 +697,8 @@ class Compiler {
   // ----- scenes -----
   scene(sc: SceneCtx): Scene | null {
     const raw = sc.raw;
-    const base = { id: `s${sc.i}`, from: sc.baseF, duration: sc.durF, transitionIn: 'cut' as Transition, transitionOut: 'cut' as Transition };
+    const lay = this.lays.get(sc.i);
+    const base = { id: `s${sc.i}`, from: sc.baseF, duration: sc.durF, transitionIn: 'cut' as Transition, transitionOut: 'cut' as Transition, ...(lay ? { lay } : {}) };
     if (raw.transition !== undefined && !TRANSITIONS.includes(raw.transition as Transition)) {
       this.err([...sc.path, 'transition'], `unknown transition ${JSON.stringify(raw.transition)}; use one of: ${TRANSITIONS.join(', ')}`);
       delete raw.transition;
@@ -664,13 +712,16 @@ class Compiler {
     const ctx = this.ctx(sc);
     switch (sc.kind) {
       case 'talking': {
-        if (this.look === 'panel' && raw.webcam !== 'full' && !(Array.isArray(raw.elements) && raw.elements.length)) this.warn(sc.path, 'a talking scene with no elements leaves the panel empty; give it elements, or use `webcam: full` for a full-frame moment');
+        if (this.look === 'panel' && raw.webcam !== 'full' && lay !== 'him' && !(Array.isArray(raw.elements) && raw.elements.length))
+          this.warn(sc.path, lay === 'full' ? 'a `layout: full` talking scene with no elements is an empty frame; give it elements, or use `layout: him` for the creator full frame' : 'a talking scene with no elements leaves the panel empty; give it elements, or use `webcam: full` for a full-frame moment');
         const dim = raw.dim === undefined ? 0.7 : typeof raw.dim === 'number' && raw.dim >= 0 && raw.dim <= 1 ? raw.dim : (this.err([...sc.path, 'dim'], 'dim must be a number 0..1'), 0.7);
         const s: TalkingScene = { ...base, kind: 'talking', dim, elements: this.elements(sc, ctx, raw.elements) };
         return s;
       }
       case 'stage': {
-        let layout: StageScene['layout'] = raw.layout === undefined ? 'hero-left' : raw.layout === 'hero-left' || raw.layout === 'center' ? raw.layout : (this.err([...sc.path, 'layout'], 'layout must be hero-left or center'), 'hero-left');
+        const frameLay = (LAYOUTS as readonly unknown[]).includes(raw.layout); // panel | full | him: not a stage layout
+        let layout: StageScene['layout'] =
+          raw.layout === undefined || raw.layout === 'panel' ? 'hero-left' : frameLay ? 'center' : raw.layout === 'hero-left' || raw.layout === 'center' ? raw.layout : (this.err([...sc.path, 'layout'], 'layout must be hero-left or center (or panel, full for the frame layout)'), 'hero-left');
         if (this.look === 'panel') {
           if (raw.layout === 'hero-left') this.warn([...sc.path, 'layout'], 'hero-left needs a big webcam; the panel look always uses the whole panel');
           layout = 'center';
@@ -717,7 +768,7 @@ class Compiler {
     return out;
   }
 
-  app(sc: SceneCtx, ctx: FrameCtx, base: Pick<AppScene, 'id' | 'from' | 'duration' | 'transitionIn' | 'transitionOut'>): AppScene | null {
+  app(sc: SceneCtx, ctx: FrameCtx, base: Pick<AppScene, 'id' | 'from' | 'duration' | 'transitionIn' | 'transitionOut' | 'lay'>): AppScene | null {
     const raw = sc.raw;
     const p = sc.path;
     let plate: Plate;
@@ -814,7 +865,13 @@ class Compiler {
       });
     }
     actions.sort((a, b) => a.frame - b.frame);
-    return { ...base, kind: 'app', plate, state, camera, actions };
+    let ui: number | undefined;
+    if (raw.ui !== undefined) {
+      if (typeof raw.ui !== 'number' || !(raw.ui >= 0.75 && raw.ui <= 2)) this.err([...p, 'ui'], 'ui must be a number 0.75..2 (how much bigger a replica draws in layout: full; default 1.25)');
+      else if (base.lay !== 'full' || plate.type !== 'replica') this.warn([...p, 'ui'], '`ui` only applies to a replica in `layout: full`');
+      else ui = raw.ui;
+    }
+    return { ...base, kind: 'app', plate, state, camera, actions, ...(ui !== undefined ? { ui } : {}) };
   }
 
   beat(sc: SceneCtx, ctx: FrameCtx, b: unknown, p: P, plate: Plate): Action | null {
@@ -1239,7 +1296,8 @@ export function sceneTable(meta: CompileMeta, timeline: Timeline | null): string
     const cam = timeline ? [...timeline.webcam].reverse().find((k) => k.frame <= s.from)?.mode : undefined;
     const sc = timeline?.scenes.find((x) => x.id === s.id);
     const n = sc?.kind === 'app' ? `${sc.actions.length} beats` : sc && 'elements' in sc ? `${sc.elements.length} elements` : sc?.kind === 'board' ? `${sc.nodes.length} nodes` : '';
-    return `  ${fmtClock(s.from / fps).padStart(7)}–${fmtClock((s.from + s.duration) / fps).padEnd(7)} ${s.label.padEnd(34)} ${c.dim(`${(s.duration / fps).toFixed(1)}s ${sc ? `in:${sc.transitionIn}` : ''} cam:${cam ?? '-'} ${n}`)}`;
+    const lay = sc && sc.kind !== 'chapter' && sc.lay ? ` layout:${sc.lay}` : '';
+    return `  ${fmtClock(s.from / fps).padStart(7)}–${fmtClock((s.from + s.duration) / fps).padEnd(7)} ${s.label.padEnd(34)} ${c.dim(`${(s.duration / fps).toFixed(1)}s ${sc ? `in:${sc.transitionIn}` : ''} cam:${cam ?? '-'}${lay} ${n}`)}`;
   });
   return lines.join('\n');
 }

@@ -6,6 +6,7 @@ import { ElementView } from '../stage/ElementView';
 import { useTheme } from '../theme/ThemeContext';
 import { useCurrentFrame } from 'remotion';
 import { fadeWindow } from '../app/Overlays';
+import { snapEdges, useSnap } from '../lib/snap';
 
 // Elements whose lifetimes overlap share the column: each overlapping cluster is split into rows,
 // fixed for the whole cluster so nothing jumps when a second element arrives.
@@ -69,7 +70,12 @@ export const TalkingOverlay: React.FC<{ scene: TalkingScene; view?: [number, num
   const { fps } = config;
   const [width, height] = view ?? [config.width, config.height];
   const t = useTheme();
-  const dim = view ? 0 : scene.elements.reduce((m, el) => (el.type === 'lower' ? m : Math.max(m, fadeWindow(frame, el.frame, el.end, fps))), 0) * scene.dim;
+  const snap = useSnap();
+  const dimOf = (el: Element) => {
+    const e = snapEdges(snap, el.frame, el.end);
+    return fadeWindow(frame, e.start, e.end ?? 1e9, fps);
+  };
+  const dim = view ? 0 : scene.elements.reduce((m, el) => (el.type === 'lower' ? m : Math.max(m, dimOf(el))), 0) * scene.dim;
   return (
     <AbsoluteFill>
       {dim > 0 ? <AbsoluteFill style={{ background: t.bgEdge, opacity: dim }} /> : null}

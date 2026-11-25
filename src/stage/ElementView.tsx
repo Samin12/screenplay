@@ -3,6 +3,7 @@ import { useCurrentFrame, useVideoConfig } from 'remotion';
 import type { Element, Rect } from '../types';
 import { blurInOut } from '../lib/anim';
 import { elementRegistry } from './elements';
+import { snapEdges, useSnap } from '../lib/snap';
 
 // Renders one stage element inside `box` with the shared envelope (blur in at el.frame, blur out at
 // el.end). The element itself only animates its inner items, each on its own word.
@@ -17,9 +18,11 @@ export type ElementProps<T extends Element['type'] = Element['type']> = {
 export const ElementView: React.FC<{ el: Element; box: Rect }> = ({ el, box }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const snap = useSnap();
   if (frame < el.frame - 1 || frame > el.end + Math.round(0.4 * fps)) return null;
   const Comp = elementRegistry[el.type] as React.FC<ElementProps> | undefined;
-  const env = blurInOut(frame, fps, el.frame, el.end, { inMs: 260, outMs: 220 });
+  const edge = snapEdges(snap, el.frame, el.end);
+  const env = blurInOut(frame, fps, edge.start, edge.end, { inMs: 260, outMs: 220 });
   return (
     <div style={{ position: 'absolute', left: box.x, top: box.y, width: box.w, height: box.h, display: 'flex', alignItems: 'center', justifyContent: 'center', ...env }}>
       {Comp ? (

@@ -17,3 +17,8 @@ export const PANEL_SCALE = PANEL.w / 1920;
 export const CANVAS_BG = '#121212';
 export const PANEL_BG = '#181716';
 export const DRIFT_PX_PER_S = 2.5;
+
+// `layout: full`: a replica draws on a 16:9 plate this much smaller than the frame and is enlarged to
+// fill it, so its text is bigger than at the 1920x1080 design size (scene `ui:` overrides the factor).
+export const FULL_UI = 1.25;
+export const fullPlate = (ui: number = FULL_UI): [number, number] => [Math.round(1920 / ui), Math.round(1080 / ui)];

@@ -6,7 +6,8 @@ import { SceneTransition, FlashOverlay, transitionOverlap } from './layers/Scene
 import { WebcamLayer } from './layers/Webcam';
 import { CanvasBackdrop, PanelFrame, PanelView } from './layers/Panel';
 import { StepBadgeLayer } from './layers/StepBadge';
-import { PANEL_VIEW } from './theme/panel';
+import { PANEL_VIEW, fullPlate } from './theme/panel';
+import { SnapProvider } from './lib/snap';
 import { AppSceneView } from './app/AppScene';
 import { StageSceneView, TalkingOverlay } from './scenes/StageScene';
 import { ChapterSceneView } from './scenes/ChapterScene';
@@ -22,8 +23,25 @@ import './theme/fonts';
 
 const webcamAt = (timeline: Timeline, frame: number) => [...timeline.webcam].reverse().find((k) => k.frame <= frame)?.mode;
 
+// Panel look, `layout: full`: the scene owns the whole frame, on the bare canvas, above tile and badge.
+const isCover = (timeline: Timeline, s: Scene) => timeline.look === 'panel' && s.kind !== 'chapter' && s.lay === 'full';
+
 const SceneBody: React.FC<{ scene: Scene; timeline: Timeline }> = ({ scene, timeline }) => {
   const panel = timeline.look === 'panel';
+  if (isCover(timeline, scene)) {
+    switch (scene.kind) {
+      case 'app':
+        return <AppSceneView scene={scene} plate={scene.plate.type === 'replica' ? fullPlate(scene.ui) : undefined} />;
+      case 'stage':
+        return <StageSceneView scene={scene} />;
+      case 'talking':
+        return <TalkingOverlay scene={scene} view={[timeline.width, timeline.height]} />;
+      case 'plug':
+        return <PlugSceneView scene={scene} />;
+      case 'board':
+        return <BoardSceneView scene={scene} />;
+    }
+  }
   switch (scene.kind) {
     case 'app':
       return <AppSceneView scene={scene} webcam={webcamAt(timeline, scene.from + 12)} view={panel ? PANEL_VIEW : undefined} />;
@@ -62,9 +80,9 @@ export const Main: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
     const body = <SceneBody scene={s} timeline={timeline} />;
     const framed = !panel ? (
       body
-    ) : s.kind === 'chapter' ? (
+    ) : s.kind === 'chapter' || isCover(timeline, s) ? (
       <>
-        <CanvasBackdrop from={s.from} />
+        <CanvasBackdrop from={s.from - lead} />
         {body}
       </>
     ) : (
@@ -73,7 +91,9 @@ export const Main: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
     return (
       <Sequence key={s.id} from={s.from - lead} durationInFrames={s.duration + lead} name={`${s.kind}:${s.id}`}>
         <SceneTransition inT={s.transitionIn} outT={s.transitionOut} duration={s.duration} lead={lead}>
-          <LeadIn lead={lead}>{framed}</LeadIn>
+          <SnapProvider value={{ in: !!s.snapIn, out: !!s.snapOut, duration: s.duration }}>
+            <LeadIn lead={lead}>{framed}</LeadIn>
+          </SnapProvider>
         </SceneTransition>
       </Sequence>
     );
@@ -81,15 +101,18 @@ export const Main: React.FC<{ timeline: Timeline }> = ({ timeline }) => {
   return (
     <ThemeProvider name={timeline.theme} look={timeline.look}>
       <AbsoluteFill style={{ background: bg }}>
-        {panel ? <PanelFrame>{timeline.scenes.filter((s) => s.kind !== 'chapter').map(sceneLayer)}</PanelFrame> : timeline.scenes.map(sceneLayer)}
+        {panel ? <PanelFrame>{timeline.scenes.filter((s) => s.kind !== 'chapter' && !isCover(timeline, s)).map(sceneLayer)}</PanelFrame> : timeline.scenes.map(sceneLayer)}
         <WebcamLayer timeline={timeline} />
         {panel ? <StepBadgeLayer timeline={timeline} /> : null}
+        {timeline.scenes.filter((s) => isCover(timeline, s)).map(sceneLayer)}
         {panel ? timeline.scenes.filter((s) => s.kind === 'chapter').map(sceneLayer) : null}
         {timeline.scenes
-          .filter((s): s is Extract<Scene, { kind: 'talking' }> => s.kind === 'talking' && s.elements.length > 0 && (!panel || webcamAt(timeline, s.from + 12) === 'full'))
+          .filter((s): s is Extract<Scene, { kind: 'talking' }> => s.kind === 'talking' && s.elements.length > 0 && !isCover(timeline, s) && (!panel || webcamAt(timeline, s.from + 12) === 'full'))
           .map((s) => (
             <Sequence key={`o-${s.id}`} from={s.from} durationInFrames={s.duration} name={`overlay:${s.id}`}>
-              <TalkingOverlay scene={s} />
+              <SnapProvider value={{ in: !!s.snapIn, out: !!s.snapOut, duration: s.duration }}>
+                <TalkingOverlay scene={s} />
+              </SnapProvider>
             </Sequence>
           ))}
         {timeline.scenes

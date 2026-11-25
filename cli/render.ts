@@ -13,7 +13,7 @@ import { buildSrt, youtubeChapters } from './captions.ts';
 import { loadManifest } from './replicas.ts';
 import { CliError, REPO, buildDir, c, flagStr, fmtClock, parseArgs, sha1, workDir, writeFileAtomic, type Args } from './util.ts';
 import type { AppScene, Timeline } from '../src/types.ts';
-import { PANEL_VIEW } from '../src/theme/panel.ts';
+import { PANEL_VIEW, fullPlate } from '../src/theme/panel.ts';
 
 type Ready = WorkCompile & { timeline: Timeline };
 
@@ -292,7 +292,7 @@ export async function targetsCommand(argv: string[]) {
       const when = at ? ` at ${fmtClock((frag.from + rel) / res.timeline!.fps)}` : ' at its start';
       if (frag.plate.type === 'replica') {
         appId = frag.plate.app;
-        props = { app: frag.plate.app, data: frag.plate.data, state, plate: res.timeline?.look === 'panel' ? PANEL_VIEW : undefined, caption: `scenes[${n}]${when} · state ${JSON.stringify(state)}` };
+        props = { app: frag.plate.app, data: frag.plate.data, state, plate: frag.lay === 'full' ? fullPlate(frag.ui) : res.timeline?.look === 'panel' ? PANEL_VIEW : undefined, caption: `scenes[${n}]${when} · state ${JSON.stringify(state)}` };
       } else props = { screen: { src: frag.plate.src, size: frag.plate.size, targets: frag.plate.targets }, caption: `scenes[${n}] screen plate ${frag.plate.size[0]}×${frag.plate.size[1]}` };
     } else {
       // edit.yaml does not compile (or the scene is not an app scene): fall back to its raw fields

@@ -23,22 +23,24 @@ type PlateAdapter = {
 };
 
 // `view` is the area the scene draws in: the whole frame, or the panel's viewport in the panel look.
-export const AppSceneView: React.FC<{ scene: AppScene; webcam?: WebcamMode; view?: [number, number] }> = ({ scene, webcam, view }) => {
+// `plate`: draw a replica at this design size instead (layout: full uses a smaller 16:9 plate, so the
+// camera enlarges it and its text is bigger than at 1920x1080).
+export const AppSceneView: React.FC<{ scene: AppScene; webcam?: WebcamMode; view?: [number, number]; plate?: [number, number] }> = ({ scene, webcam, view, plate }) => {
   if (scene.plate.type === 'replica') {
     const def = replicas[scene.plate.app];
     if (!def) return <Missing text={`Unknown replica "${scene.plate.app}". Known: ${Object.keys(replicas).join(', ')}`} />;
-    return <ReplicaPlate scene={scene} def={def} webcam={webcam} view={view} />;
+    return <ReplicaPlate scene={scene} def={def} webcam={webcam} view={view} plateSize={plate} />;
   }
   return <MediaPlate scene={scene} webcam={webcam} view={view} />;
 };
 
-const ReplicaPlate: React.FC<{ scene: AppScene; def: ReplicaDef; webcam?: WebcamMode; view?: [number, number] }> = ({ scene, def, webcam, view }) => {
+const ReplicaPlate: React.FC<{ scene: AppScene; def: ReplicaDef; webcam?: WebcamMode; view?: [number, number]; plateSize?: [number, number] }> = ({ scene, def, webcam, view, plateSize }) => {
   const plate = scene.plate as Extract<AppScene['plate'], { type: 'replica' }>;
   const data = useMemo(() => resolvePlateData(def, plate.data), [def, plate.data]);
   const base = def.defaults.state;
   const bounds = useMemo(() => stateBoundaries(scene), [scene]);
   const states = useMemo(() => bounds.map((_, i) => measureState(scene, base, bounds, i)), [scene, base, bounds]);
-  const size = view ? (def.panelSize ?? view) : def.size;
+  const size = plateSize ?? (view ? (def.panelSize ?? view) : def.size);
   const { rects, measurer } = useMeasuredTargets(def, data, states, size);
   const Comp = def.component;
   const adapter: PlateAdapter = {

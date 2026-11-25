@@ -48,7 +48,9 @@ export const StepBadgeLayer: React.FC<{ timeline: Timeline }> = ({ timeline }) =
   const mode = webcam[w]?.mode;
   const since = webcam[w] ? frame - webcam[w].frame : 0;
   const morph = msToFrames(450, fps);
-  const hide = mode === 'full' ? Math.min(1, since / morph) : w > 0 && webcam[w - 1].mode === 'full' ? 1 - Math.min(1, since / morph) : 0;
+  // On a hard cut (`layout: him`) it goes and comes back on the cut frame, with no fade.
+  const snapped = !!webcam[w]?.cut;
+  const hide = mode === 'full' ? (snapped ? 1 : Math.min(1, since / morph)) : w > 0 && webcam[w - 1].mode === 'full' && !snapped ? 1 - Math.min(1, since / morph) : 0;
   if (hide >= 1) return null;
 
   const total = Math.max(1, cur.total);

@@ -134,10 +134,54 @@ chapters:
 - Rows shrink to fit: about 8 tiles per row at full size. Keep titles to three or four words.
 - `label` and `group` are also accepted in the grid style (`label` then only changes the chapters file).
 
+### Three layouts, per scene: `layout: panel | full | him`
+
+The panel look no longer has to be the panel everywhere. Pick the layout by what the moment needs:
+
+| `layout:` | what the viewer sees | use it when |
+|---|---|---|
+| `panel` (default) | the visual in the left panel, the creator in the tile, the badge above | explaining while visuals build |
+| `full` | the visual fills the whole frame. No tile, no badge. The voice continues | the thing on screen is the point: a recreated window whose typed text must read on a phone, a finished clip, a proof capture, a comparison |
+| `him` | the creator full frame (the same as `webcam: full`) | a personal point, an opinion, a direct address. Keep it short (3 to 8 s) |
+
+```yaml
+scenes:
+  - { kind: talking, at: w0, layout: him }                       # him, full frame
+  - { kind: stage, at: "we do it", title: "Two levels" }         # panel
+  - kind: app                                                    # a replica on the whole frame
+    at: "type the prompt"
+    layout: full
+    app: claude-desktop
+    ui: 1.25                 # optional: how much bigger the window's UI draws than its design size (default 1.25)
+    data: { theme: light, stamp: Recreated }
+  - { kind: stage, at: "here is the proof", layout: full, elements: [ { type: image, src: media/proof.png, size: [1600, 900] } ] }
+  - { kind: talking, at: "and honestly", layout: him, transition: morph }   # the old blur-morph instead of a cut
+```
+
+- `full` works on every scene kind: `app` (replicas and screen plates), `stage` (images, videos, proof
+  cards, stories, any element), `talking` (its elements on the bare canvas), `plug`, `board`. `him` goes
+  on `talking` scenes; elements on it draw over the head, as with `webcam: full`.
+- **A layout switch is a hard cut.** Going panel → full, full → him, him → panel (any pair) cuts on the
+  scene's first frame: the head jumps instead of blur-morphing, the badge goes and comes back on that
+  frame, and an element that starts with the scene (or lasts to its end) is drawn complete on the cut
+  frame, so no frame of the switch is dark or half faded. `transition: morph` on the scene brings back
+  the 0.33 s blur dissolve and the webcam blur-morph; `transition: cut | blur | fade | flash` still work.
+- Two scenes in the same layout change as before (`blur` by default).
+- In `full` a replica draws on a 16:9 plate 1.25 times smaller than the frame and is enlarged to fill
+  it, so its text is a quarter bigger than at the 1920×1080 design size (body text about 29 px). Scene
+  `ui:` changes the factor (0.75 to 2). `camera: {scale, target}` still pushes in on top of that.
+  `screenplay targets` measures the same plate.
+- The badge is hidden in `full` and `him` and comes back in `panel` with the current chapter's heading.
+- A `stage` scene keeps `layout: hero-left | center` (reference look) on the same key.
+- `cut: hard` on a scene that uses plain `webcam: full` gives it the same hard cut (`cut: morph` is the
+  old behaviour, and the default for a scene with neither key).
+- Reference look: `layout: full` means `webcam: hidden`, `layout: him` means `webcam: full`.
+- Switch on a sentence boundary or the anchor word, not more than about once every 3 s.
+
 ## Scenes
 
-Every scene has `kind` and `at`. Optional on every scene: `transition:` (`blur | cut | flash | fade`, how
-this scene enters), and `webcam:` (above; in the reference look `full | pip | pip-right | pip-square |
+Every scene has `kind` and `at`. Optional on every scene: `layout:` (`panel | full | him`, above),
+`transition:` (`blur | cut | flash | fade | morph`, how this scene enters), and `webcam:` (above; in the reference look `full | pip | pip-right | pip-square |
 hero | plug | hidden`, with `pip-right` for scenes that point at a left sidebar).
 
 Reference-look defaults: `talking` → webcam `full`; `app` → `pip`; `stage` with layout `hero-left` → `hero`,
