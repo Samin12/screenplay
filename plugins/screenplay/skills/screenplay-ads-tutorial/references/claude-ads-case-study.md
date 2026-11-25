@@ -44,7 +44,7 @@ ran as one boss with parallel lanes.
 
 | What happened | Rule |
 |---|---|
-| The master was assembled with a lane file that was still being re-rendered. It happened more than once; the logged case cost a full re-assembly and a second Borumi rebuild | Pick a file up only when the handoff names it, `ffprobe` reads its full length, and its md5 is the same on two reads a minute apart |
+| The master was assembled with a lane file that was still being re-rendered. It cost a full re-assembly and a second Borumi rebuild | Pick a file up only when the handoff names it, `ffprobe` reads its full length, and its md5 is the same on two reads a minute apart |
 | A scene badge override added to the Level 2 build (a level badge over a section that was not a tip) made the badge drop the tip heading too early. The last review flagged it and the override was taken back out | A scene badge override is for sections after the last tip. Check the badge at every scene inside a chapter |
 | The room tone for two cards was cut from a window with a chuckle in it and looped | Room tone comes from a steady window with no transient. One shared tone for all inserted cards. Listen to every breather |
 | The first breathers were digital silence | Never insert silence. Always room tone |

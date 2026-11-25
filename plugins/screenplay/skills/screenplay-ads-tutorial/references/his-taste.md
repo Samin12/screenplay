@@ -3,7 +3,7 @@
 A checklist. Read it before planning and again before every hand-back.
 
 Four kinds of lines:
-- **In quotation marks**: his words to the editor, as recorded in the edit's rule files and run log.
+- **In quotation marks**: his words, as they reached the editor (lightly cleaned dictation).
 - **(relayed)**: the boss's log of a note from him. The meaning is his, the wording is not.
 - **(via the parent)**: a note that reached the boss through the session he works in. Treat it as his.
 - **(editor's rule)**: a rule the editors or reviewers made while serving his notes. Not his words.
@@ -28,12 +28,12 @@ Every rule he gave is quoted once, here. The other reference files point back to
   superlatives and all these other things, so everything flows naturally."
 - [ ] "There are some connecting words missing that make it a bit jarring… Like at 0:05, I would like to have
   something like 'Because Claude can now…'"
-- [ ] (relayed) Drop the whole "four steps" overview chapter. He gave no reason in the log. The editor's
-  reading, "one point once": the hook already said it and each level walks the steps anyway.
-- [ ] (relayed) The trimmed "like this one" joins in the hook are jarring. The editor's rule that came out
-  of it, "smooth flow beats the trim rule": keep the breath at every trim join, and put the phrase back
-  when the trim can be heard.
-- [ ] "is there nowhere I say level 2?" He wants each level named out loud and on screen. If he never said
+- [ ] "Cutting out the 4 steps portion will make more sense." The whole "four steps" overview chapter went.
+  (editor's reading) One point, once: the hook already said it and each level walks the steps anyway.
+- [ ] "This point and section isn't smooth, it jarringly cuts to 'and level three'… is there nowhere I say
+  next level or level 2?" (on a join left by trimming "like this one"). (editor's rule) Smooth flow beats
+  the trim rule: keep the breath at every trim join, and put the phrase back when the trim can be heard.
+  He wants each level named out loud and on screen. If he never said
   it, it goes on the pickup list; it is never synthesized.
 
 ## Proof
@@ -47,7 +47,8 @@ Every rule he gave is quoted once, here. The other reference files point back to
 ## The intro hook
 
 - [ ] "clearly show the cool AI Grandmaster videos."
-- [ ] (relayed) Clips play whole and big, each on its best moment. No tiny grid of moving thumbnails.
+- [ ] "When you're showing the videos in the intro, make sure they're actually in frame and we're seeing
+  the most impactful part." Clips play whole and big, each on its best moment. No tiny grid of thumbnails.
 - [ ] (relayed) Cut the filler pointer phrase when it adds nothing, but see "smooth flow" above.
 - [ ] (relayed) For the win, show the award footage, not his submissions, in this order: handover, the press
   headline, the finalists.
@@ -70,10 +71,13 @@ Every rule he gave is quoted once, here. The other reference files point back to
 
 ## Chapter cards
 
-- [ ] (relayed) Chapters need breathers, a progression grid, the titles embedded in the picture, and the
-  heading badge. In Borumi each card is its own scene named "Card · title".
-- [ ] (relayed) The card must not reveal everything: done chapters dimmed with their titles, the current one
-  revealed by a line that travels one step, upcoming ones locked with no title.
+- [ ] "For some reason the chapters have no little gaps where we can take a breath, like the screenplay
+  skill does it. Make sure to show that progression, and have those chapter titles embedded as well, and the
+  chapter headings." (via the parent) In Borumi each card is its own scene named "Card · title".
+- [ ] "You don't have to reveal the full thing. It could be, for example, a line that's traversing through,
+  only taking you to the next step, and maybe we can just see the stuff before it. Other stuff can stay
+  locked, like we do in the screenplay." So: done chapters dimmed with their titles, the current one revealed
+  by a line that travels one step, upcoming ones locked with no title.
 
 ## Sound
 
